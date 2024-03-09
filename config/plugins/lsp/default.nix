@@ -13,6 +13,8 @@
         installCargo = true;
         installRustc = true;
       };
+
+      lua-ls.enable = true;
     };
     onAttach = ''
       do
