@@ -3,6 +3,6 @@
   imports = [
     ./plugins
     ./colourschemes
-    ./utils
+    ./options
   ];
 }
