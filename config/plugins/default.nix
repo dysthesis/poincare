@@ -4,5 +4,6 @@
     ./ui
     ./completion
     ./utils
+    ./languages
   ];
 }
