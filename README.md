@@ -1,17 +1,3 @@
-# Nixvim template
+# Poincare: Yet another Neovim flake
 
-This template gives you a good starting point for configuring nixvim standalone.
-
-## Configuring
-
-To start configuring, just add or modify the nix files in `./config`.
-If you add a new configuration file, remember to add it to the
-[`config/default.nix`](./config/default.nix) file
-
-## Testing your new configuration
-
-To test your configuration simply run the following command
-
-```
-nix run .
-```
+This is a flake that contains my personal Neovim configurations. It is built on top of [https://github.com/nix-community/nixvim/blob/main/example.nix](Nixvim).
