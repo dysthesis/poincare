@@ -5,7 +5,7 @@
       nil_ls.enable = true;
       nixd = {
         enable = true;
-        formatting.command = "${pkgs.alejandra}/bin/alejandra";
+        settings.formatting.command = "${pkgs.alejandra}/bin/alejandra";
       };
     };
   };
