@@ -1,65 +1,68 @@
 {
   plugins = {
-    nvim-cmp = {
+    cmp = {
       enable = true;
-      experimental = {
-        ghost_text = true;
-      };
-      formatting = {
-        fields = ["kind" "abbr" "menu"];
-        expandableIndicator = true;
-      };
-      snippet.expand = "luasnip";
-      mappingPresets = ["insert"];
-      window = {
-        completion = {
-          border = "rounded";
-          winhighlight = "Normal:Normal,FloatBorder:FloatBorder,CursorLine:Visual,Search:None";
+      settings = {
+        experimental = {
+          ghost_text = true;
         };
-        documentation = {
-          border = "rounded";
+
+        mapping = {
+          "<Return>" = "cmp.mapping.confirm({ select = true })";
         };
-      };
-      sources = [
-        {
-          name = "nvim_lsp";
-          groupIndex = 1;
-          priority = 3;
-        }
-        {
-          name = "luasnip";
-          option = {
-            show_autosnippets = true;
+
+        sources = [
+          {
+            name = "nvim_lsp";
+            groupIndex = 1;
+            priority = 3;
+          }
+          {
+            name = "luasnip";
+            option = {
+              show_autosnippets = true;
+            };
+            groupIndex = 1;
+            priority = 5;
+          }
+          {
+            name = "path";
+            groupIndex = 1;
+          }
+          {
+            name = "buffer";
+            groupIndex = 2;
+            priority = 2;
+          }
+        ];
+
+        formatting = {
+          fields = ["kind" "abbr" "menu"];
+          expandableIndicator = true;
+        };
+
+        window = {
+          completion = {
+            border = "rounded";
+            winhighlight = "Normal:Normal,FloatBorder:FloatBorder,CursorLine:Visual,Search:None";
           };
-          groupIndex = 1;
-          priority = 5;
-        }
-        {
-          name = "path";
-          groupIndex = 1;
-        }
-        {
-          name = "buffer";
-          groupIndex = 2;
-          priority = 2;
-        }
-      ];
-      mapping = {
-        "<Return>" = {
-          modes = ["i" "s"];
-          action = "cmp.mapping.confirm({ select = true })";
+          documentation = {
+            border = "rounded";
+          };
         };
       };
     };
+
     lspkind = {
       enable = true;
     };
+
     cmp-nvim-lsp = {enable = true;}; # lsp
     cmp-buffer = {enable = true;};
     cmp-path = {enable = true;}; # file system paths
     cmp_luasnip = {enable = true;}; # snippets
-    cmp-cmdline = {enable = true;}; # autocomplete for cmdline
   };
+
   extraConfigLua = ''
       kind_icons = {
         Text = "󰊄",

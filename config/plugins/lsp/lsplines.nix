@@ -1,0 +1,3 @@
+{
+	plugins.lsplines.enable = true;
+}

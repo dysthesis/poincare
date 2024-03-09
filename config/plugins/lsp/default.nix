@@ -28,5 +28,6 @@
   '';
   imports = [
     ./lsp-format.nix
+    ./lsplines.nix
   ];
 }
