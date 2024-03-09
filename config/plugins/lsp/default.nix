@@ -7,6 +7,26 @@
         enable = true;
         settings.formatting.command = "${pkgs.alejandra}/bin/alejandra";
       };
+      rust-analyzer = {
+        enable = true;
+        installCargo = true;
+        installRustc = true;
+        settings = {
+          checkOnSave = true;
+          check = {
+            command = "clippy";
+          };
+          # inlayHints = {
+          #   enable = true;
+          #   showParameterNames = true;
+          #   parameterHintsPrefix = "<- ";
+          #   otherHintsPrefix = "=> ";
+          # };
+          procMacro = {
+            enable = true;
+          };
+        };
+      };
     };
     onAttach = ''
       do
@@ -88,5 +108,7 @@
     ./lsp-format.nix
     ./lsplines.nix
     ./none-ls.nix
+    ./trouble.nix
+    ./lspsaga.nix
   ];
 }
