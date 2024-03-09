@@ -8,7 +8,7 @@
         };
 
         mapping = {
-          "<Return>" = "cmp.mapping.confirm({ select = true }), {'i', 's'}";
+          "<Return>" = "cmp.mapping.confirm({ select = true }, {'i', 's'})";
           "<Tab>" = "cmp.mapping(cmp.mapping.select_next_item(), {'i', 's'})";
         };
 
