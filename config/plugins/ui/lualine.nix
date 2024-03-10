@@ -17,8 +17,8 @@
     ];
 
     componentSeparators = {
-      left = null;
-      right = null;
+      left = "|";
+      right = "|";
     };
 
     sections = {
