@@ -8,6 +8,8 @@
       statix = {
         enable = true;
       };
+      deadnix.enable = true;
+      gitlint.enable = true;
       luacheck = {
         enable = true;
       };

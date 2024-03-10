@@ -12,6 +12,11 @@
         enable = true;
         installCargo = true;
         installRustc = true;
+
+        settings = {
+          checkOnSave = true;
+          check.command = "clippy";
+        };
       };
 
       lua-ls.enable = true;

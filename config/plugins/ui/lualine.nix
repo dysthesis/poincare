@@ -6,33 +6,37 @@
 {
   plugins.lualine = {
     enable = true;
-    alwaysDivideMiddle = true;
-    globalstatus = true;
-    ignoreFocus = ["neo-tree"];
-    extensions = ["fzf"];
-    theme = "auto";
+    extensions = [
+      "fzf"
+      "nvim-dap-ui"
+      "symbols-outline"
+      "trouble"
+      "neo-tree"
+      "quickfix"
+      "fugitive"
+    ];
+
     componentSeparators = {
-      left = "|";
-      right = "|";
+      left = null;
+      right = null;
     };
-    sectionSeparators = {
-      left = "";
-      right = "";
-    };
+
     sections = {
       lualine_a = ["mode"];
-      lualine_b = [
-        {
-          name = "branch";
-          icon = "";
-        }
-        "diff"
-        "diagnostics"
-      ];
-      lualine_c = ["filename"];
-      lualine_x = ["filetype"];
+      lualine_b = ["branch" "filename"];
+      lualine_c = ["diff" "diagnostics"];
+      lualine_x = ["encoding" "fileformat" "filetype"];
       lualine_y = ["progress"];
-      lualine_z = [''" " .. os.date("%R")''];
+      lualine_z = ["location"];
+    };
+
+    inactiveSections = {
+      lualine_a = ["filename"];
+      lualine_b = [];
+      lualine_c = ["diagnostics"];
+      lualine_x = [];
+      lualine_y = [];
+      lualine_z = ["location"];
     };
   };
 }
