@@ -5,5 +5,6 @@
     ./telescope.nix
     ./dashboard.nix
     ./git
+		./harpoon.nix
   ];
 }
