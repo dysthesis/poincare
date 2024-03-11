@@ -10,7 +10,6 @@
         # Show a preview of nvim-cmp's autocompletion as 'ghost text'
         experimental = {
           ghost_text = true;
-          native_menu = true;
         };
 
         mapping = {
