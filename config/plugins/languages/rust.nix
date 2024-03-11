@@ -1,5 +1,85 @@
 {
-  plugins.rust-tools = {
-    enable = true;
+  plugins = {
+    rustaceanvim = {
+      enable = true;
+      dap.autoloadConfigurations = true;
+      tools = {
+        executor = "toggleterm";
+        onInitialized = ''
+          function()
+          	vim.notify("successfully initialised rust-analyzer")
+          end
+        '';
+      };
+      extraOptions = {
+        auto_focus = true;
+      };
+    };
+
+    # Define the keymaps to which-key
+    which-key = {
+      registrations = {
+        "<leader>a" = "Rust action";
+        "<leader>fr" = {
+          name = "+Rust";
+          r = "Find Rust runnables";
+          t = "Find Rust testables";
+          d = "Find Rust debuggables";
+          a = "Run last Rust test";
+        };
+      };
+    };
   };
+
+  keymaps = [
+    {
+      action = ''
+        function()
+        	vim.cmd.RustLsp('codeAction')
+        end
+      '';
+      key = "<leader>a";
+      mode = "n";
+      options = {
+        desc = "Rust action";
+        silent = true;
+      };
+    }
+    {
+      action = ":RustLsp runnables<CR>";
+      key = "<leader>frr";
+      mode = "n";
+      options = {
+        desc = "Find Rust runnables";
+        silent = true;
+      };
+    }
+    {
+      action = ":RustLsp testables<CR>";
+      key = "<leader>frt";
+      mode = "n";
+      options = {
+        desc = "Find Rust testables";
+        silent = true;
+      };
+    }
+    {
+      action = ":RustLsp debuggables<CR>";
+      key = "<leader>frd";
+      mode = "n";
+      options = {
+        desc = "Find Rust debuggables";
+        silent = true;
+      };
+    }
+    {
+      action = ":RustLsp testables last<CR>";
+      key = "<leader>fra";
+      mode = "n";
+      options = {
+        desc = "Run last Rust test";
+        silent = true;
+      };
+    }
+  ];
 }
