@@ -19,7 +19,6 @@
       code_actions = {
         gitsigns.enable = true;
         statix.enable = true;
-        shellcheck.enable = true;
       };
 
       formatting = {
