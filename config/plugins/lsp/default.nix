@@ -8,16 +8,17 @@
         settings.formatting.command = "${pkgs.alejandra}/bin/alejandra";
       };
 
-      rust-analyzer = {
-        enable = true;
-        installCargo = true;
-        installRustc = true;
-
-        settings = {
-          checkOnSave = true;
-          check.command = "clippy";
-        };
-      };
+      # I don't think you're supposed to have this enabled if you use rust-tools/rustaceanvim
+      # rust-analyzer = {
+      # enable = true;
+      # installCargo = true;
+      # installRustc = true;
+      #
+      # settings = {
+      # checkOnSave = true;
+      # check.command = "clippy";
+      # };
+      # };
 
       lua-ls.enable = true;
     };
