@@ -5,7 +5,11 @@
       autoEnableSources = true;
 
       settings = {
-        snippet.expand = "luasnip";
+        snippet.expand = ''
+          function(args)
+            require('luasnip').lsp_expand(args.body)
+          end
+        '';
 
         # Show a preview of nvim-cmp's autocompletion as 'ghost text'
         experimental = {
