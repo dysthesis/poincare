@@ -2,7 +2,7 @@
   plugins.illuminate = {
     enable = true;
     underCursor = false;
-    filetypeOptions.filetypesDenyList = [
+    filetypesDenylist = [
       "DressingSelect"
       "Outline"
       "TelescopePrompt"
