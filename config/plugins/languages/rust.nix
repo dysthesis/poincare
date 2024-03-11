@@ -2,7 +2,18 @@
   plugins = {
     rustaceanvim = {
       enable = true;
-      dap.autoloadConfigurations = true;
+
+      # Configuration for rust-analyzer itself
+      # Taken from: https://github.com/traxys/Nixfiles/blob/master/neovim/default.nix
+      server = {
+        settings = {
+          cargo.features = "all";
+          checkOnSave = true;
+          check.command = "clippy";
+          rustc.source = "discover";
+        };
+      };
+
       tools = {
         executor = "toggleterm";
         onInitialized = ''
@@ -30,6 +41,8 @@
       };
     };
 
+    # Completion for crates in Cargo.toml, as well as some other
+    # relevant UI stuff
     crates-nvim.enable = true;
   };
 
