@@ -46,6 +46,11 @@
     crates-nvim.enable = true;
   };
 
+  extraPlugins = with pkgs.vimPlugins; [
+    rust-vim
+    neotest
+  ];
+
   keymaps = [
     {
       action = ''
@@ -98,7 +103,6 @@
     }
   ];
 
-  extraPlugins = with pkgs.vimPlugins; [neotest];
   extraConfigLua = ''
     require("neotest").setup({
     	adapters = {
