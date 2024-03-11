@@ -21,15 +21,7 @@
           "<Return>" = "cmp.mapping.confirm({ select = true }, {'i', 's'})";
           "<Tab>" = ''
             cmp.mapping(
-              function(fallback)
-                if cmp.visible() then
-                  cmp.select_next_item()
-                elseif luasnip.expand_or_jumpable() then
-                  luasnip.expand_or_jump()
-                else
-                  fallback()
-                end
-              end,
+              cmp.mapping.select_next_item(),
               { 'i', 's' }
             )
           '';
