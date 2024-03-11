@@ -6,6 +6,7 @@
     ./dashboard.nix
     ./git
     ./dap.nix
-		./harpoon.nix
+    ./harpoon.nix
+    ./illuminate.nix
   ];
 }
