@@ -2,6 +2,7 @@
   plugins.lsp = {
     enable = true;
     servers = {
+      bashls.enable = true;
       nil_ls.enable = true;
       nixd = {
         enable = true;

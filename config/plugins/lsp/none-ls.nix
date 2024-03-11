@@ -1,7 +1,7 @@
 {
   plugins.none-ls = {
     enable = true;
-    enableLspFormat = true;
+    enableLspFormat = false;
     updateInInsert = false;
 
     diagnosticConfig = {
@@ -21,10 +21,17 @@
         statix.enable = true;
       };
 
+      diagnostics = {
+        checkstyle.enable = true;
+        statix.enable = true;
+        luacheck.enable = true;
+      };
+
       formatting = {
         alejandra = {
           enable = true;
         };
+        rustfmt.enable = true;
       };
     };
   };

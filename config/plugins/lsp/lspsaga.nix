@@ -31,7 +31,7 @@
       };
     };
     lightbulb = {
-      enable = false;
+      enable = true;
       sign = false;
       virtualText = true;
     };

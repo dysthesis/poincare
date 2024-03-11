@@ -8,5 +8,7 @@
     ./dap.nix
     ./harpoon.nix
     ./illuminate.nix
+    ./comment-nvim.nix
+    ./conform.nix
   ];
 }
