@@ -19,18 +19,12 @@
       code_actions = {
         gitsigns.enable = true;
         statix.enable = true;
-      };
-
-      diagnostics = {
-        checkstyle.enable = true;
-        statix.enable = true;
-        luacheck.enable = true;
+        shellcheck.enable = true;
       };
 
       formatting = {
-        alejandra = {
-          enable = true;
-        };
+        alejandra.enable = true;
+        markdownlint.enable = true;
         rustfmt.enable = true;
       };
     };
