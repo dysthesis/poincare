@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   plugins.luasnip = {
     enable = true;
-    extraCOnfig = {
+    extraConfig = {
       enable_autosnippets = true;
       store_selection_keys = "<Tab>";
     };
