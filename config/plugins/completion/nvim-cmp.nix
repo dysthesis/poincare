@@ -2,7 +2,11 @@
   plugins = {
     cmp = {
       enable = true;
+
       settings = {
+        snippet.expand = "luasnip";
+
+        # Show a preview of nvim-cmp's autocompletion as 'ghost text'
         experimental = {
           ghost_text = true;
         };
