@@ -1,0 +1,3 @@
+{
+  notify.enable = true;
+}
