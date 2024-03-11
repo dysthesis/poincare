@@ -2,6 +2,7 @@
   plugins = {
     cmp = {
       enable = true;
+      autoEnableSources = true;
 
       settings = {
         snippet.expand = "luasnip";
@@ -9,6 +10,7 @@
         # Show a preview of nvim-cmp's autocompletion as 'ghost text'
         experimental = {
           ghost_text = true;
+          native_menu = true;
         };
 
         mapping = {
@@ -17,27 +19,12 @@
         };
 
         sources = [
-          {
-            name = "nvim_lsp";
-            groupIndex = 1;
-            priority = 3;
-          }
+          {name = "path";}
+          {name = "nvim_lua";}
+          {name = "nvim_lsp";}
           {
             name = "luasnip";
-            option = {
-              show_autosnippets = true;
-            };
-            groupIndex = 1;
-            priority = 5;
-          }
-          {
-            name = "path";
-            groupIndex = 1;
-          }
-          {
-            name = "buffer";
-            groupIndex = 2;
-            priority = 2;
+            option.show_autosnippets = true;
           }
         ];
 

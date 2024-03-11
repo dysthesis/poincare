@@ -5,5 +5,6 @@
     ./completion
     ./utils
     ./languages
+    ./snippets
   ];
 }
