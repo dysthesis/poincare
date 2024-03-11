@@ -14,8 +14,8 @@
 
         mapping = {
           "<Return>" = "cmp.mapping.confirm({ select = true }, {'i', 's'})";
-          "<Tab>" = {
-            action = ''
+          "<Tab>" = ''
+            cmp.mapping(
               function(fallback)
                 if cmp.visible() then
                   cmp.select_next_item()
@@ -28,10 +28,10 @@
                 else
                   fallback()
                 end
-              end
-            '';
-            modes = ["i" "s"];
-          };
+              end,
+              { 'i', 's' }
+            )
+          '';
         };
 
         sources = [
