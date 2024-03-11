@@ -1,4 +1,4 @@
-{
+{pkgs, ...}: {
   plugins = {
     rustaceanvim = {
       enable = true;
@@ -82,4 +82,13 @@
       };
     }
   ];
+
+  extraPlugins = with pkgs.vimPlugins; [neotest];
+  extraConfigLua = ''
+    require("neotest").setup({
+    	adapters = {
+    		require('rustaceanvim.neotest')
+    	}
+    })
+  '';
 }
