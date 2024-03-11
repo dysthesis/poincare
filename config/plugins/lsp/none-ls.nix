@@ -24,7 +24,6 @@
       formatting = {
         alejandra.enable = true;
         markdownlint.enable = true;
-        rustfmt.enable = true;
       };
     };
   };
