@@ -5,7 +5,7 @@
       bashls.enable = true;
       nil_ls = {
         enable = true;
-        settings.formatting.command = "${pkgs.alejandra}/bin/alejandra";
+        settings.formatting.command = ["${pkgs.alejandra}/bin/alejandra"];
       };
 
       # I don't think you're supposed to have this enabled if you use rust-tools/rustaceanvim
