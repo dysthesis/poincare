@@ -13,7 +13,7 @@
           rustc.source = "discover";
           inlayHints = {
             lifetimeElisionHints = {
-              enable = true;
+              enable = "always";
               useParameterNames = true;
             };
           };
