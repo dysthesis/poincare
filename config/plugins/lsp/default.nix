@@ -3,8 +3,7 @@
     enable = true;
     servers = {
       bashls.enable = true;
-      nil_ls.enable = true;
-      nixd = {
+      nil_ls = {
         enable = true;
         settings.formatting.command = "${pkgs.alejandra}/bin/alejandra";
       };
