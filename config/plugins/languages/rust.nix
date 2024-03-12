@@ -11,6 +11,12 @@
           checkOnSave = true;
           check.command = "clippy";
           rustc.source = "discover";
+          inlayHints = {
+            lifetimeElisionHints = {
+              enable = true;
+              useParameterNames = true;
+            };
+          };
         };
       };
 
