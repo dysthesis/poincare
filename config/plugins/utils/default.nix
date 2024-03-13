@@ -10,5 +10,6 @@
     ./illuminate.nix
     ./comment-nvim.nix
     ./conform.nix
+    ./ollama.nix
   ];
 }
