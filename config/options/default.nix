@@ -1,6 +1,6 @@
 {
   config = {
-    options = {
+    opts = {
       autoindent = true;
       cursorline = true;
       tabstop = 2;
