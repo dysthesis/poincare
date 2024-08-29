@@ -6,11 +6,12 @@ require('lz.n').load {
   end,
   after = function()
     vim.opt.laststatus = 3
+
     require('lualine').setup {
       options = {
         component_separators = '',
         section_separators = { right = '', left = '' },
-        disabled_filetypes = { 'alpha', 'neo-tree', 'FZF' },
+        disabled_filetypes = { 'alpha', 'neo-tree', 'FzfLua' },
       },
       sections = {
         lualine_a = {

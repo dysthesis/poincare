@@ -83,6 +83,7 @@ with final.pkgs.lib; let
 
       lualine-nvim
       conform-nvim
+      trouble-nvim
     ]
     ++ mapPlugins "plugin-lazy";
 
