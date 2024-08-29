@@ -40,6 +40,9 @@ with final.pkgs.lib; let
     twilight-nvim
     actions-preview-nvim
     zk-nvim
+    comment-nvim
+    nvim-surround
+    neogit
 
     inc-rename-nvim
     ultimate-autopair-nvim

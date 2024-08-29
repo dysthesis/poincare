@@ -15,6 +15,7 @@ require('lz.n').load {
     telescope.setup {
       defaults = {
         prompt_prefix = '   ',
+        selection_caret = '  ',
       },
       extensions = {
         fzf = {
