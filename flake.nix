@@ -20,7 +20,7 @@
       url = "github:OXY2DEV/helpview.nvim";
       flake = false;
     };
-    "plugin-lazy:ultimate-autopair.nvim" = {
+    "plugin:ultimate-autopair.nvim" = {
       url = "github:altermo/ultimate-autopair.nvim";
       flake = false;
     };

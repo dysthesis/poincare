@@ -131,22 +131,6 @@
         "type": "github"
       }
     },
-    "plugin-lazy:ultimate-autopair.nvim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1724317727,
-        "narHash": "sha256-t51hB9ZjpOdhdOItXpf+dpvCZsdKpustSUiXS3UIwdY=",
-        "owner": "altermo",
-        "repo": "ultimate-autopair.nvim",
-        "rev": "53ed7c65e466963c916251f9ce6df7dd3685dc36",
-        "type": "github"
-      },
-      "original": {
-        "owner": "altermo",
-        "repo": "ultimate-autopair.nvim",
-        "type": "github"
-      }
-    },
     "plugin:lzn-auto-require": {
       "flake": false,
       "locked": {
@@ -163,6 +147,22 @@
         "type": "github"
       }
     },
+    "plugin:ultimate-autopair.nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1724317727,
+        "narHash": "sha256-t51hB9ZjpOdhdOItXpf+dpvCZsdKpustSUiXS3UIwdY=",
+        "owner": "altermo",
+        "repo": "ultimate-autopair.nvim",
+        "rev": "53ed7c65e466963c916251f9ce6df7dd3685dc36",
+        "type": "github"
+      },
+      "original": {
+        "owner": "altermo",
+        "repo": "ultimate-autopair.nvim",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -170,8 +170,8 @@
         "nixpkgs": "nixpkgs_2",
         "plugin-lazy:helpview.nvim": "plugin-lazy:helpview.nvim",
         "plugin-lazy:markview.nvim": "plugin-lazy:markview.nvim",
-        "plugin-lazy:ultimate-autopair.nvim": "plugin-lazy:ultimate-autopair.nvim",
-        "plugin:lzn-auto-require": "plugin:lzn-auto-require"
+        "plugin:lzn-auto-require": "plugin:lzn-auto-require",
+        "plugin:ultimate-autopair.nvim": "plugin:ultimate-autopair.nvim"
       }
     },
     "systems": {
