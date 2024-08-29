@@ -4,8 +4,8 @@ local opt = vim.o
 local g = vim.g
 
 -- <leader> key. Defaults to `\`. Some people prefer space.
--- g.mapleader = ' '
--- g.maplocalleader = ' '
+g.mapleader = ' '
+g.maplocalleader = ' '
 
 opt.compatible = false
 
@@ -22,9 +22,10 @@ opt.path = vim.o.path .. '**'
 opt.number = true
 opt.relativenumber = true
 opt.cursorline = true
-opt.lazyredraw = true
+-- opt.lazyredraw = true -- note: this causes problems with noice
 opt.showmatch = true -- Highlight matching parentheses, etc
 opt.incsearch = true
+opt.inccommand = 'split'
 opt.hlsearch = true
 
 opt.spell = true

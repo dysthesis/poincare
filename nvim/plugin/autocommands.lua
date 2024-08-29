@@ -62,9 +62,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
     local bufnr = ev.buf
     local client = vim.lsp.get_client_by_id(ev.data.client_id)
 
-    -- Attach plugins
-    require('nvim-navic').attach(client, bufnr)
-
     vim.cmd.setlocal('signcolumn=yes')
     vim.bo[bufnr].bufhidden = 'hide'
 
@@ -80,7 +77,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     keymap.set('n', '<space>pd', peek_definition, desc('lsp [p]eek [d]efinition'))
     keymap.set('n', '<space>pt', peek_type_definition, desc('lsp [p]eek [t]ype definition'))
     keymap.set('n', 'gi', vim.lsp.buf.implementation, desc('lsp [g]o to [i]mplementation'))
-    keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, desc('[lsp] signature help'))
+    keymap.set('n', 'K', vim.lsp.buf.signature_help, desc('[lsp] signature help'))
     keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, desc('lsp add [w]orksp[a]ce folder'))
     keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, desc('lsp [w]orkspace folder [r]emove'))
     keymap.set('n', '<space>wl', function()
@@ -93,9 +90,9 @@ vim.api.nvim_create_autocmd('LspAttach', {
     keymap.set('n', '<M-l>', vim.lsp.codelens.run, desc('[lsp] run code lens'))
     keymap.set('n', '<space>cr', vim.lsp.codelens.refresh, desc('lsp [c]ode lenses [r]efresh'))
     keymap.set('n', 'gr', vim.lsp.buf.references, desc('lsp [g]et [r]eferences'))
-    keymap.set('n', '<space>f', function()
-      vim.lsp.buf.format { async = true }
-    end, desc('[lsp] [f]ormat buffer'))
+    -- keymap.set('n', '<space>f', function()
+    --   vim.lsp.buf.format { async = true }
+    -- end, desc('[lsp] [f]ormat buffer'))
     if client and client.server_capabilities.inlayHintProvider then
       keymap.set('n', '<space>h', function()
         local current_setting = vim.lsp.inlay_hint.is_enabled { bufnr = bufnr }

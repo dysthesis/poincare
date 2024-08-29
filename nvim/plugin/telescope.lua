@@ -1,11 +1,6 @@
 require('lz.n').load {
   'telescope.nvim',
   cmd = 'Telescope',
-  load = function(name)
-    vim.cmd.packadd(name)
-    vim.cmd.packadd('telescope-ui-select.nvim')
-    vim.cmd.packadd('telescope-fzf-native.nvim')
-  end,
   keys = {
     -- Searching
     { '<leader>fb', '<cmd>Telescope buffers<cr>', desc = '[F]ind [B]uffers' },
@@ -16,7 +11,12 @@ require('lz.n').load {
     { '<leader>fg', '<cmd>Telescope live_grep<cr>', desc = '[F]ind [G]rep' },
   },
   after = function()
-    require('telescope').setup {
+    local telescope = require('telescope')
+    telescope.setup {
+      defaults = {
+        prompt_prefix = '   ',
+        selection_caret = ' ❯',
+      },
       extensions = {
         fzf = {
           fuzzy = true, -- false will only do exact matching
@@ -25,9 +25,15 @@ require('lz.n').load {
           case_mode = 'smart_case', -- or "ignore_case" or "respect_case"
           -- the default case_mode is "smart_case"
         },
+        extensions = {
+          ['ui-select'] = {
+            require('telescope.themes').get_dropdown(),
+          },
+        },
       },
     }
-    require('telescope').load_extension('fzf')
-    require('telescope').load_extension('ui-select')
+
+    telescope.load_extension('fzf')
+    telescope.load_extension('ui-select')
   end,
 }
