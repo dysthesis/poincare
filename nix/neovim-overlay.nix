@@ -90,6 +90,9 @@ with final.pkgs.lib; let
     [
       nvim-treesitter.withAllGrammars
 
+      # Colourscheme
+      catppuccin-nvim
+
       # git integration plugins
       diffview-nvim # https://github.com/sindrets/diffview.nvim/
       gitsigns-nvim # https://github.com/lewis6991/gitsigns.nvim/
@@ -129,9 +132,6 @@ with final.pkgs.lib; let
 
       # (mkNvimPlugin inputs.wf-nvim "wf.nvim") # (example) keymap hints | https://github.com/Cassin01/wf.nvim
       which-key-nvim
-
-      # Colourscheme
-      catppuccin-nvim
 
       # Lazy loading
       lz-n
