@@ -21,6 +21,7 @@ require('lz.n').load {
       formatters_by_ft = {
         lua = { 'stylua' },
         markdown = { 'markdownlint' },
+        nix = { 'alejandra' },
       },
     }
   end,
