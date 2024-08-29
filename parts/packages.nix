@@ -2,15 +2,12 @@
   inputs,
   lib,
   ...
-}: {
-  perSystem = {
-    system,
-    ...
-  }: let
-    neovim-overlay = import ../nix/neovim-overlay.nix {
-      inherit lib inputs;
-    };
-
+}: let
+  neovim-overlay = import ../nix/neovim-overlay.nix {
+    inherit lib inputs;
+  };
+in {
+  perSystem = {system, ...}: let
     pkgs = import inputs.nixpkgs {
       inherit system;
       overlays = [
@@ -24,4 +21,5 @@
       nvim = pkgs.nvim-pkg;
     };
   };
+  flake.overlays.default = neovim-overlay;
 }
