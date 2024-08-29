@@ -41,9 +41,10 @@ with final.pkgs.lib; let
   lazy-plugins = with pkgs.vimPlugins;
     [
       harpoon2
-      telescope-nvim
-      telescope-fzf-native-nvim
-      telescope-ui-select-nvim
+      fzf-lua
+      # telescope-nvim
+      # telescope-fzf-native-nvim
+      # telescope-ui-select-nvim
       flash-nvim
       zen-mode-nvim
       twilight-nvim

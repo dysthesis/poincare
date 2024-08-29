@@ -5,7 +5,7 @@ require('lz.n').load {
   after = function()
     require('neogit').setup {
       integrations = {
-        telescope = true,
+        -- telescope = true,
         diffview = true,
       },
     }

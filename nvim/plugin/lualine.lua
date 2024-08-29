@@ -10,7 +10,7 @@ require('lz.n').load {
       options = {
         component_separators = '',
         section_separators = { right = '', left = '' },
-        disabled_filetypes = { 'alpha', 'neo-tree', 'TelescopePrompt' },
+        disabled_filetypes = { 'alpha', 'neo-tree', 'FZF' },
       },
       sections = {
         lualine_a = {
