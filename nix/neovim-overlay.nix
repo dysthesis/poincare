@@ -102,6 +102,9 @@ with final.pkgs.lib; let
       # (mkNvimPlugin inputs.wf-nvim "wf.nvim") # (example) keymap hints | https://github.com/Cassin01/wf.nvim
       which-key-nvim
 
+      # Colourscheme
+      catppuccin-nvim
+
       # Lazy loading
       lz-n
     ]

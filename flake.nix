@@ -8,10 +8,10 @@
 
     # Add bleeding-edge plugins here.
     # They can be updated with `nix flake update` (make sure to commit the generated flake.lock)
-    # wf-nvim = {
-    #   url = "github:Cassin01/wf.nvim";
-    #   flake = false;
-    # };
+    "plugin:lzn-auto-require" = {
+      url = "github:horriblename/lzn-auto-require";
+      flake = false;
+    };
   };
 
   outputs = inputs @ {
@@ -27,9 +27,10 @@
       "x86_64-darwin"
       "aarch64-darwin"
     ];
+      lib = import ./lib inputs.nixpkgs.lib;
 
     # This is where the Neovim derivation is built.
-    neovim-overlay = import ./nix/neovim-overlay.nix {inherit inputs;};
+    neovim-overlay = import ./nix/neovim-overlay.nix {inherit inputs lib;};
   in
     flake-utils.lib.eachSystem supportedSystems (system: let
       pkgs = import nixpkgs {

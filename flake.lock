@@ -99,11 +99,28 @@
         "type": "github"
       }
     },
+    "plugin:lzn-auto-require": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1724239920,
+        "narHash": "sha256-wNtja4vbfzgVwVh8fw6cfTHxcxPOqr6z4nl5Fjj2d0I=",
+        "owner": "horriblename",
+        "repo": "lzn-auto-require",
+        "rev": "c74fa9be2203438aab7fd132310abdb181426c66",
+        "type": "github"
+      },
+      "original": {
+        "owner": "horriblename",
+        "repo": "lzn-auto-require",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
         "gen-luarc": "gen-luarc",
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs_2",
+        "plugin:lzn-auto-require": "plugin:lzn-auto-require"
       }
     },
     "systems": {
