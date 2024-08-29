@@ -2,7 +2,7 @@
 {
   inputs,
   lib,
-}: final: prev:
+}: final: _prev:
 with final.pkgs.lib; let
   inherit (lib.nvim.plugin) fromInputs;
   inherit (lib.attrsets) attrNames;

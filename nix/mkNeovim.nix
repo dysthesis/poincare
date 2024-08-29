@@ -24,8 +24,8 @@ with lib;
     # The below arguments can typically be left as their defaults
     # Additional lua packages (not plugins), e.g. from luarocks.org.
     # e.g. p: [p.jsregexp]
-    extraLuaPackages ? p: [],
-    extraPython3Packages ? p: [], # Additional python 3 packages
+    extraLuaPackages ? _p: [],
+    extraPython3Packages ? _p: [], # Additional python 3 packages
     withPython3 ? true, # Build Neovim with Python 3 support?
     withRuby ? false, # Build Neovim with Ruby support?
     withNodeJs ? false, # Build Neovim with NodeJS support?
@@ -74,7 +74,7 @@ with lib;
       lib.cleanSourceWith {
         inherit src;
         name = "nvim-rtp-src";
-        filter = path: tyoe: let
+        filter = path: _tyoe: let
           srcPrefix = toString src + "/";
           relPath = lib.removePrefix srcPrefix (toString path);
         in
