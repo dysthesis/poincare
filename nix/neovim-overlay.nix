@@ -39,14 +39,9 @@ with final.pkgs.lib; let
     ultimate-autopair-nvim
     undotree
     neo-tree-nvim
-    {
-      plugin = todo-comments-nvim;
-      deps = [
-        plenary-nvim
-        nvim-web-devicons
-        nui-nvim
-      ];
-    }
+
+    todo-comments-nvim
+
     noice-nvim
     luasnip # snippets | https://github.com/l3mon4d3/luasnip/
 
@@ -62,16 +57,16 @@ with final.pkgs.lib; let
     cmp-cmdline # cmp command line suggestions
     cmp-cmdline-history # cmp command line history suggestions
     # ^ nvim-cmp extensions
+    nvim-lspconfig
+    lspsaga-nvim
+    friendly-snippets
 
     vim-tmux-navigator
 
-    {
-      # Status line | https://github.com/nvim-lualine/lualine.nvim/
-      plugin = lualine-nvim;
-      deps = [
-        nvim-web-devicons
-      ];
-    }
+    lualine-nvim
+
+    (mkNvimPlugin inputs."markview.nvim" "markview.nvim")
+    (mkNvimPlugin inputs."helpview.nvim" "helpview.nvim")
   ];
 
   all-plugins = with pkgs.vimPlugins;
@@ -108,10 +103,11 @@ with final.pkgs.lib; let
       # ^ Useful utilities
 
       # libraries that other plugins depend on
-      # sqlite-lua
-      # plenary-nvim
-      # nvim-web-devicons
-      # vim-repeat
+      sqlite-lua
+      plenary-nvim
+      nvim-web-devicons
+      nui-nvim
+
       # ^ libraries that other plugins depend on
 
       # (mkNvimPlugin inputs.wf-nvim "wf.nvim") # (example) keymap hints | https://github.com/Cassin01/wf.nvim

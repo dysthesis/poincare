@@ -55,6 +55,38 @@
         "type": "github"
       }
     },
+    "helpview.nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1724653959,
+        "narHash": "sha256-x5ZV/1LKrxhQWsxsJwrIfD7BogKO7H2GKzDt3PABEh8=",
+        "owner": "OXY2DEV",
+        "repo": "helpview.nvim",
+        "rev": "857aec1dab331252910da158ab6cbfbc65239c71",
+        "type": "github"
+      },
+      "original": {
+        "owner": "OXY2DEV",
+        "repo": "helpview.nvim",
+        "type": "github"
+      }
+    },
+    "markview.nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1724845802,
+        "narHash": "sha256-R1AsvatIvIcrD919wcQmXNQQ7T3D9PNnyswekmpdAzo=",
+        "owner": "OXY2DEV",
+        "repo": "markview.nvim",
+        "rev": "4695a699ebd87889c815de07e1408331e5c1df61",
+        "type": "github"
+      },
+      "original": {
+        "owner": "OXY2DEV",
+        "repo": "markview.nvim",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1718714799,
@@ -119,6 +151,8 @@
       "inputs": {
         "flake-utils": "flake-utils",
         "gen-luarc": "gen-luarc",
+        "helpview.nvim": "helpview.nvim",
+        "markview.nvim": "markview.nvim",
         "nixpkgs": "nixpkgs_2",
         "plugin:lzn-auto-require": "plugin:lzn-auto-require"
       }

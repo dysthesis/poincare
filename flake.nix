@@ -12,6 +12,14 @@
       url = "github:horriblename/lzn-auto-require";
       flake = false;
     };
+    "markview.nvim" = {
+      url = "github:OXY2DEV/markview.nvim";
+      flake = false;
+    };
+    "helpview.nvim" = {
+      url = "github:OXY2DEV/helpview.nvim";
+      flake = false;
+    };
   };
 
   outputs = inputs @ {
@@ -27,7 +35,7 @@
       "x86_64-darwin"
       "aarch64-darwin"
     ];
-      lib = import ./lib inputs.nixpkgs.lib;
+    lib = import ./lib inputs.nixpkgs.lib;
 
     # This is where the Neovim derivation is built.
     neovim-overlay = import ./nix/neovim-overlay.nix {inherit inputs lib;};
