@@ -35,12 +35,19 @@ with final.pkgs.lib; let
     telescope-nvim
     telescope-fzf-native-nvim
     telescope-ui-select-nvim
+    flash-nvim
+    zen-mode-nvim
+    twilight-nvim
+    actions-preview-nvim
+    zk-nvim
 
+    inc-rename-nvim
     ultimate-autopair-nvim
     undotree
     neo-tree-nvim
-
+    neodev-nvim
     todo-comments-nvim
+    nvim-lint
 
     noice-nvim
     luasnip # snippets | https://github.com/l3mon4d3/luasnip/
@@ -64,6 +71,7 @@ with final.pkgs.lib; let
     vim-tmux-navigator
 
     lualine-nvim
+    conform-nvim
 
     (mkNvimPlugin inputs."markview.nvim" "markview.nvim")
     (mkNvimPlugin inputs."helpview.nvim" "helpview.nvim")
@@ -145,7 +153,9 @@ with final.pkgs.lib; let
   extraPackages = with pkgs; [
     # language servers, etc.
     lua-language-server
+    stylua
     nil # nix LSP
+    zk
   ];
 in {
   # This is the neovim derivation
