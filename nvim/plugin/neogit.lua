@@ -3,6 +3,11 @@ require('lz.n').load {
   cmd = 'Neogit',
   keys = { { '<leader>gn', '<cmd>Neogit<cr>', desc = '[G]it [N]eogit' } },
   after = function()
-    require('neogit').setup {}
+    require('neogit').setup {
+      integrations = {
+        telescope = true,
+        diffview = true,
+      },
+    }
   end,
 }

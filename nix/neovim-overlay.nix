@@ -7,6 +7,13 @@ with final.pkgs.lib; let
   inherit (lib.nvim.plugin) fromInputs;
   inherit (lib.attrsets) attrNames;
   pkgs = final;
+  mapPlugins = prefix:
+    map
+    (x: mkNvimPlugin inputs."${prefix}${x}" x)
+    (attrNames
+      (fromInputs {
+        inherit inputs prefix;
+      }));
 
   # Use this to create a plugin from a flake input
   mkNvimPlugin = src: pname:
@@ -31,54 +38,52 @@ with final.pkgs.lib; let
   #   ...
   # }
 
-  lazy-plugins = with pkgs.vimPlugins; [
-    telescope-nvim
-    telescope-fzf-native-nvim
-    telescope-ui-select-nvim
-    flash-nvim
-    zen-mode-nvim
-    twilight-nvim
-    actions-preview-nvim
-    zk-nvim
-    comment-nvim
-    nvim-surround
-    neogit
+  lazy-plugins = with pkgs.vimPlugins;
+    [
+      telescope-nvim
+      telescope-fzf-native-nvim
+      telescope-ui-select-nvim
+      flash-nvim
+      zen-mode-nvim
+      twilight-nvim
+      actions-preview-nvim
+      zk-nvim
+      comment-nvim
+      nvim-surround
+      neogit
 
-    inc-rename-nvim
-    ultimate-autopair-nvim
-    undotree
-    neo-tree-nvim
-    neodev-nvim
-    todo-comments-nvim
-    nvim-lint
+      inc-rename-nvim
+      undotree
+      neo-tree-nvim
+      neodev-nvim
+      todo-comments-nvim
+      nvim-lint
 
-    noice-nvim
-    luasnip # snippets | https://github.com/l3mon4d3/luasnip/
+      noice-nvim
+      luasnip # snippets | https://github.com/l3mon4d3/luasnip/
 
-    # nvim-cmp (autocompletion) and extensions
-    nvim-cmp # https://github.com/hrsh7th/nvim-cmp
-    cmp_luasnip # snippets autocompletion extension for nvim-cmp | https://github.com/saadparwaiz1/cmp_luasnip/
-    lspkind-nvim # vscode-like LSP pictograms | https://github.com/onsails/lspkind.nvim/
-    cmp-nvim-lsp # LSP as completion source | https://github.com/hrsh7th/cmp-nvim-lsp/
-    cmp-nvim-lsp-signature-help # https://github.com/hrsh7th/cmp-nvim-lsp-signature-help/
-    cmp-buffer # current buffer as completion source | https://github.com/hrsh7th/cmp-buffer/
-    cmp-path # file paths as completion source | https://github.com/hrsh7th/cmp-path/
-    cmp-nvim-lua # neovim lua API as completion source | https://github.com/hrsh7th/cmp-nvim-lua/
-    cmp-cmdline # cmp command line suggestions
-    cmp-cmdline-history # cmp command line history suggestions
-    # ^ nvim-cmp extensions
-    nvim-lspconfig
-    lspsaga-nvim
-    friendly-snippets
+      # nvim-cmp (autocompletion) and extensions
+      nvim-cmp # https://github.com/hrsh7th/nvim-cmp
+      cmp_luasnip # snippets autocompletion extension for nvim-cmp | https://github.com/saadparwaiz1/cmp_luasnip/
+      lspkind-nvim # vscode-like LSP pictograms | https://github.com/onsails/lspkind.nvim/
+      cmp-nvim-lsp # LSP as completion source | https://github.com/hrsh7th/cmp-nvim-lsp/
+      cmp-nvim-lsp-signature-help # https://github.com/hrsh7th/cmp-nvim-lsp-signature-help/
+      cmp-buffer # current buffer as completion source | https://github.com/hrsh7th/cmp-buffer/
+      cmp-path # file paths as completion source | https://github.com/hrsh7th/cmp-path/
+      cmp-nvim-lua # neovim lua API as completion source | https://github.com/hrsh7th/cmp-nvim-lua/
+      cmp-cmdline # cmp command line suggestions
+      cmp-cmdline-history # cmp command line history suggestions
+      # ^ nvim-cmp extensions
+      nvim-lspconfig
+      lspsaga-nvim
+      friendly-snippets
 
-    vim-tmux-navigator
+      vim-tmux-navigator
 
-    lualine-nvim
-    conform-nvim
-
-    (mkNvimPlugin inputs."markview.nvim" "markview.nvim")
-    (mkNvimPlugin inputs."helpview.nvim" "helpview.nvim")
-  ];
+      lualine-nvim
+      conform-nvim
+    ]
+    ++ mapPlugins "plugin-lazy";
 
   all-plugins = with pkgs.vimPlugins;
     [
@@ -145,13 +150,7 @@ with final.pkgs.lib; let
       })
     lazy-plugins
     # bleeding-edge plugins from flake inputs
-    ++ map
-    (x: mkNvimPlugin inputs."plugin:${x}" x)
-    (attrNames
-      (fromInputs {
-        inherit inputs;
-        prefix = "plugin:";
-      }));
+    ++ mapPlugins "plugin:";
 
   extraPackages = with pkgs; [
     # language servers, etc.

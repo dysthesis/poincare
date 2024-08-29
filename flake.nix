@@ -12,12 +12,16 @@
       url = "github:horriblename/lzn-auto-require";
       flake = false;
     };
-    "markview.nvim" = {
+    "plugin-lazy:markview.nvim" = {
       url = "github:OXY2DEV/markview.nvim";
       flake = false;
     };
-    "helpview.nvim" = {
+    "plugin-lazy:helpview.nvim" = {
       url = "github:OXY2DEV/helpview.nvim";
+      flake = false;
+    };
+    "plugin-lazy:ultimate-autopair.nvim" = {
+      url = "github:altermo/ultimate-autopair.nvim";
       flake = false;
     };
   };
