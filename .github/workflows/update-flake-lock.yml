@@ -22,3 +22,5 @@ jobs:
           pr-labels: | # Labels to be set on the PR
             merge-queue
           base: dev
+          branch: update_flake_lock_action
+          delete-branch: true
