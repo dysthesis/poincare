@@ -77,6 +77,13 @@ with final.pkgs.lib; let
       trouble-nvim
       indent-blankline-nvim
       neogen
+
+      neotest
+      nvim-nio
+      FixCursorHold-nvim
+
+      # Rust
+      rustaceanvim
     ]
     ++ mapPlugins pkgs inputs "plugin-lazy";
 
