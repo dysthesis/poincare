@@ -21,3 +21,4 @@ jobs:
             Automated changes by the update-flake-lock
           pr-labels: | # Labels to be set on the PR
             merge-queue
+          branch: dev
