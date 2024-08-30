@@ -1,0 +1,25 @@
+name: Nix flake check
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  check-input:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check flake inputs
+        uses: DeterminateSystems/flake-checker-action@main
+  check-expressions:
+    name: Check flake expressions
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v18
+        with:
+          install_url: https://nixos.org/nix/install
+          extra_nix_config: |
+            auto-optimise-store = true
+            experimental-features = nix-command flakes
+            access-tokens = ${{ secrets.AUTH_TOKEN }}
+      - run: nix flake check
