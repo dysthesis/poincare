@@ -21,4 +21,6 @@ jobs:
             Automated changes by the update-flake-lock
           pr-labels: | # Labels to be set on the PR
             merge-queue
-          branch: dev
+          base: dev
+          branch: update_flake_lock_action
+          delete-branch: true
