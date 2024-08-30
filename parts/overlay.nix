@@ -76,6 +76,7 @@ with final.pkgs.lib; let
       conform-nvim
       trouble-nvim
       indent-blankline-nvim
+      neogen
     ]
     ++ mapPlugins pkgs inputs "plugin-lazy";
 
