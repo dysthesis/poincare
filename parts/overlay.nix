@@ -2,32 +2,23 @@
 {
   inputs,
   lib,
-}: final: prev:
+}: final: _prev:
 with final.pkgs.lib; let
-  inherit (lib.nvim.plugin) fromInputs;
-  inherit (lib.attrsets) attrNames;
-  pkgs = final;
-  mapPlugins = prefix:
-    map
-    (x: mkNvimPlugin inputs."${prefix}${x}" x)
-    (attrNames
-      (fromInputs {
-        inherit inputs prefix;
-      }));
+  inherit (lib.nvim) mkNeovim;
 
-  # Use this to create a plugin from a flake input
-  mkNvimPlugin = src: pname:
-    pkgs.vimUtils.buildVimPlugin {
-      inherit pname src;
-      version = src.lastModifiedDate;
-    };
+  inherit
+    (lib.nvim.plugin)
+    mapPlugins
+    ;
+
+  pkgs = final;
 
   # Make sure we use the pinned nixpkgs instance for wrapNeovimUnstable,
   # otherwise it could have an incompatible signature when applying this overlay.
-  pkgs-wrapNeovim = inputs.nixpkgs.legacyPackages.${pkgs.system};
+  # pkgs-wrapNeovim = inputs.nixpkgs.legacyPackages.${pkgs.system};
 
   # This is the helper function that builds the Neovim derivation.
-  mkNeovim = pkgs.callPackage ./mkNeovim.nix {inherit pkgs-wrapNeovim;};
+  # mkNeovim = pkgs.callPackage ./mkNeovim.nix {inherit pkgs-wrapNeovim;};
 
   # A plugin can either be a package or an attrset, such as
   # { plugin = <plugin>; # the package, e.g. pkgs.vimPlugins.nvim-cmp
@@ -85,9 +76,9 @@ with final.pkgs.lib; let
       conform-nvim
       trouble-nvim
     ]
-    ++ mapPlugins "plugin-lazy";
+    ++ mapPlugins pkgs inputs "plugin-lazy";
 
-  all-plugins = with pkgs.vimPlugins;
+  plugins = with pkgs.vimPlugins;
     [
       nvim-treesitter.withAllGrammars
 
@@ -152,7 +143,7 @@ with final.pkgs.lib; let
       })
     lazy-plugins
     # bleeding-edge plugins from flake inputs
-    ++ mapPlugins "plugin:";
+    ++ mapPlugins pkgs inputs "plugin:";
 
   extraPackages = with pkgs; [
     # language servers, etc.
@@ -165,13 +156,12 @@ in {
   # This is the neovim derivation
   # returned by the overlay
   nvim-pkg = mkNeovim {
-    plugins = all-plugins;
-    inherit extraPackages;
+    inherit pkgs plugins extraPackages;
   };
 
   # This can be symlinked in the devShell's shellHook
   nvim-luarc-json = final.mk-luarc-json {
-    plugins = all-plugins;
+    plugins = plugins;
   };
 
   # You can add as many derivations as you like.

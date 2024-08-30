@@ -1,6 +1,7 @@
-lib:
-lib.extend (final: prev: {
+{lib, ...}:
+lib.extend (_final: _prev: {
   nvim = {
-    plugin = import ./plugin.nix lib;
+    plugin = import ./plugin.nix _final;
+    mkNeovim = import ./mkNeovim.nix;
   };
 })
