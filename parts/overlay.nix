@@ -75,6 +75,7 @@ with final.pkgs.lib; let
       lualine-nvim
       conform-nvim
       trouble-nvim
+      indent-blankline-nvim
     ]
     ++ mapPlugins pkgs inputs "plugin-lazy";
 
