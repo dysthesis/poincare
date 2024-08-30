@@ -188,13 +188,23 @@
 
   # Native Lua libraries
   extraMakeWrapperLuaCArgs =
-    optionalString (resolvedExtraLuaPackages != [])
-    ''--suffix LUA_CPATH ";" "${concatMapStringsSep ";" luaPackages.getLuaCPath resolvedExtraLuaPackages}"'';
+    optionalString
+    (resolvedExtraLuaPackages != [])
+    ''
+      --suffix LUA_CPATH
+      ";"
+      "${concatMapStringsSep ";" luaPackages.getLuaCPath resolvedExtraLuaPackages}"
+    '';
 
   # Lua libraries
   extraMakeWrapperLuaArgs =
-    optionalString (resolvedExtraLuaPackages != [])
-    ''--suffix LUA_PATH ";" "${concatMapStringsSep ";" luaPackages.getLuaPath resolvedExtraLuaPackages}"'';
+    optionalString
+    (resolvedExtraLuaPackages != [])
+    ''
+      --suffix LUA_PATH
+      ";"
+      "${concatMapStringsSep ";" luaPackages.getLuaPath resolvedExtraLuaPackages}"
+    '';
 
   # wrapNeovimUnstable is the nixpkgs utility function for building a Neovim derivation.
   neovim-wrapped = wrapNeovimUnstable neovim-unwrapped (neovimConfig

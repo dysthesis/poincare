@@ -41,9 +41,7 @@
     flake-parts,
     ...
   }: let
-    lib = import ./lib {
-      lib = inputs.nixpkgs.lib;
-    };
+    lib = import ./lib inputs.nixpkgs.lib;
   in
     flake-parts.lib.mkFlake {
       inherit inputs;
