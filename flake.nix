@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
     flake-parts.url = "github:hercules-ci/flake-parts";
     systems.url = "github:nix-systems/default";
     treefmt.url = "github:numtide/treefmt-nix";
@@ -35,7 +34,9 @@
     flake-parts,
     ...
   }: let
-    lib = import ./lib inputs.nixpkgs.lib;
+    lib = import ./lib {
+      lib = inputs.nixpkgs.lib;
+    };
   in
     flake-parts.lib.mkFlake {
       inherit inputs;

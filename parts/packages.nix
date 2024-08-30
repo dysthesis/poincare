@@ -3,7 +3,7 @@
   lib,
   ...
 }: let
-  neovim-overlay = import ../nix/neovim-overlay.nix {
+  neovim-overlay = import ./overlay.nix {
     inherit lib inputs;
   };
 in {
