@@ -34,7 +34,18 @@ require('lz.n').load {
     local dap = require('dap')
     local dap_ui = require('dapui')
 
+    dap.adapters.codelldb = {
+      type = 'server',
+      host = '127.0.0.1',
+      port = 13000,
+      executable = {
+        command = vim.g.codelldb_path .. 'adapter/codelldb',
+        args = { '--port', '${port}' },
+      },
+    }
+
     require('nvim-dap-virtual-text').setup {}
+
     dap_ui.setup {}
 
     dap.listeners.before.attach.dapui_config = function()

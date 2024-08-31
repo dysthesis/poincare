@@ -105,7 +105,6 @@ vim.g.rustaceanvim = function()
     },
   }
 end
--- Load neotest module
 require('lz.n').load {
   'rustaceanvim',
   ft = 'rust',
