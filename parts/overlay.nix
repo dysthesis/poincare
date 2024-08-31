@@ -33,9 +33,6 @@ with final.pkgs.lib; let
     [
       harpoon2
       fzf-lua
-      # telescope-nvim
-      # telescope-fzf-native-nvim
-      # telescope-ui-select-nvim
       flash-nvim
       zen-mode-nvim
       twilight-nvim
@@ -43,6 +40,7 @@ with final.pkgs.lib; let
       zk-nvim
       nvim-surround
       neogit
+      crates-nvim
 
       inc-rename-nvim
       undotree
