@@ -66,6 +66,10 @@ require('lz.n').load {
     },
   },
   after = function()
-    require('neotest').setup {}
+    require('neotest').setup {
+      adapters = {
+        require('rustaceanvim.neotest'),
+      },
+    }
   end,
 }

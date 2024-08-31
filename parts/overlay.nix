@@ -82,6 +82,11 @@ with final.pkgs.lib; let
 
       # Rust
       rustaceanvim
+
+      # Debugging
+      nvim-dap
+      nvim-dap-virtual-text
+      nvim-dap-ui
     ]
     ++ mapPlugins pkgs inputs "plugin-lazy";
 
