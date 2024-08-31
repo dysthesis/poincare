@@ -132,7 +132,7 @@
   # It also adds logic for bootstrapping dev plugins (for plugin developers)
   initLua =
     ''
-      vim.g.codelldb_path = '${pkgs.vscode-extensions.vadimcn.vscode-lldb}'
+      vim.g.codelldb_path = '${pkgs.vscode-extensions.vadimcn.vscode-lldb}/share/vscode/extensions/vadimcn.vscode-lldb/'
       vim.loader.enable()
       -- prepend lua directory
       vim.opt.rtp:prepend('${nvimRtp}/lua')
