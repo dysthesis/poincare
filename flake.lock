@@ -123,11 +123,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1724819573,
-        "narHash": "sha256-GnR7/ibgIH1vhoy8cYdmXE6iyZqKqFxQSVkFgosBh6w=",
+        "lastModified": 1721562059,
+        "narHash": "sha256-Tybxt65eyOARf285hMHIJ2uul8SULjFZbT9ZaEeUnP8=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "71e91c409d1e654808b2621f28a327acfdad8dc2",
+        "rev": "68c9ed8bbed9dfce253cc91560bf9043297ef2fe",
         "type": "github"
       },
       "original": {
@@ -184,11 +184,11 @@
     "plugin-lazy:markview.nvim": {
       "flake": false,
       "locked": {
-        "lastModified": 1725132498,
-        "narHash": "sha256-R2QowdqGT5rIAvFjzUDyNpqfGz9y+oGitbnkmVnzsPc=",
+        "lastModified": 1724845802,
+        "narHash": "sha256-R1AsvatIvIcrD919wcQmXNQQ7T3D9PNnyswekmpdAzo=",
         "owner": "OXY2DEV",
         "repo": "markview.nvim",
-        "rev": "ea71a5bc6e0a0b28af62e2f21d264ddcc466bd51",
+        "rev": "4695a699ebd87889c815de07e1408331e5c1df61",
         "type": "github"
       },
       "original": {
