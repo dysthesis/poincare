@@ -39,12 +39,10 @@ with final.pkgs.lib; let
       actions-preview-nvim
       zk-nvim
       nvim-surround
-      neogit
       crates-nvim
 
       inc-rename-nvim
       undotree
-      neo-tree-nvim
       neodev-nvim
       todo-comments-nvim
       nvim-lint
@@ -82,6 +80,11 @@ with final.pkgs.lib; let
 
       # Rust
       rustaceanvim
+
+      # Debugging
+      nvim-dap
+      nvim-dap-virtual-text
+      nvim-dap-ui
     ]
     ++ mapPlugins pkgs inputs "plugin-lazy";
 
@@ -164,6 +167,11 @@ in {
   # returned by the overlay
   nvim-pkg = mkNeovim {
     inherit pkgs plugins extraPackages;
+    extraLuaConfig = let
+      codelldb = pkgs.vscode-extensions.vadimcn.vscode-lldb;
+    in ''
+      vim.g.codelldb_path = '${codelldb}/share/vscode/extensions/vadimcn.vscode-lldb/'
+    '';
   };
 
   # This can be symlinked in the devShell's shellHook
