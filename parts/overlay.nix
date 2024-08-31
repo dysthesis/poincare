@@ -39,12 +39,10 @@ with final.pkgs.lib; let
       actions-preview-nvim
       zk-nvim
       nvim-surround
-      neogit
       crates-nvim
 
       inc-rename-nvim
       undotree
-      neo-tree-nvim
       neodev-nvim
       todo-comments-nvim
       nvim-lint
