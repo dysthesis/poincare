@@ -197,38 +197,6 @@
         "type": "github"
       }
     },
-    "plugin-lazy:neo-tree.nvim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1718074188,
-        "narHash": "sha256-eNGuQEjAKsPuRDGaw95kCVOmP64ZDnUuFBppqtcrhZ4=",
-        "owner": "nvim-neo-tree",
-        "repo": "neo-tree.nvim",
-        "rev": "206241e451c12f78969ff5ae53af45616ffc9b72",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nvim-neo-tree",
-        "repo": "neo-tree.nvim",
-        "type": "github"
-      }
-    },
-    "plugin-lazy:neogit": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1724926611,
-        "narHash": "sha256-LRN9UU8vLtpP/qO2S0UOB5DvxpjQJ8np4yQtCunZFgs=",
-        "owner": "NeogitOrg",
-        "repo": "neogit",
-        "rev": "8a60ac4b97c1a7c667506425cb9d5ffca5b8dc8d",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NeogitOrg",
-        "repo": "neogit",
-        "type": "github"
-      }
-    },
     "plugin:lzn-auto-require": {
       "flake": false,
       "locked": {
@@ -268,8 +236,6 @@
         "nixpkgs": "nixpkgs",
         "plugin-lazy:helpview.nvim": "plugin-lazy:helpview.nvim",
         "plugin-lazy:markview.nvim": "plugin-lazy:markview.nvim",
-        "plugin-lazy:neo-tree.nvim": "plugin-lazy:neo-tree.nvim",
-        "plugin-lazy:neogit": "plugin-lazy:neogit",
         "plugin:lzn-auto-require": "plugin:lzn-auto-require",
         "plugin:ultimate-autopair.nvim": "plugin:ultimate-autopair.nvim",
         "systems": "systems",
