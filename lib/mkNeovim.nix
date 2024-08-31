@@ -17,6 +17,7 @@
   # Additional lua packages (not plugins), e.g. from luarocks.org.
   # e.g. p: [p.jsregexp]
   extraLuaPackages ? _p: [],
+  extraLuaConfig ? "",
   extraPython3Packages ? _p: [], # Additional python 3 packages
   withPython3 ? true, # Build Neovim with Python 3 support?
   withRuby ? false, # Build Neovim with Ruby support?
@@ -132,7 +133,7 @@
   # It also adds logic for bootstrapping dev plugins (for plugin developers)
   initLua =
     ''
-      vim.g.codelldb_path = '${pkgs.vscode-extensions.vadimcn.vscode-lldb}/share/vscode/extensions/vadimcn.vscode-lldb/'
+      ${extraLuaConfig}
       vim.loader.enable()
       -- prepend lua directory
       vim.opt.rtp:prepend('${nvimRtp}/lua')

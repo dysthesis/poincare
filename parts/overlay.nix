@@ -169,6 +169,11 @@ in {
   # returned by the overlay
   nvim-pkg = mkNeovim {
     inherit pkgs plugins extraPackages;
+    extraLuaConfig = let
+      codelldb = pkgs.vscode-extensions.vadimcn.vscode-lldb;
+    in ''
+      vim.g.codelldb_path = '${codelldb}/share/vscode/extensions/vadimcn.vscode-lldb/'
+    '';
   };
 
   # This can be symlinked in the devShell's shellHook
