@@ -22,10 +22,6 @@
       url = "github:horriblename/lzn-auto-require";
       flake = false;
     };
-    "plugin:ultimate-autopair.nvim" = {
-      url = "github:altermo/ultimate-autopair.nvim";
-      flake = false;
-    };
     "plugin-lazy:markview.nvim" = {
       url = "github:OXY2DEV/markview.nvim";
       flake = false;
@@ -34,12 +30,8 @@
       url = "github:OXY2DEV/helpview.nvim";
       flake = false;
     };
-    "plugin-lazy:neo-tree.nvim" = {
-      url = "github:nvim-neo-tree/neo-tree.nvim";
-      flake = false;
-    };
-    "plugin-lazy:neogit" = {
-      url = "github:NeogitOrg/neogit";
+    "plugin:ultimate-autopair.nvim" = {
+      url = "github:altermo/ultimate-autopair.nvim";
       flake = false;
     };
   };
