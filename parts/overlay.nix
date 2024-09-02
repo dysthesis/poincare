@@ -31,6 +31,7 @@ with final.pkgs.lib; let
 
   lazy-plugins = with pkgs.vimPlugins;
     [
+      toggleterm-nvim
       harpoon2
       fzf-lua
       flash-nvim
