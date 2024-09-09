@@ -8,6 +8,7 @@ require('catppuccin').setup {
     return {
       ['@markup.math'] = { fg = colors.mauve },
       ['@function.latex'] = { fg = colors.mauve },
+      TelescopeSelection = { bg = colors.crust },
     }
   end,
 }
