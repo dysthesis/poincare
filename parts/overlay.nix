@@ -33,11 +33,15 @@ with final.pkgs.lib; let
     [
       toggleterm-nvim
       harpoon2
-      fzf-lua
+      # fzf-lua
+      telescope-nvim
+      telescope-fzf-native-nvim
+      telescope-ui-select-nvim
+
       flash-nvim
       zen-mode-nvim
       twilight-nvim
-      actions-preview-nvim
+      # actions-preview-nvim
       zk-nvim
       nvim-surround
       neogit
