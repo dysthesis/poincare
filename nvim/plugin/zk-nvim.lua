@@ -74,7 +74,7 @@ require('lz.n').load {
   },
   after = function()
     require('zk').setup {
-      picker = 'fzf_lua',
+      picker = 'telescope',
     }
   end,
 }
