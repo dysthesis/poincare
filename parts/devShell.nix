@@ -7,7 +7,6 @@
         alejandra
         statix
         deadnix
-        nvim-pkg
       ];
       shellHook =
         /*
