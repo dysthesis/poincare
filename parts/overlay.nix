@@ -165,11 +165,9 @@ with final.pkgs.lib; let
     ++ mapPlugins pkgs inputs "plugin:";
 
   extraPackages = with pkgs; [
-    # language servers, etc.
-    lua-language-server
-    stylua
-    nil # nix LSP
-    zk
+    ripgrep
+    fd
+    fzf
   ];
 in {
   # This is the neovim derivation

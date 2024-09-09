@@ -7,6 +7,8 @@
         alejandra
         statix
         deadnix
+        lua-language-server
+        stylua
       ];
       shellHook =
         /*
