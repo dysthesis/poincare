@@ -6,7 +6,11 @@ require('lz.n').load {
     { '<leader>fb', '<cmd>Telescope buffers<cr>', desc = '[F]ind [B]uffers' },
     { '<leader>fc', '<cmd>Telescope command_history<cr>', desc = '[F]ind [C]ommand history' },
     { '<leader>fC', '<cmd>Telescope commands<cr>', desc = '[F]ind available [C]ommands' },
-    { '<leader>ff', '<cmd>Telescope find_files<cr>', desc = '[F]ind [F]iles' },
+    {
+      '<leader>ff',
+      '<cmd>Telescope frecency workspace=CWD<cr>',
+      desc = '[F]ind [F]iles',
+    },
     { '<leader>fh', '<cmd>Telescope help_tags<cr>', desc = '[F]ind [H]elp' },
     { '<leader>fg', '<cmd>Telescope live_grep<cr>', desc = '[F]ind [G]rep' },
   },
@@ -28,10 +32,15 @@ require('lz.n').load {
         ['ui-select'] = {
           require('telescope.themes').get_dropdown(),
         },
+
+        ['frecency'] = {
+          matcher = 'fuzzy',
+        },
       },
     }
 
     telescope.load_extension('fzf')
     telescope.load_extension('ui-select')
+    telescope.load_extension('frecency')
   end,
 }
