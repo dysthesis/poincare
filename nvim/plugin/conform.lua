@@ -22,6 +22,8 @@ require('lz.n').load {
         lua = { 'stylua' },
         markdown = { 'markdownlint' },
         nix = { 'alejandra' },
+        c = { 'clang-format' },
+        rust = { 'rustfmt' },
       },
     }
   end,
