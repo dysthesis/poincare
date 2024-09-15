@@ -94,6 +94,7 @@ with final.pkgs.lib; let
       nvim-dap-ui
 
       oil-nvim
+      clangd_extensions-nvim
     ]
     ++ mapPlugins pkgs inputs "plugin-lazy";
 
