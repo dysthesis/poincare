@@ -156,8 +156,6 @@ require('lz.n').load {
               border = 'none',
             },
           }
-          require('clangd_extensions.inlay_hints').setup_autocmd()
-          require('clangd_extensions.inlay_hints').set_inlay_hints()
         end,
 
         root_dir = function(fname)
@@ -198,6 +196,8 @@ require('lz.n').load {
           clangdFileStatus = true,
         },
       },
+
+      pyright = {},
 
       lua_ls = {
         settings = {
