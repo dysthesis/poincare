@@ -7,10 +7,11 @@ require('lz.n').load {
     { '<leader>fc', '<cmd>Telescope command_history<cr>', desc = '[F]ind [C]ommand history' },
     { '<leader>fC', '<cmd>Telescope commands<cr>', desc = '[F]ind available [C]ommands' },
     {
-      '<leader>ff',
+      '<leader>fo',
       '<cmd>Telescope frecency workspace=CWD<cr>',
-      desc = '[F]ind [F]iles',
+      desc = '[F]ind [O]ldfiles',
     },
+    { '<leader>ff', '<cmd>Telescope find_files<cr>', desc = '[F]ind [F]ies' },
     { '<leader>fh', '<cmd>Telescope help_tags<cr>', desc = '[F]ind [H]elp' },
     { '<leader>fg', '<cmd>Telescope live_grep<cr>', desc = '[F]ind [G]rep' },
   },
