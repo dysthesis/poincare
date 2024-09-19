@@ -6,14 +6,14 @@ require('lz.n').load {
 
     gc.setup {}
 
-    local group = vim.api.nvim_create_augroup('GitConflict', { clear = true })
-
-    vim.api.nvim_create_autocmd({ 'BufReadPost', 'BufWritePost' }, {
-      group = group,
-      callback = function(args)
-        local buf = args.buf
-        gc.refresh(buf)
-      end,
-    })
+    -- local group = vim.api.nvim_create_augroup('GitConflict', { clear = true })
+    --
+    -- vim.api.nvim_create_autocmd({ 'BufReadPost', 'BufWritePost' }, {
+    --   group = group,
+    --   callback = function(args)
+    --     local buf = args.buf
+    --     gc.refresh(buf)
+    --   end,
+    -- })
   end,
 }
