@@ -35,7 +35,6 @@ with final.pkgs.lib; let
       harpoon2
       # fzf-lua
       telescope-nvim
-      telescope-frecency-nvim
       telescope-fzf-native-nvim
       telescope-ui-select-nvim
 
