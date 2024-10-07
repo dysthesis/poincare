@@ -145,9 +145,6 @@ with final.pkgs.lib; let
 
       # (mkNvimPlugin inputs.wf-nvim "wf.nvim") # (example) keymap hints | https://github.com/Cassin01/wf.nvim
       which-key-nvim
-
-      # Lazy loading
-      lz-n
     ]
     # Plugins that should be lazily loaded
     ++ map

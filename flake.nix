@@ -18,6 +18,13 @@
 
     # Add bleeding-edge plugins here.
     # They can be updated with `nix flake update` (make sure to commit the generated flake.lock)
+
+    # lz-n v2.0.0 onwards breaks the loading of some plugins, namely
+    # - telescope,
+    # - neogit, and
+    # - neotree,
+    # so we pin it to the latest working version for now.
+    "plugin:lz-n".url = "github:nvim-neorocks/lz.n/v1.4.4";
     "plugin:lzn-auto-require" = {
       url = "github:horriblename/lzn-auto-require";
       flake = false;
