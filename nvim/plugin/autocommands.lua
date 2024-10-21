@@ -3,6 +3,22 @@ if vim.g.did_load_autocommands_plugin then
 end
 vim.g.did_load_autocommands_plugin = true
 
+--- Split the buffer depending on which side is larger and go to definition
+local function split_and_go_to_definition()
+  local columns = vim.o.columns
+  local lines = vim.o.lines
+  local winwidth = vim.api.nvim_win_get_width(0)
+  local winheight = vim.api.nvim_win_get_height(0)
+
+  if winwidth < columns / 2 then
+    vim.cmd('sp') -- Vertically split if more horizontal space
+  else
+    vim.cmd('vsp') -- Horizontally split if more vertical space
+  end
+
+  vim.lsp.buf.definition()
+end
+
 local api = vim.api
 
 local tempdirgroup = api.nvim_create_augroup('tempdir', { clear = true })
@@ -74,7 +90,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end
     keymap.set('n', 'gD', vim.lsp.buf.declaration, desc('[G]o to [D]eclaration'))
     keymap.set('n', 'gd', vim.lsp.buf.definition, desc('[G]o to [D]efinition'))
-    keymap.set('n', 'gv', ':vsplit | lua vim.lsp.buf.definition()<cr>', desc('[G]o to definition [V]ertically'))
+    keymap.set('n', 'gv', split_and_go_to_definition, desc('[G]o to definition [V]ertically'))
     keymap.set('n', '<space>gt', vim.lsp.buf.type_definition, desc('[G]o to [T]ype definition'))
     keymap.set('n', '<space>ca', vim.lsp.buf.code_action, desc('[C]ode [A]ctions'))
     keymap.set('n', '<space>cd', require('telescope.builtin').diagnostics, desc('[C]ode [D]iagnostics'))
