@@ -10,7 +10,7 @@ local function split_and_go_to_definition()
   local winwidth = vim.api.nvim_win_get_width(0)
   local winheight = vim.api.nvim_win_get_height(0)
 
-  if winwidth < columns / 2 then
+  if winwidth < columns then
     vim.cmd('sp') -- Vertically split if more horizontal space
   else
     vim.cmd('vsp') -- Horizontally split if more vertical space
