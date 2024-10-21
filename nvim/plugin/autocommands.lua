@@ -74,6 +74,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end
     keymap.set('n', 'gD', vim.lsp.buf.declaration, desc('[G]o to [D]eclaration'))
     keymap.set('n', 'gd', vim.lsp.buf.definition, desc('[G]o to [D]efinition'))
+    keymap.set('n', 'gv', ':vsplit | lua vim.lsp.buf.definition()<cr>', desc('[G]o to definition [V]ertically'))
     keymap.set('n', '<space>gt', vim.lsp.buf.type_definition, desc('[G]o to [T]ype definition'))
     keymap.set('n', '<space>ca', vim.lsp.buf.code_action, desc('[C]ode [A]ctions'))
     keymap.set('n', '<space>cd', require('telescope.builtin').diagnostics, desc('[C]ode [D]iagnostics'))
