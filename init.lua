@@ -1,1 +1,4 @@
-require('rocks-nvim')
+require('package-manager')
+
+-- Load configurations
+require('config.ui')
