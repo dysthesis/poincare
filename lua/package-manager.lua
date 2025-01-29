@@ -21,10 +21,34 @@ local function bootstrap_paq(packages)
     paq.install()
 end
 
--- Call helper function
-bootstrap_paq {
+local plugins = {
     "savq/paq-nvim",
+
+    { 'nvim-treesitter/nvim-treesitter', build = ':TSUpdate' },
+
     "kdheepak/monochrome.nvim",
     "echasnovski/mini.pick",
     "nvim-neorocks/lz.n",
+    "NeogitOrg/neogit",
+    "sindrets/diffview.nvim",
+
+    -- common dependencies
+    "nvim-lua/plenary.nvim",
 }
+
+-- Call helper function
+bootstrap_paq(plugins)
+
+-- Configure the plugins
+require('plugins.monochrome-nvim')
+require('plugins.mini-pick')
+require('plugins.neogit')
+
+-- for _, plugin in ipairs(plugins) do
+-- 	local formatted = "plugins." .. plugin:match("/(.*)"):gsub("%.", "-") or ""
+-- 	-- Load the configuration only if it exists
+-- 	local ok, config = pcall(require, formatted)
+-- 	if not ok then
+-- 		return
+-- 	end
+-- done
