@@ -38,6 +38,7 @@ local plugins = {
     'neovim/nvim-lspconfig', -- configurations for LSPs
     'j-hui/fidget.nvim',
     'nvimdev/lspsaga.nvim',
+    'stevearc/conform.nvim',
 
     -- Language extensions
     'p00f/clangd_extensions.nvim',
@@ -49,6 +50,7 @@ local plugins = {
     'NeogitOrg/neogit', -- a git ui
     'sindrets/diffview.nvim', -- a nice diff viewing ui
     'lewis6991/gitsigns.nvim', -- some nice git integration
+    { 'ThePrimeagen/harpoon', branch = 'harpoon2' },
 
     'altermo/ultimate-autopair.nvim',
 
@@ -61,13 +63,15 @@ local plugins = {
 bootstrap_paq(plugins)
 
 -- Configure the plugins
-require('plugins.monochrome-nvim')
-require('plugins.mini-pick')
-require('plugins.neogit')
-require('plugins.gitsigns')
-require('plugins.blink')
-require('plugins.lspconfig')
-require('plugins.ultimate-autopair')
+require'plugins.monochrome-nvim'
+require'plugins.mini-pick'
+require'plugins.neogit'
+require'plugins.gitsigns'
+require'plugins.blink'
+require'plugins.lspconfig'
+require'plugins.ultimate-autopair'
+require'plugins.conform'
+require'plugins.harpoon'
 
 -- for _, plugin in ipairs(plugins) do
 -- 	local formatted = 'plugins.' .. plugin:match('/(.*)'):gsub('%.', '-') or ''
