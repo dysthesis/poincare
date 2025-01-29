@@ -374,7 +374,7 @@ StatusLine.active = function()
   local statusline = {
     mode(),
     filename(),
-    full_git(),
+    full_git(),	-- this module depends on gitsigns
     "%=",
     "%=",
     "%S ",

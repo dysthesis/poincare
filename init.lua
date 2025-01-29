@@ -4,4 +4,4 @@ require('config.ui')
 require('config.behaviour')
 require('config.statusline')
 
-require('package-manager')
+require('packages')
