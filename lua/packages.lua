@@ -39,13 +39,19 @@ local plugins = {
 	"j-hui/fidget.nvim",
 	"nvimdev/lspsaga.nvim",
 	"stevearc/conform.nvim",
+	"nvim-neotest/neotest",
+	"nvim-neotest/neotest",
+	"nvim-neotest/nvim-nio",
 
 	-- Language extensions
 	"p00f/clangd_extensions.nvim",
+	"saecki/crates.nvim", -- rust crates
+	"mrcjkb/rustaceanvim", -- rust stuff
 
 	"kdheepak/monochrome.nvim", -- a theme
 	"echasnovski/mini.pick", -- a fuzzy finder
 	"echasnovski/mini.surround", -- add a surround motion
+	"echasnovski/mini.icons", -- icons library
 	"nvim-neorocks/lz.n", -- a lazy loader
 	"NeogitOrg/neogit", -- a git ui
 	"sindrets/diffview.nvim", -- a nice diff viewing ui
@@ -57,28 +63,20 @@ local plugins = {
 
 	-- common dependencies
 	"nvim-lua/plenary.nvim",
-	"nvim-tree/nvim-web-devicons",
 }
 
 -- Call helper function
 bootstrap_paq(plugins)
 
--- Configure the plugins
-require("plugins.monochrome-nvim")
-require("plugins.mini-pick")
-require("plugins.neogit")
-require("plugins.gitsigns")
-require("plugins.blink")
-require("plugins.lspconfig")
-require("plugins.ultimate-autopair")
-require("plugins.conform")
-require("plugins.harpoon")
-
--- for _, plugin in ipairs(plugins) do
--- 	local formatted = 'plugins.' .. plugin:match('/(.*)'):gsub('%.', '-') or ''
--- 	-- Load the configuration only if it exists
--- 	local ok, config = pcall(require, formatted)
--- 	if not ok then
--- 		return
--- 	end
--- done
+-- Load plugin configurations, if they exist
+for _, plugin in ipairs(plugins) do
+	local name = ""
+	if type(plugin) == "table" then
+		name = plugin[1]
+	else
+		name = plugin:match("/(.*)"):gsub("%.", "-") or ""
+	end
+	local formatted = "plugins." .. name
+	-- Load the configuration only if it exists
+	pcall(require, formatted)
+end
