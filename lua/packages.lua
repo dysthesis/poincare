@@ -27,11 +27,11 @@ local plugins = {
 
 	-- Completion
 	{ -- supposedly faster than nvim-cmp
-		"Saghen/blink.cmp",
+		"saghen/blink.cmp",
 		build = "cargo build --locked --release --target-dir target",
 		version = "*",
 	},
-	"Saghen/blink.compat", -- compatibility layer
+	"saghen/blink.compat", -- compatibility layer
 	"rafamadriz/friendly-snippets",
 
 	{ "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" }, -- tree sitter integration
@@ -48,7 +48,12 @@ local plugins = {
 	"saecki/crates.nvim", -- rust crates
 	"mrcjkb/rustaceanvim", -- rust stuff
 
-	"kdheepak/monochrome.nvim", -- a theme
+	-- Themes
+	-- "rebelot/kanagawa.nvim",
+	"slugbyte/lackluster.nvim",
+	-- "kdheepak/monochrome.nvim",
+	-- "jesseleite/nvim-noirbuddy",
+
 	"echasnovski/mini.pick", -- a fuzzy finder
 	"echasnovski/mini.surround", -- add a surround motion
 	"echasnovski/mini.icons", -- icons library
@@ -68,15 +73,24 @@ local plugins = {
 -- Call helper function
 bootstrap_paq(plugins)
 
+vim.g.codelldb_path = "~/.local/share/codelldb"
+
+-- Count the number of plugins loaded
+local num_plugins = 0
+
 -- Load plugin configurations, if they exist
 for _, plugin in ipairs(plugins) do
+	num_plugins = num_plugins + 1
 	local name = ""
 	if type(plugin) == "table" then
 		name = plugin[1]
 	else
-		name = plugin:match("/(.*)"):gsub("%.", "-") or ""
+		name = plugin
 	end
+	name = name:match(".*/(.*)"):gsub("%.", "-") or ""
+
 	local formatted = "plugins." .. name
 	-- Load the configuration only if it exists
-	pcall(require, formatted)
+	local ok, _ = pcall(require, formatted)
 end
+vim.notify("Loaded " .. num_plugins .. " plugins")
