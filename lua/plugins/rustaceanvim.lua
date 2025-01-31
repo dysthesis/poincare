@@ -6,7 +6,6 @@ vim.g.rustaceanvim = function()
 	return {
 		tools = {
 			hover_actions = { auto_focus = true },
-			test_executor = "neotest",
 		},
 		server = {
 			on_attach = function(_, b)

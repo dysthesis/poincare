@@ -6,7 +6,7 @@ require("lz.n").load({
 	load = function(name)
 		vim.cmd.packadd(name)
 		vim.cmd.packadd("blink.cmp")
-		vim.cmd.packadd("lspsaga.nvim")
+		-- vim.cmd.packadd("lspsaga.nvim")
 	end,
 
 	after = function()
@@ -222,13 +222,13 @@ require("lz.n").load({
 			},
 		}
 
-		require("lspsaga").setup({
-			implement = {
-				enable = true,
-				sign = true,
-				virtual_text = true,
-			},
-		})
+		-- require("lspsaga").setup({
+		-- 	implement = {
+		-- 		enable = true,
+		-- 		sign = true,
+		-- 		virtual_text = true,
+		-- 	},
+		-- })
 
 		for name, config in pairs(servers) do
 			config.capabilities = vim.tbl_deep_extend("force", {}, capabilities, config.capabilities or {})

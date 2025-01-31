@@ -36,38 +36,31 @@ local plugins = {
 
 	{ "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" }, -- tree sitter integration
 	"neovim/nvim-lspconfig", -- configurations for LSPs
-	"j-hui/fidget.nvim",
-	"nvimdev/lspsaga.nvim",
 	"stevearc/conform.nvim",
-	"nvim-neotest/neotest",
-	"nvim-neotest/neotest",
-	"nvim-neotest/nvim-nio",
 
 	-- Language extensions
 	"p00f/clangd_extensions.nvim",
 	"saecki/crates.nvim", -- rust crates
 	"mrcjkb/rustaceanvim", -- rust stuff
 
+	-- Notetaking
+	"zk-org/zk-nvim",
+
 	-- Themes
-	-- "rebelot/kanagawa.nvim",
 	"slugbyte/lackluster.nvim",
-	-- "kdheepak/monochrome.nvim",
-	-- "jesseleite/nvim-noirbuddy",
 
 	"echasnovski/mini.pick", -- a fuzzy finder
 	"echasnovski/mini.surround", -- add a surround motion
 	"echasnovski/mini.icons", -- icons library
+	"echasnovski/mini.ai", -- more a/i textobjects
 	"nvim-neorocks/lz.n", -- a lazy loader
 	"NeogitOrg/neogit", -- a git ui
 	"sindrets/diffview.nvim", -- a nice diff viewing ui
 	"lewis6991/gitsigns.nvim", -- some nice git integration
 	"stevearc/oil.nvim",
-	{ "ThePrimeagen/harpoon", branch = "harpoon2" },
 
 	"altermo/ultimate-autopair.nvim",
-
-	-- common dependencies
-	"nvim-lua/plenary.nvim",
+	"christoomey/vim-tmux-navigator",
 }
 
 -- Call helper function
@@ -75,12 +68,8 @@ bootstrap_paq(plugins)
 
 vim.g.codelldb_path = "~/.local/share/codelldb"
 
--- Count the number of plugins loaded
-local num_plugins = 0
-
 -- Load plugin configurations, if they exist
 for _, plugin in ipairs(plugins) do
-	num_plugins = num_plugins + 1
 	local name = ""
 	if type(plugin) == "table" then
 		name = plugin[1]
@@ -93,4 +82,3 @@ for _, plugin in ipairs(plugins) do
 	-- Load the configuration only if it exists
 	local ok, _ = pcall(require, formatted)
 end
-vim.notify("Loaded " .. num_plugins .. " plugins")
