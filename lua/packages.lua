@@ -26,13 +26,13 @@ local plugins = {
 	"savq/paq-nvim", -- the package manager itself
 
 	-- Completion
-	{ -- supposedly faster than nvim-cmp
-		"saghen/blink.cmp",
-		build = "cargo build --locked --release --target-dir target",
-		version = "*",
-	},
-	"saghen/blink.compat", -- compatibility layer
-	-- "echasnovski/mini.completion", -- doesn't work with lsp for some reason
+	-- { -- supposedly faster than nvim-cmp
+	-- 	"saghen/blink.cmp",
+	-- 	build = "cargo build --locked --release --target-dir target",
+	-- 	version = "*",
+	-- },
+	-- "saghen/blink.compat", -- compatibility layer
+	"echasnovski/mini.completion", -- doesn't work with lsp for some reason
 	"rafamadriz/friendly-snippets",
 
 	{ "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" }, -- tree sitter integration
@@ -42,7 +42,6 @@ local plugins = {
 	-- Language extensions
 	"p00f/clangd_extensions.nvim",
 	"saecki/crates.nvim", -- rust crates
-	"mrcjkb/rustaceanvim", -- rust stuff
 
 	-- Notetaking
 	"zk-org/zk-nvim",

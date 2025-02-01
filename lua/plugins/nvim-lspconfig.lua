@@ -5,7 +5,8 @@ require("lz.n").load({
 
 	load = function(name)
 		vim.cmd.packadd(name)
-		vim.cmd.packadd("blink.cmp")
+		vim.cmd.packadd("mini.completion")
+		-- vim.cmd.packadd("blink.cmp")
 		-- vim.cmd.packadd("lspsaga.nvim")
 	end,
 
@@ -65,7 +66,12 @@ require("lz.n").load({
 		--  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
 		--  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
 		local capabilities = vim.lsp.protocol.make_client_capabilities()
-		capabilities = vim.tbl_deep_extend("force", capabilities, require("blink.cmp").get_lsp_capabilities())
+		-- capabilities = vim.tbl_deep_extend("force", capabilities, require("blink.cmp").get_lsp_capabilities())
+		local custom_on_attach = function(client, buf_id)
+			-- Set up 'mini.completion' LSP part of completion
+			vim.bo[buf_id].omnifunc = "v:lua.MiniCompletion.completefunc_lsp"
+			-- Mappings are created globally with `<Leader>l` prefix (for simplicity)
+		end
 
 		local servers = {
 			clangd = {
@@ -73,7 +79,7 @@ require("lz.n").load({
 				keys = {
 					{ "<leader>cR", "<cmd>ClangdSwitchSourceHeader<cr>", desc = "Switch Source/Header (C/C++)" },
 				},
-				on_attach = function()
+				on_attach = function(client, buf_id)
 					require("clangd_extensions").setup({
 						inlay_hints = {
 							inline = vim.fn.has("nvim-0.10") == 1,
@@ -155,6 +161,7 @@ require("lz.n").load({
 							border = "none",
 						},
 					})
+					custom_on_attach(client, buf_id)
 				end,
 
 				root_dir = function(fname)
@@ -197,9 +204,13 @@ require("lz.n").load({
 				},
 			},
 
-			pyright = {},
+			pyright = { on_attach = custom_on_attach },
+			rust_analyzer = {
+				on_attach = custom_on_attach,
+			},
 
 			lua_ls = {
+				on_attach = custom_on_attach,
 				settings = {
 					Lua = {
 						runtime = {
@@ -221,14 +232,6 @@ require("lz.n").load({
 				},
 			},
 		}
-
-		-- require("lspsaga").setup({
-		-- 	implement = {
-		-- 		enable = true,
-		-- 		sign = true,
-		-- 		virtual_text = true,
-		-- 	},
-		-- })
 
 		for name, config in pairs(servers) do
 			config.capabilities = vim.tbl_deep_extend("force", {}, capabilities, config.capabilities or {})
