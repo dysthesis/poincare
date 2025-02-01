@@ -32,6 +32,7 @@ local plugins = {
 		version = "*",
 	},
 	"saghen/blink.compat", -- compatibility layer
+	-- "echasnovski/mini.completion", -- doesn't work with lsp for some reason
 	"rafamadriz/friendly-snippets",
 
 	{ "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" }, -- tree sitter integration
@@ -46,6 +47,8 @@ local plugins = {
 	-- Notetaking
 	"zk-org/zk-nvim",
 
+	"ggandor/leap.nvim",
+
 	-- Themes
 	"slugbyte/lackluster.nvim",
 
@@ -53,6 +56,7 @@ local plugins = {
 	"echasnovski/mini.surround", -- add a surround motion
 	"echasnovski/mini.icons", -- icons library
 	"echasnovski/mini.ai", -- more a/i textobjects
+	"echasnovski/mini.indentscope", -- visualise and operate om indent scope
 	"nvim-neorocks/lz.n", -- a lazy loader
 	"NeogitOrg/neogit", -- a git ui
 	"sindrets/diffview.nvim", -- a nice diff viewing ui
@@ -61,6 +65,7 @@ local plugins = {
 
 	"altermo/ultimate-autopair.nvim",
 	"christoomey/vim-tmux-navigator",
+	"nvim-lua/plenary.nvim",
 }
 
 -- Call helper function

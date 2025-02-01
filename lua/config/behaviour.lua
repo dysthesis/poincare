@@ -27,9 +27,45 @@ vim.opt.undofile = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
+vim.opt.smartindent = true
+
 -- Decrease update time
 vim.opt.updatetime = 250
 
 -- Use rg
 vim.o.grepprg = [[rg --glob "!.git" --no-heading --vimgrep --follow $*]]
 vim.opt.grepformat = vim.opt.grepformat ^ { "%f:%l:%c:%m" }
+
+vim.o.tabstop = 2
+vim.o.shiftwidth = 2
+
+-- I make this typo way too much
+vim.cmd("cnoreabbrev W! w!")
+vim.cmd("cnoreabbrev Q! q!")
+vim.cmd("cnoreabbrev Qall! qall!")
+vim.cmd("cnoreabbrev Wq wq")
+vim.cmd("cnoreabbrev Wa wa")
+vim.cmd("cnoreabbrev wQ wq")
+vim.cmd("cnoreabbrev WQ wq")
+vim.cmd("cnoreabbrev W w")
+vim.cmd("cnoreabbrev Q q")
+
+vim.api.nvim_create_augroup("general", {})
+
+vim.api.nvim_create_autocmd("BufReadPost", {
+	group = "general",
+	desc = "Restore last cursor position in file",
+	callback = function()
+		if vim.fn.line("'\"") > 0 and vim.fn.line("'\"") <= vim.fn.line("$") then
+			vim.fn.setpos(".", vim.fn.getpos("'\""))
+		end
+	end,
+})
+
+vim.api.nvim_create_autocmd({ "VimResized" }, {
+	group = "general",
+	desc = "Resize all splits if vim was resized",
+	callback = function()
+		vim.cmd.tabdo("wincmd =")
+	end,
+})
