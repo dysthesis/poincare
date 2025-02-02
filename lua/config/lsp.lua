@@ -1,6 +1,9 @@
 vim.api.nvim_create_autocmd("LspAttach", {
 	desc = "LSP actions",
 	callback = function(event)
+		if vim.lsp.inlay_hint then
+			vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
+		end
 		local opts = { buffer = event.buf }
 		-- Display documentation of the symbol under the cursor
 		vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<cr>", opts)

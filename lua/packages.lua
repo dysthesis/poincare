@@ -22,29 +22,29 @@ local function bootstrap_paq(packages)
 end
 
 -- Add plugins here
+-- TODO: Sort this
 local plugins = {
 	"savq/paq-nvim", -- the package manager itself
 
 	-- Completion
-	-- { -- supposedly faster than nvim-cmp
-	-- 	"saghen/blink.cmp",
-	-- 	build = "cargo build --locked --release --target-dir target",
-	-- 	version = "*",
-	-- },
-	-- "saghen/blink.compat", -- compatibility layer
-	"echasnovski/mini.completion",
+	{ -- supposedly faster than nvim-cmp
+		"saghen/blink.cmp",
+		build = "cargo build --locked --release --target-dir target",
+		version = "*",
+	},
+	"saghen/blink.compat", -- compatibility layer
+	-- "echasnovski/mini.completion", -- does not support snippets yet
 	"rafamadriz/friendly-snippets",
 
 	{ "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" }, -- tree sitter integration
 	"neovim/nvim-lspconfig", -- configurations for LSPs
 	"stevearc/conform.nvim",
 
-	-- Folding
-	"kevinhwang91/nvim-ufo",
-	"kevinhwang91/promise-async", -- dependency of nvim-ufo
+	"folke/todo-comments.nvim",
 
 	-- Language extensions
-	"p00f/clangd_extensions.nvim",
+	-- Rust
+	"mrcjkb/rustaceanvim",
 	"saecki/crates.nvim", -- rust crates
 
 	-- Notetaking
@@ -78,7 +78,9 @@ bootstrap_paq(plugins)
 vim.g.codelldb_path = "~/.local/share/codelldb"
 
 -- Load plugin configurations, if they exist
+-- local num = 0
 for _, plugin in ipairs(plugins) do
+	-- num = num + 1
 	local name = ""
 	if type(plugin) == "table" then
 		name = plugin[1]
@@ -91,3 +93,4 @@ for _, plugin in ipairs(plugins) do
 	-- Load the configuration only if it exists
 	local ok, _ = pcall(require, formatted)
 end
+-- vim.notify("Loaded " .. num .. " plugins")
