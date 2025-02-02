@@ -39,6 +39,17 @@ vim.opt.grepformat = vim.opt.grepformat ^ { "%f:%l:%c:%m" }
 vim.o.tabstop = 2
 vim.o.shiftwidth = 2
 
+-- Fold by treesitter expression
+vim.opt.foldmethod = "expr"
+-- vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+vim.opt.foldcolumn = "0"
+vim.o.foldlevelstart = 1
+vim.o.foldenable = true
+vim.opt.foldtext = ""
+
+vim.opt.rtp:append(vim.fn.stdpath("config") .. "/queries")
+
 -- I make this typo way too much
 vim.cmd("cnoreabbrev W! w!")
 vim.cmd("cnoreabbrev Q! q!")
