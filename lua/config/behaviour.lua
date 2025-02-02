@@ -43,10 +43,12 @@ vim.o.shiftwidth = 2
 vim.opt.foldmethod = "expr"
 -- vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
-vim.opt.foldcolumn = "0"
-vim.o.foldlevelstart = 1
-vim.o.foldenable = true
+vim.opt.foldcolumn = "1"
+vim.opt.foldlevel = 99
+vim.opt.foldlevelstart = 99
+vim.opt.foldenable = true
 vim.opt.foldtext = ""
+-- vim.o.fillchars = "eob: ,fold: ,foldopen:,foldsep: ,foldclose:"
 
 vim.opt.rtp:append(vim.fn.stdpath("config") .. "/queries")
 

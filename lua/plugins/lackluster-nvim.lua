@@ -3,4 +3,4 @@ require("lackluster").setup({
 		normal = "none",
 	},
 })
-vim.cmd.colorscheme("lackluster-hack")
+vim.cmd.colorscheme("lackluster-night")

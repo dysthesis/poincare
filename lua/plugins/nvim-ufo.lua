@@ -1,5 +1,6 @@
 require("lz.n").load({
 	"nvim-ufo",
+	event = "DeferredUIEnter",
 	keys = {
 		{
 			"zR",

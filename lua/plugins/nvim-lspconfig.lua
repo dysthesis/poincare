@@ -66,6 +66,10 @@ require("lz.n").load({
 		--  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
 		local capabilities = vim.lsp.protocol.make_client_capabilities()
 		capabilities = vim.tbl_deep_extend("force", capabilities, require("blink.cmp").get_lsp_capabilities())
+		capabilities.textDocument.foldingRange = {
+			dynamicRegistration = false,
+			lineFoldingOnly = true,
+		}
 
 		local servers = {
 			clangd = {
@@ -227,5 +231,6 @@ require("lz.n").load({
 			config.capabilities = vim.tbl_deep_extend("force", {}, capabilities, config.capabilities or {})
 			lspconfig[name].setup(config)
 		end
+		require("ufo").setup()
 	end,
 })

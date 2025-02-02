@@ -26,18 +26,22 @@ local plugins = {
 	"savq/paq-nvim", -- the package manager itself
 
 	-- Completion
-	{ -- supposedly faster than nvim-cmp
-		"saghen/blink.cmp",
-		build = "cargo build --locked --release --target-dir target",
-		version = "*",
-	},
-	"saghen/blink.compat", -- compatibility layer
-	-- "echasnovski/mini.completion", -- doesn't work with lsp for some reason
+	-- { -- supposedly faster than nvim-cmp
+	-- 	"saghen/blink.cmp",
+	-- 	build = "cargo build --locked --release --target-dir target",
+	-- 	version = "*",
+	-- },
+	-- "saghen/blink.compat", -- compatibility layer
+	"echasnovski/mini.completion",
 	"rafamadriz/friendly-snippets",
 
 	{ "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" }, -- tree sitter integration
 	"neovim/nvim-lspconfig", -- configurations for LSPs
 	"stevearc/conform.nvim",
+
+	-- Folding
+	"kevinhwang91/nvim-ufo",
+	"kevinhwang91/promise-async", -- dependency of nvim-ufo
 
 	-- Language extensions
 	"p00f/clangd_extensions.nvim",
@@ -50,6 +54,7 @@ local plugins = {
 
 	-- Themes
 	"slugbyte/lackluster.nvim",
+	-- "kdheepak/monochrome.nvim",
 
 	"echasnovski/mini.pick", -- a fuzzy finder
 	"echasnovski/mini.surround", -- add a surround motion
