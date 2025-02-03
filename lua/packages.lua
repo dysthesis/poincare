@@ -55,7 +55,10 @@ local plugins = {
 	-- Themes
 	"slugbyte/lackluster.nvim",
 	-- "kdheepak/monochrome.nvim",
-
+	-- "killitar/obscure.nvim",
+	-- "jesseleite/nvim-noirbuddy",
+	-- "tjdevries/colorbuddy.nvim",
+	--
 	"echasnovski/mini.pick", -- a fuzzy finder
 	"echasnovski/mini.surround", -- add a surround motion
 	"echasnovski/mini.icons", -- icons library

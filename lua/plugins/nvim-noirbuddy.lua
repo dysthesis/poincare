@@ -1,8 +1,6 @@
 require("noirbuddy").setup({
-	preset = "minimal",
+	preset = "northern-lights",
 	colors = {
-		primary = "#6EE2FF",
-		secondary = "#267FB5",
+		background = "#000000",
 	},
 })
-vim.cmd.colorscheme("noirbuddy")

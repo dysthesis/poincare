@@ -24,10 +24,6 @@ require("lz.n").load({
 			keywords = {
 				PERF = { color = "hint" },
 			},
-			colors = {
-				info = { "#789978", "DiagnosticInfo" },
-				hint = { "#7788AA", "DiagnosticHint" },
-			},
 		})
 	end,
 })
