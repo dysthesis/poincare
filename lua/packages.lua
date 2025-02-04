@@ -47,6 +47,10 @@ local plugins = {
 	"mrcjkb/rustaceanvim",
 	"saecki/crates.nvim", -- rust crates
 
+	-- LaTeX
+	"lervag/vimtex",
+	"jbyuki/nabla.nvim",
+
 	-- Notetaking
 	"zk-org/zk-nvim",
 
@@ -58,7 +62,7 @@ local plugins = {
 	-- "killitar/obscure.nvim",
 	-- "jesseleite/nvim-noirbuddy",
 	-- "tjdevries/colorbuddy.nvim",
-	--
+
 	"echasnovski/mini.pick", -- a fuzzy finder
 	"echasnovski/mini.surround", -- add a surround motion
 	"echasnovski/mini.icons", -- icons library

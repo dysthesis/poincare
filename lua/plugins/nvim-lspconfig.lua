@@ -114,6 +114,7 @@ require("lz.n").load({
 			},
 
 			pyright = {},
+			texlab = {},
 
 			lua_ls = {
 				settings = {

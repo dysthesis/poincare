@@ -8,17 +8,11 @@ vim.g.skip_ts_context_comment_string_module = true
 
 ---@diagnostic disable-next-line: missing-fields
 configs.setup({
-	-- ensure_installed = 'all',
-	auto_install = true, -- Do not automatically install missing parsers when entering buffer
+	ensure_installed = "all",
+	-- auto_install = true, -- Do not automatically install missing parsers when entering buffer
 	highlight = {
 		enable = true,
-		disable = function(_, buf)
-			local max_filesize = 100 * 1024 -- 100 KiB
-			local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
-			if ok and stats and stats.size > max_filesize then
-				return true
-			end
-		end,
+		disable = { "latex" },
 	},
 	incremental_selection = {
 		enable = true,
