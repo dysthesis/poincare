@@ -99,7 +99,6 @@ for _, plugin in ipairs(plugins) do
 
 	local formatted = "plugins." .. name
 	-- Load the configuration only if it exists
-	vim.notify("Loading " .. formatted)
 	local ok, _ = pcall(require, formatted)
 end
 -- vim.notify("Loaded " .. num .. " plugins")
