@@ -154,12 +154,12 @@
     lua
     */
     ''
-      vim.loader.enable()
-      -- prepend lua directory
-      vim.opt.rtp:prepend('${nvimRtp}')
-      ${extraLuaConfig}
-    ''
-    + init-lua;
+         vim.loader.enable()
+         -- prepend lua directory
+         vim.opt.rtp:prepend('${nvimRtp}')
+      ${init-lua}
+         ${extraLuaConfig}
+    '';
   # Wrap init.lua
   # Prepend nvim and after directories to the runtimepath
   # NOTE: This is done after init.lua,
