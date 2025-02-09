@@ -6,6 +6,12 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Get plugins directly from git
+    "plugin-lazy:lackluster.nvim" = {
+      url = "github:slugbyte/lackluster.nvim";
+      flake = false;
+    };
   };
 
   outputs = inputs @ {
@@ -26,6 +32,7 @@
 
     treefmt = forAllSystems (pkgs: treefmt-nix.lib.evalModule pkgs ./nix/formatters);
   in
+    # Budget flake-parts
     mapAttrs (_: val: forAllSystems val) {
       devShells = pkgs: {default = import ./nix/shell pkgs;};
       # for `nix fmt`
@@ -34,5 +41,6 @@
       checks = pkgs: {
         formatting = treefmt.${pkgs.system}.config.build.check self;
       };
+      packages = pkgs: import ./nix/packages {inherit inputs pkgs lib self;};
     };
 }
