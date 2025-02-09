@@ -1,7 +1,7 @@
-require('lz.n').load {
-	'ultimate-autopair.nvim',
-	event = { 'InsertEnter', 'CmdlineEnter' },
+require("lz.n").load({
+	"ultimate-autopair.nvim",
+	event = { "InsertEnter", "CmdlineEnter" },
 	after = function()
-		require('ultimate-autopair').setup {}
+		require("ultimate-autopair").setup({})
 	end,
-}
+})

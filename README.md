@@ -6,7 +6,7 @@ This is a (WIP) Neovim flake that
 - snappy, and
 - is minimal, but not to a fault.
 
-Here, *minimal* is defined as a rough measure of the amount of feature provided per line of code.
+Here, _minimal_ is defined as a rough measure of the amount of feature provided per line of code.
 
 Speed takes precedence over minimalism.
 
