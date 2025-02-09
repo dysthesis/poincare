@@ -89,7 +89,8 @@ with final.pkgs.lib; let
           yaml
           markdown
         ]))
-      nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/vim-tmux-navigator
+      nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
+      vim-tmux-navigator
     ]
     ++ mapPlugins pkgs inputs "plugin-lazy";
 
