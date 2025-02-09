@@ -2,7 +2,7 @@ pkgs:
 pkgs.mkShell {
   name = "Poincare";
   packages = with pkgs; [
-    nil
+    nixd
     alejandra
     statix
     deadnix

@@ -56,7 +56,6 @@
     optionals
     optionalString
     makeBinPath
-    strings
     cleanSourceWith
     removePrefix
     all
