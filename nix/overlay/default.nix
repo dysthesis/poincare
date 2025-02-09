@@ -58,6 +58,8 @@ with final.pkgs.lib; let
       todo-comments-nvim
       harpoon2
 
+      inc-rename-nvim
+
       rustaceanvim
       crates-nvim
 
@@ -78,12 +80,6 @@ with final.pkgs.lib; let
       gitsigns-nvim
       oil-nvim
       ultimate-autopair-nvim
-      vim-tmux-navigator
-    ]
-    ++ mapPlugins pkgs inputs "plugin-lazy";
-
-  plugins = with pkgs.vimPlugins;
-    [
       (nvim-treesitter.withPlugins (p:
         with p; [
           rust
@@ -92,7 +88,12 @@ with final.pkgs.lib; let
           toml
           markdown
         ]))
-      nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
+      nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/vim-tmux-navigator
+    ]
+    ++ mapPlugins pkgs inputs "plugin-lazy";
+
+  plugins = with pkgs.vimPlugins;
+    [
     ]
     # Plugins that should be lazily loaded
     ++ map
