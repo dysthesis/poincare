@@ -44,7 +44,6 @@
     stdenv
     ;
 
-  inherit (pkgs.lib.trivial) pipe;
   inherit
     (pkgs.lib)
     take
@@ -142,13 +141,12 @@
   # and prepends the nvim and after directory to the RTP
   initLua = let
     init-lua =
-      pipe
-      (readFile ../../init.lua)
-      [
-        (s: splitString "\n" s)
-        (lines: take (length lines - trimLines) lines)
-        (lines: concatStringsSep "\n" lines)
-      ];
+      ../../init.lua
+			|> readFile
+			|> (s: splitString "\n" s)
+			|>(lines: take (length lines - trimLines) lines)
+			|>(lines: concatStringsSep "\n" lines);
+      
   in
     /*
     lua

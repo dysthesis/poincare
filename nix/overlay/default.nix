@@ -14,7 +14,6 @@ with final.pkgs.lib; let
     substring
     ;
 
-  inherit (lib.trivial) pipe;
   inherit
     (lib)
     filterAttrs
@@ -129,16 +128,14 @@ in {
     # Get rid of the import to `lua/packages.lua`
     trimLines = 2;
     extraLuaConfig =
-      pipe
-      (readDir ../../lua/plugins)
-      [
-        (filterAttrs (_name: value: value == "regular"))
-        attrNames
+      ../../lua/plugins
+			|> readDir
+      |>  (filterAttrs (_name: value: value == "regular"))
+      |>  attrNames
         # Trim the ".lua" at the end
-        (xs: map (x: substring 0 (stringLength x - 4) x) xs)
-        (map (x: "require('plugins.${x}')"))
-        (concatStringsSep "\n")
-      ];
+      |>  (xs: map (x: substring 0 (stringLength x - 4) x) xs)
+      |>  (map (x: "require('plugins.${x}')"))
+      |>  (concatStringsSep "\n");
     # extraLuaConfig = fold
     # (curr: acc: concatStringsSep acc)
     # ""
