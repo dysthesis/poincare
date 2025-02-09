@@ -26,6 +26,10 @@ end
 local plugins = {
 	"savq/paq-nvim", -- the package manager itself
 
+	-- Folding
+	"kevinhwang91/nvim-ufo",
+	"kevinhwang91/promise-async",
+
 	-- Completion
 	{ -- supposedly faster than nvim-cmp
 		"saghen/blink.cmp",
@@ -37,6 +41,7 @@ local plugins = {
 	"rafamadriz/friendly-snippets",
 
 	{ "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" }, -- tree sitter integration
+	"nvim-treesitter/nvim-treesitter-textobjects",
 	"neovim/nvim-lspconfig", -- configurations for LSPs
 	"stevearc/conform.nvim",
 
