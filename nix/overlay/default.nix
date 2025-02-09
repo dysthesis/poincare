@@ -52,9 +52,6 @@ with final.pkgs.lib; let
       blink-cmp # Way faster completion UI
       friendly-snippets
 
-      # TODO: Check if there is a way to just list the grammars you want to install,
-      # and if there is a performance penalty to installing all grammars (like this).
-      nvim-treesitter.withAllGrammars
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
       nvim-lspconfig
       conform-nvim
@@ -89,7 +86,11 @@ with final.pkgs.lib; let
     ++ mapPlugins pkgs inputs "plugin-lazy";
 
   plugins = with pkgs.vimPlugins;
-    []
+    [
+      # TODO: Check if there is a way to just list the grammars you want to install,
+      # and if there is a performance penalty to installing all grammars (like this).
+      nvim-treesitter.withAllGrammars
+    ]
     # Plugins that should be lazily loaded
     ++ map
     (x:
