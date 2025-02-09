@@ -86,6 +86,7 @@ with final.pkgs.lib; let
           nix
           lua
           toml
+          yaml
           markdown
         ]))
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/vim-tmux-navigator
