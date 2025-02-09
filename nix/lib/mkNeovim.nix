@@ -141,8 +141,16 @@
   # The final init.lua content that we pass to the Neovim wrapper.
   # It wraps the user init.lua, prepends the lua lib directory to the RTP
   # and prepends the nvim and after directory to the RTP
-  initLua =
-    builtins.trace "nvimRtp at ${nvimRtp}"
+  initLua = let
+    init-lua =
+      pipe
+      (readFile ../../init.lua)
+      [
+        (s: splitString "\n" s)
+        (lines: take (length lines - trimLines) lines)
+        (lines: concatStringsSep "\n" lines)
+      ];
+  in
     /*
     lua
     */
@@ -152,14 +160,8 @@
       vim.opt.rtp:prepend('${nvimRtp}')
       ${extraLuaConfig}
     ''
-    # Wrap init.lua
-    + (pipe
-      (readFile ../../init.lua)
-      [
-        (s: splitString "\n" s)
-        (lines: take (length lines - trimLines) lines)
-        (lines: concatStringsSep "\n" lines)
-      ]);
+    + init-lua;
+  # Wrap init.lua
   # Prepend nvim and after directories to the runtimepath
   # NOTE: This is done after init.lua,
   # because of a bug in Neovim that can cause filetype plugins

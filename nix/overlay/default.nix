@@ -52,16 +52,13 @@ with final.pkgs.lib; let
       blink-cmp # Way faster completion UI
       friendly-snippets
 
-      nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
       nvim-lspconfig
       conform-nvim
 
       todo-comments-nvim
       harpoon2
 
-      # BUG: This is broken because the Nix package for neotest is.
-      # TODO: Figure out how to fix this
-      # rustaceanvim
+      rustaceanvim
       crates-nvim
 
       vimtex
@@ -87,9 +84,15 @@ with final.pkgs.lib; let
 
   plugins = with pkgs.vimPlugins;
     [
-      # TODO: Check if there is a way to just list the grammars you want to install,
-      # and if there is a performance penalty to installing all grammars (like this).
-      nvim-treesitter.withAllGrammars
+      (nvim-treesitter.withPlugins (p:
+        with p; [
+          rust
+          nix
+          lua
+          toml
+          markdown
+        ]))
+      nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
     ]
     # Plugins that should be lazily loaded
     ++ map
