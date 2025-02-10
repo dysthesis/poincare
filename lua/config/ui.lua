@@ -1,5 +1,8 @@
 vim.opt.termguicolors = true
 
+-- Use the global statusline
+vim.opt.laststatus = 3
+
 -- Make line numbers default
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
