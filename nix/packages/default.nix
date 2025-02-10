@@ -5,7 +5,7 @@
   inputs,
   ...
 }: let
-  overlay = import ../overlay {inherit lib inputs self;};
+  overlay = import ../overlay {inherit self lib inputs;};
   pkgs' = import inputs.nixpkgs {
     inherit (pkgs) system;
     overlays = [overlay];

@@ -1,6 +1,6 @@
 # This overlay, when applied to nixpkgs, adds the final neovim derivation to nixpkgs.
 {
-  self,
+	self,
   inputs,
   lib,
 }: final: _prev:
@@ -118,11 +118,13 @@ with final.pkgs.lib; let
     fd
     fzf
   ];
+
+	path = self;
 in {
   # This is the neovim derivation
   # returned by the overlay
   nvim-pkg = mkNeovim {
-    inherit self pkgs plugins extraPackages;
+    inherit path pkgs plugins extraPackages;
     ignoreConfigRegexes = ["^lua/packages.lua"];
 
     # Get rid of the import to `lua/packages.lua`
@@ -130,12 +132,12 @@ in {
     extraLuaConfig =
       ../../lua/plugins
 			|> readDir
-      |>  (filterAttrs (_name: value: value == "regular"))
-      |>  attrNames
+      |> (filterAttrs (_name: value: value == "regular"))
+      |> attrNames
         # Trim the ".lua" at the end
-      |>  (xs: map (x: substring 0 (stringLength x - 4) x) xs)
-      |>  (map (x: "require('plugins.${x}')"))
-      |>  (concatStringsSep "\n");
+      |> (xs: map (x: substring 0 (stringLength x - 4) x) xs)
+      |> (map (x: "require('plugins.${x}')"))
+      |> (concatStringsSep "\n");
     # extraLuaConfig = fold
     # (curr: acc: concatStringsSep acc)
     # ""
