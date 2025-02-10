@@ -18,12 +18,12 @@ with final.pkgs.lib; let
     (lib)
     filterAttrs
     ;
-  inherit (lib.poincare) mkNeovim;
 
-  inherit
-    (lib.poincare.plugin)
-    mapPlugins
-    ;
+  inherit 
+		(lib.babel.nvim) 
+		mkNeovim
+		mapPlugins
+		;
 
   pkgs = final;
 

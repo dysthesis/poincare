@@ -1,5 +1,5 @@
 {
-  self,
+  path,
   pkgs,
   # How many lines from the bottom of `init.lua` to trin
   trimLines ? 0,
@@ -94,7 +94,7 @@
   # This uses the ignoreConfigRegexes list to filter
   # the nvim directory
   nvimRtpSrc = let
-    src = self;
+    src = path;
   in
     cleanSourceWith {
       inherit src;
@@ -144,19 +144,19 @@
       ../../init.lua
 			|> readFile
 			|> (s: splitString "\n" s)
-			|>(lines: take (length lines - trimLines) lines)
-			|>(lines: concatStringsSep "\n" lines);
+			|> (lines: take (length lines - trimLines) lines)
+			|> (lines: concatStringsSep "\n" lines);
       
   in
     /*
     lua
     */
     ''
-         vim.loader.enable()
-         -- prepend lua directory
-         vim.opt.rtp:prepend('${nvimRtp}')
+      vim.loader.enable()
+      -- prepend lua directory
+      vim.opt.rtp:prepend('${nvimRtp}')
       ${init-lua}
-         ${extraLuaConfig}
+      ${extraLuaConfig}
     '';
   # Wrap init.lua
   # Prepend nvim and after directories to the runtimepath

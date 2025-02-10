@@ -7,6 +7,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Personal library
+    babel = {
+      url = "github:dysthesis/babel";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Get plugins directly from git
     "plugin-lazy:lackluster.nvim" = {
       url = "github:slugbyte/lackluster.nvim";
@@ -16,11 +22,15 @@
 
   outputs = inputs @ {
     self,
+    babel,
+    nixpkgs,
     treefmt-nix,
     ...
   }: let
-    lib = import ./nix/lib inputs;
     inherit (builtins) mapAttrs;
+    inherit (babel) mkLib;
+    lib = mkLib nixpkgs;
+
     # Systems to support
     systems = [
       "aarch64-linux"
@@ -28,7 +38,7 @@
       "x86_64-darwin"
       "aarch64-darwin"
     ];
-    forAllSystems = lib.poincare.forAllSystems systems;
+    forAllSystems = lib.babel.forAllSystems systems;
 
     treefmt = forAllSystems (pkgs: treefmt-nix.lib.evalModule pkgs ./nix/formatters);
   in
