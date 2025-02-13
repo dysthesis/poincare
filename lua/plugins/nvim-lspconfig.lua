@@ -119,7 +119,7 @@ require('lz.n').load {
           expr = 'import <nixpkgs> { }',
         },
         formatting = {
-          command = { 'alejandra' },
+          command = { 'nixfmt' },
         },
       },
 
