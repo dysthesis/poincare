@@ -4,13 +4,15 @@
   lib,
   inputs,
   ...
-}: let
-  overlay = import ../overlay {inherit self lib inputs;};
+}:
+let
+  overlay = import ../overlay { inherit self lib inputs; };
   pkgs' = import inputs.nixpkgs {
     inherit (pkgs) system;
-    overlays = [overlay];
+    overlays = [ overlay ];
   };
-in rec {
+in
+rec {
   default = nvim;
   nvim = pkgs'.nvim-pkg;
 }

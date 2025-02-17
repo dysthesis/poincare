@@ -1,12 +1,13 @@
 # This overlay, when applied to nixpkgs, adds the final neovim derivation to nixpkgs.
 {
-	self,
+  self,
   inputs,
   lib,
-}: final: _prev:
-with final.pkgs.lib; let
-  inherit
-    (builtins)
+}:
+final: _prev:
+with final.pkgs.lib;
+let
+  inherit (builtins)
     readDir
     attrNames
     concatStringsSep
@@ -14,16 +15,14 @@ with final.pkgs.lib; let
     substring
     ;
 
-  inherit
-    (lib)
+  inherit (lib)
     filterAttrs
     ;
 
-  inherit 
-		(lib.babel.nvim) 
-		mkNeovim
-		mapPlugins
-		;
+  inherit (lib.babel.nvim)
+    mkNeovim
+    mapPlugins
+    ;
 
   pkgs = final;
 
@@ -43,7 +42,8 @@ with final.pkgs.lib; let
   #   ...
   # }
 
-  lazy-plugins = with pkgs.vimPlugins;
+  lazy-plugins =
+    with pkgs.vimPlugins;
     [
       nvim-ufo # Folding improvements
       promise-async # Dependency of nvim-ufo
@@ -79,37 +79,39 @@ with final.pkgs.lib; let
       gitsigns-nvim
       oil-nvim
       ultimate-autopair-nvim
-      (nvim-treesitter.withPlugins (p:
-        with p; [
+      (nvim-treesitter.withPlugins (
+        p: with p; [
           rust
           nix
           lua
           toml
           yaml
           markdown
-        ]))
+        ]
+      ))
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
       vim-tmux-navigator
     ]
     ++ mapPlugins pkgs inputs "plugin-lazy";
 
-  plugins = with pkgs.vimPlugins;
+  plugins =
+    with pkgs.vimPlugins;
     [
     ]
     # Plugins that should be lazily loaded
-    ++ map
-    (x:
-      if isAttrs x
-      then
+    ++ map (
+      x:
+      if isAttrs x then
         x
         // {
           optional = true;
         }
-      else {
-        plugin = x;
-        optional = true;
-      })
-    lazy-plugins
+      else
+        {
+          plugin = x;
+          optional = true;
+        }
+    ) lazy-plugins
     # bleeding-edge plugins from flake inputs
     ++ mapPlugins pkgs inputs "plugin:";
 
@@ -119,22 +121,28 @@ with final.pkgs.lib; let
     fzf
   ];
 
-	path = self;
-in {
+  path = self;
+in
+{
   # This is the neovim derivation
   # returned by the overlay
   nvim-pkg = mkNeovim {
-    inherit path pkgs plugins extraPackages;
-    ignoreConfigRegexes = ["^lua/packages.lua"];
+    inherit
+      path
+      pkgs
+      plugins
+      extraPackages
+      ;
+    ignoreConfigRegexes = [ "^lua/packages.lua" ];
 
     # Get rid of the import to `lua/packages.lua`
     trimLines = 2;
     extraLuaConfig =
       ../../lua/plugins
-			|> readDir
+      |> readDir
       |> (filterAttrs (_name: value: value == "regular"))
       |> attrNames
-        # Trim the ".lua" at the end
+      # Trim the ".lua" at the end
       |> (xs: map (x: substring 0 (stringLength x - 4) x) xs)
       |> (map (x: "require('plugins.${x}')"))
       |> (concatStringsSep "\n");
