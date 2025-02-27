@@ -81,6 +81,8 @@ let
       ultimate-autopair-nvim
       (nvim-treesitter.withPlugins (
         p: with p; [
+          fish
+          bash
           rust
           nix
           lua
