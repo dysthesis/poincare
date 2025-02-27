@@ -81,6 +81,15 @@ let
       ultimate-autopair-nvim
       (nvim-treesitter.withPlugins (
         p: with p; [
+				  diff
+					dockerfile
+					asm
+					disassembly
+					git_config
+					git_rebase
+					gitignore
+					python
+					zig
           fish
           bash
           rust
