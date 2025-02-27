@@ -104,6 +104,7 @@ vim.g.rustaceanvim = function()
     },
   }
 end
+
 require('lz.n').load {
   'rustaceanvim',
   ft = 'rust',
