@@ -114,7 +114,6 @@ require('lz.n').load {
 
       pyright = {},
       texlab = {},
-      rust_analyzer = {},
       nixd = {
         nixpkgs = {
           expr = 'import <nixpkgs> { }',
