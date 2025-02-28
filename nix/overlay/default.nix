@@ -81,7 +81,11 @@ let
       ultimate-autopair-nvim
       (nvim-treesitter.withPlugins (
         p: with p; [
+				  bash
+					fish
+					zsh
           rust
+					haskell
           nix
           lua
           toml
