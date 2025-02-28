@@ -40,7 +40,7 @@
         "x86_64-darwin"
         "aarch64-darwin"
       ];
-      forAllSystems = lib.babel.forAllSystems systems;
+      forAllSystems = lib.babel.forAllSystems { inherit systems; };
 
       treefmt = forAllSystems (pkgs: treefmt-nix.lib.evalModule pkgs ./nix/formatters);
     in

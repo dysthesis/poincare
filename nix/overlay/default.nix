@@ -84,6 +84,15 @@ let
 				  bash
 					fish
 					zsh
+				  diff
+					dockerfile
+					asm
+					disassembly
+					git_config
+					git_rebase
+					gitignore
+					python
+					zig
           rust
 					haskell
           nix
@@ -142,14 +151,23 @@ in
     # Get rid of the import to `lua/packages.lua`
     trimLines = 2;
     extraLuaConfig =
-      ../../lua/plugins
-      |> readDir
-      |> (filterAttrs (_name: value: value == "regular"))
-      |> attrNames
-      # Trim the ".lua" at the end
-      |> (xs: map (x: substring 0 (stringLength x - 4) x) xs)
-      |> (map (x: "require('plugins.${x}')"))
-      |> (concatStringsSep "\n");
+      let
+        codelldb = pkgs.vscode-extensions.vadimcn.vscode-lldb;
+        loadPlugins =
+          ../../lua/plugins
+          |> readDir
+          |> (filterAttrs (_name: value: value == "regular"))
+          |> attrNames
+          # Trim the ".lua" at the end
+          |> (xs: map (x: substring 0 (stringLength x - 4) x) xs)
+          |> (map (x: "require('plugins.${x}')"))
+          |> (concatStringsSep "\n");
+      in
+      # lua
+      ''
+        vim.g.codelldb_path = '${codelldb}/share/vscode/extensions/vadimcn.vscode-lldb/'
+        ${loadPlugins}
+      '';
     # extraLuaConfig = fold
     # (curr: acc: concatStringsSep acc)
     # ""

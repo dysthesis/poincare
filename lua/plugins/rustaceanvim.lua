@@ -104,7 +104,16 @@ vim.g.rustaceanvim = function()
     },
   }
 end
+
 require('lz.n').load {
   'rustaceanvim',
   ft = 'rust',
+  keys = {
+    {
+      '<leader>rd',
+      function()
+        vim.cmd.RustLsp('renderDiagnostic')
+      end,
+    },
+  },
 }
