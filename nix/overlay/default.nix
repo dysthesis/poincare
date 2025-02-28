@@ -83,7 +83,6 @@ let
         p: with p; [
 				  bash
 					fish
-					zsh
 				  diff
 					dockerfile
 					asm
