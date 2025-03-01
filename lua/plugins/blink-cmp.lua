@@ -11,9 +11,10 @@ require('lz.n').load {
         documentation = { auto_show = true, auto_show_delay_ms = 0, window = { border = 'single' } },
         ghost_text = { enabled = true },
         menu = {
-          border = 'single',
+          border = 'rounded',
           -- Use mini.icons
           draw = {
+            gap = 2,
             components = {
               kind_icon = {
                 ellipsis = false,
