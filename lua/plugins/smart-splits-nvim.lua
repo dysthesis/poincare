@@ -65,7 +65,4 @@ require('lz.n').load {
       desc = 'Move cursor to previous split',
     },
   },
-  after = function()
-    require('smart-splits').setup {}
-  end,
 }
