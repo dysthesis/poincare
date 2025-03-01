@@ -13,3 +13,7 @@ Speed takes precedence over minimalism.
 ## As a regular configuration
 
 When Nix is not used, [savq/paq-nvim](https://github.com/savq/paq-nvim) is used to automatically install plugins. It is extremely minimal, and does nothing else other than installing plugins.
+
+# Note to self
+
+- `smart-splits.nvim` apparently adds ~20ms to startup time. See if I can replicate the functionality with less overhead.
