@@ -3,6 +3,10 @@ require('lz.n').load {
   event = 'InsertEnter',
   after = function()
     require('blink.cmp').setup {
+      fuzzy = {
+        implementation = 'rust',
+      },
+
       completion = {
         documentation = { auto_show = true, auto_show_delay_ms = 0, window = { border = 'single' } },
         ghost_text = { enabled = true },
@@ -29,6 +33,7 @@ require('lz.n').load {
       },
       appearance = { use_nvim_cmp_as_default = false },
       signature = { enabled = true },
+      cmdline = { completion = { ghost_text = { enabled = false } } },
 
       -- Pick sources depending on file type and/or tree-sitter node
       sources = {

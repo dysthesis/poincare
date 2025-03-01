@@ -48,7 +48,9 @@ let
       nvim-ufo # Folding improvements
       promise-async # Dependency of nvim-ufo
 
-      blink-cmp # Way faster completion UI
+      # 0.13.1 isn't on nixpkgs yet, so fetch it directly
+			inputs.blink-cmp.packages.${pkgs.system}.blink-cmp
+      # blink-cmp # Way faster completion UI
       friendly-snippets
 
       nvim-lspconfig
