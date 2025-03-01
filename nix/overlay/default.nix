@@ -103,7 +103,6 @@ let
       ))
 			smart-splits-nvim
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
-      vim-tmux-navigator
     ]
     ++ mapPlugins pkgs inputs "plugin-lazy";
 
