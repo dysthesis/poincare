@@ -1,11 +1,9 @@
 require('lackluster').setup {
   tweak_background = {
     normal = 'none',
+    telescope = 'none', -- telescope
+    menu = 'none', -- nvim_cmp, wildmenu ... (bad idea to transparent)
+    popup = 'none',
   },
 }
-local spec = require('lackluster.spec')
-
-spec.bg('TodoBgTodo', '#7788AA')
-spec.bg('TodoFgTodo', '#000000')
-
 vim.cmd.colorscheme('lackluster-night')
