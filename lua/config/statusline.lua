@@ -1,4 +1,99 @@
+-- Originally from:
+-- https://github.com/shivambegin/Neovim/blob/a1b6009501f88dcc82d4fc681bb28dc2ab781d77/lua/config/statusline.lua
+
 local statusline_augroup = vim.api.nvim_create_augroup('native_statusline', { clear = true })
+
+local function setup_highlights()
+  local statusline_bg = '#080808' -- Dark blue background (adjust to your preference)
+
+  -- Set the default StatusLine highlight group
+  vim.api.nvim_set_hl(0, 'StatusLine', {
+    fg = '#ffffff', -- Default text color
+    bg = statusline_bg,
+  })
+
+  -- Set StatusLineNC (non-current statusline) to match
+  vim.api.nvim_set_hl(0, 'StatusLineNC', {
+    fg = '#565f89', -- Dimmer text for inactive statuslines
+    bg = statusline_bg,
+  })
+
+  -- Now set all your custom statusline highlight groups to use the same background
+  vim.api.nvim_set_hl(0, 'StatusLineModeBold', {
+    fg = '#ffffff', -- Mode text color
+    bg = statusline_bg,
+    bold = true,
+  })
+
+  vim.api.nvim_set_hl(0, 'StatusLineMode', {
+    fg = '#ffffff',
+    bg = statusline_bg,
+  })
+
+  vim.api.nvim_set_hl(0, 'StatusLineMedium', {
+    fg = '#444444',
+    bg = statusline_bg,
+  })
+
+  vim.api.nvim_set_hl(0, 'StatusLineLspActive', {
+    fg = '#789978',
+    bg = statusline_bg,
+  })
+
+  vim.api.nvim_set_hl(0, 'StatusLineLspError', {
+    fg = '#ffaa88',
+    bg = statusline_bg,
+  })
+
+  vim.api.nvim_set_hl(0, 'StatusLineLspWarn', {
+    fg = '#ffaa88',
+    bg = statusline_bg,
+  })
+
+  vim.api.nvim_set_hl(0, 'StatusLineLspHint', {
+    fg = '#7788aa',
+    bg = statusline_bg,
+  })
+
+  vim.api.nvim_set_hl(0, 'StatusLineLspInfo', {
+    fg = '#0db9d7',
+    bg = statusline_bg,
+  })
+
+  vim.api.nvim_set_hl(0, 'StatusLineLspMessages', {
+    fg = '#a9b1d6',
+    bg = statusline_bg,
+  })
+
+  vim.api.nvim_set_hl(0, 'StatusLineGitDiffAdded', {
+    fg = '#789978',
+    bg = statusline_bg,
+  })
+
+  vim.api.nvim_set_hl(0, 'StatusLineGitDiffChanged', {
+    fg = '#708090',
+    bg = statusline_bg,
+  })
+
+  vim.api.nvim_set_hl(0, 'StatusLineGitDiffRemoved', {
+    fg = '#ffaa88',
+    bg = statusline_bg,
+  })
+
+  vim.api.nvim_set_hl(0, 'StatusLineGitBranchIcon', {
+    fg = '#444444',
+    bg = statusline_bg,
+  })
+end
+
+-- Create an autocommand to ensure highlights are updated when colorscheme changes
+vim.api.nvim_create_autocmd('ColorScheme', {
+  group = statusline_augroup,
+  callback = setup_highlights,
+})
+
+-- Call setup_highlights initially
+setup_highlights()
 
 -- LSP clients attached to buffer
 local function lsp_clients()
@@ -75,34 +170,7 @@ local modes = {
 --- @return string
 local function mode()
   local current_mode = vim.api.nvim_get_mode().mode
-  return string.format(' %s ', modes[current_mode]):upper()
-end
-
---- @return string
-local function python_env()
-  if not rawget(vim, 'lsp') then
-    return ''
-  end
-
-  local buf = vim.api.nvim_get_current_buf()
-  local buf_clients = vim.lsp.get_clients { bufnr = buf }
-  if next(buf_clients) == nil then
-    return ''
-  end
-
-  for _, client in pairs(buf_clients) do
-    if client.name == 'pyright' or client.name == 'pylance' then
-      local virtual_env = os.getenv('VIRTUAL_ENV_PROMPT')
-      if virtual_env == nil then
-        return ''
-      end
-
-      virtual_env = virtual_env:gsub('%s+', '')
-      return string.format('%%#StatusLineMedium# %s%%*', virtual_env)
-    end
-  end
-
-  return ''
+  return string.format('%%#StatusLineModeBold# %s %%*', modes[current_mode]):upper()
 end
 
 --- @return string
@@ -117,7 +185,7 @@ local function lsp_active()
   local space = '%#StatusLineMedium# %*'
 
   if #clients > 0 then
-    return space .. '%#StatusLineLspActive#%*' .. space .. '%#StatusLineMedium#LSP%*'
+    return space .. '%#StatusLineLspActive# %*' .. space .. '%#StatusLineMedium#LSP%*'
   end
 
   return ''
@@ -332,7 +400,12 @@ local function formatted_filetype(hlgroup)
 end
 
 local function filetype()
-  return string.format(' {ft:%s}', vim.bo.filetype):lower()
+  local MiniIcons = require('mini.icons')
+  local filetype = vim.bo.filetype
+
+  local icon, icon_hl, _ = MiniIcons.get('filetype', filetype)
+
+  return string.format('%%#%s#%s %%#StatuslineTitle#%s', icon_hl, icon, filetype)
 end
 
 StatusLine = {}
@@ -372,22 +445,24 @@ StatusLine.active = function()
   end
 
   local statusline = {
+    '▊',
     mode(),
     filename(),
-    full_git(), -- this module depends on gitsigns
-    '%=',
+    full_git(),
     '%=',
     '%S ',
     lsp_status(),
+    lsp_active(),
     diagnostics_error(),
     diagnostics_warns(),
     diagnostics_hint(),
     diagnostics_info(),
-    lsp_active(),
-    filetype(),
+    '%=',
     file_percentage(),
     total_lines(),
+    filetype(),
     lsp_clients(),
+    ' ▊',
   }
 
   return table.concat(statusline)
