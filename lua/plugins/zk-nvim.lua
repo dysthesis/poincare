@@ -72,6 +72,9 @@ require('lz.n').load {
       mode = 'n',
     },
   },
+  before = function()
+    require('lz.n').trigger_load('mini.pick')
+  end,
   after = function()
     require('zk').setup {
       picker = 'minipick',
