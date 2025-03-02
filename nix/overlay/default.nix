@@ -54,6 +54,7 @@ let
       friendly-snippets
 
       nvim-lspconfig
+			lspsaga-nvim
       conform-nvim
 
       todo-comments-nvim
