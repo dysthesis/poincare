@@ -25,7 +25,8 @@ require('lz.n').load {
     },
   },
   after = function()
-    require('mini.pick').setup {
+    local MiniPick = require('mini.pick')
+    MiniPick.setup {
       options = {
         use_cache = true,
       },
@@ -46,5 +47,7 @@ require('lz.n').load {
         end,
       },
     }
+
+    vim.ui.select = MiniPick.ui_select
   end,
 }
