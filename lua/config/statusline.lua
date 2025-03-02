@@ -185,7 +185,7 @@ local function lsp_active()
   local space = '%#StatusLineMedium# %*'
 
   if #clients > 0 then
-    return space .. '%#StatusLineLspActive# %*' .. space .. '%#StatusLineMedium#LSP%*'
+    return space .. '%#StatusLineLspActive# %*' .. space .. 'LSP'
   end
 
   return ''
