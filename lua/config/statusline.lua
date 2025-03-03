@@ -108,7 +108,7 @@ local function lsp_clients()
   for _, client in pairs(clients) do
     table.insert(c, client.name)
   end
-  return ' 󰌘 ' .. table.concat(c, '|')
+  return ' %#StatusLineGitBranchIcon#󰌘 %*' .. string.format('%%#StatusLineMedium#%s%%*', table.concat(c, '|'))
 end
 --- @return string
 local function filename()
@@ -405,7 +405,7 @@ local function filetype()
 
   local icon, icon_hl, _ = MiniIcons.get('filetype', filetype)
 
-  return string.format('%%#%s#%s %%#StatuslineTitle#%s', icon_hl, icon, filetype)
+  return string.format(' %%#%s#%s %%#StatuslineTitle#%s', icon_hl, icon, filetype)
 end
 
 StatusLine = {}
@@ -460,8 +460,8 @@ StatusLine.active = function()
     '%=',
     file_percentage(),
     total_lines(),
-    filetype(),
     lsp_clients(),
+    filetype(),
     ' ▊',
   }
 

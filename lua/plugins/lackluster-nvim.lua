@@ -1,4 +1,5 @@
-require('lackluster').setup {
+local lackluster = require('lackluster')
+lackluster.setup {
   tweak_background = {
     normal = 'none',
     telescope = 'none', -- telescope
