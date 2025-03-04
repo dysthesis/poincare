@@ -51,7 +51,6 @@ let
       # 0.13.1 isn't on nixpkgs yet, so fetch it directly
       inputs.blink-cmp.packages.${pkgs.system}.blink-cmp
       blink-compat
-      nui-nvim
       friendly-snippets
 
       nvim-lspconfig
