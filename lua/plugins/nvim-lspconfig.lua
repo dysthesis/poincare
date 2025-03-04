@@ -114,7 +114,6 @@ require('lz.n').load {
 
       pyright = {},
       texlab = {},
-      hls = {},
       nixd = {
         nixpkgs = {
           expr = 'import <nixpkgs> { }',
