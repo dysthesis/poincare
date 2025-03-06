@@ -49,12 +49,15 @@ let
       promise-async # Dependency of nvim-ufo
 
       # 0.13.1 isn't on nixpkgs yet, so fetch it directly
-			inputs.blink-cmp.packages.${pkgs.system}.blink-cmp
-      # blink-cmp # Way faster completion UI
+      # inputs.blink-cmp.packages.${pkgs.system}.blink-cmp
+			blink-cmp
+      blink-compat
+      nui-nvim
+			noice-nvim
       friendly-snippets
 
       nvim-lspconfig
-			lspsaga-nvim
+      lspsaga-nvim
       conform-nvim
 
       todo-comments-nvim
@@ -84,34 +87,36 @@ let
       ultimate-autopair-nvim
       (nvim-treesitter.withPlugins (
         p: with p; [
-				  bash
-					fish
-				  diff
-					dockerfile
-					asm
-					disassembly
-					git_config
-					git_rebase
-					gitignore
-					python
-					zig
+          bash
+          fish
+          diff
+          dockerfile
+          asm
+          disassembly
+          git_config
+          git_rebase
+          gitignore
+          python
+          zig
           rust
-					haskell
+          haskell
           nix
           lua
           toml
           yaml
           markdown
+					latex
         ]
       ))
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
-			smart-splits-nvim
+      smart-splits-nvim
     ]
     ++ mapPlugins pkgs inputs "plugin-lazy";
 
   plugins =
     with pkgs.vimPlugins;
     [
+			markview-nvim
     ]
     # Plugins that should be lazily loaded
     ++ map (

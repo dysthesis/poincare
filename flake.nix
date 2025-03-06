@@ -18,10 +18,10 @@
       url = "github:slugbyte/lackluster.nvim";
       flake = false;
     };
-    blink-cmp = {
-      url = "github:Saghen/blink.cmp";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # blink-cmp = {
+    #   url = "github:Saghen/blink.cmp";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
   };
 
   outputs = inputs @ {
