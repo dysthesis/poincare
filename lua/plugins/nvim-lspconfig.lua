@@ -112,7 +112,8 @@ require('lz.n').load {
         },
       },
 
-      pyright = {},
+      basedpyright = {},
+      tsserver = {},
       texlab = {},
       hls = {},
       nixd = {
