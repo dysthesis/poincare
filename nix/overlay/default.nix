@@ -49,9 +49,11 @@ let
       promise-async # Dependency of nvim-ufo
 
       # 0.13.1 isn't on nixpkgs yet, so fetch it directly
-      inputs.blink-cmp.packages.${pkgs.system}.blink-cmp
+      # inputs.blink-cmp.packages.${pkgs.system}.blink-cmp
+			blink-cmp
       blink-compat
       nui-nvim
+			noice-nvim
       friendly-snippets
 
       nvim-lspconfig
@@ -103,6 +105,7 @@ let
           toml
           yaml
           markdown
+					latex
         ]
       ))
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
@@ -113,6 +116,7 @@ let
   plugins =
     with pkgs.vimPlugins;
     [
+			markview-nvim
     ]
     # Plugins that should be lazily loaded
     ++ map (

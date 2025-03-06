@@ -274,37 +274,6 @@ vim.api.nvim_create_autocmd('LspProgress', {
 })
 
 --- @return string
-local function lsp_status()
-  if not rawget(vim, 'lsp') then
-    return ''
-  end
-
-  if vim.o.columns < 120 then
-    return ''
-  end
-
-  if not lsp_progress.client or not lsp_progress.title then
-    return ''
-  end
-
-  local title = lsp_progress.title or ''
-  local percentage = (lsp_progress.percentage and (lsp_progress.percentage .. '%%')) or ''
-  local message = lsp_progress.message or ''
-
-  local lsp_message = string.format('%s', title)
-
-  if message ~= '' then
-    lsp_message = string.format('%s %s', lsp_message, message)
-  end
-
-  if percentage ~= '' then
-    lsp_message = string.format('%s %s', lsp_message, percentage)
-  end
-
-  return string.format('%%#StatusLineLspMessages#%s%%* ', lsp_message)
-end
-
---- @return string
 local function git_diff_added()
   local added = get_git_diff('added')
   if added > 0 then
@@ -451,7 +420,6 @@ StatusLine.active = function()
     full_git(),
     '%=',
     '%S ',
-    lsp_status(),
     lsp_active(),
     diagnostics_error(),
     diagnostics_warns(),
