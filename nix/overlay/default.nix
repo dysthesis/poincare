@@ -114,7 +114,6 @@ let
   plugins =
     with pkgs.vimPlugins;
     [
-			markview-nvim
     ]
     # Plugins that should be lazily loaded
     ++ map (
