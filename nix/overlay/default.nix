@@ -51,7 +51,8 @@ let
       nui-nvim
       noice-nvim
 
-      mini-icons
+      mini-snippets
+      friendly-snippets
 
       nvim-lspconfig
       lspsaga-nvim
