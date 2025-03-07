@@ -186,6 +186,8 @@ require('lz.n').load {
       texlab = {
         on_attach = custom_on_attach,
       },
+      basedpyright = { on_attach = custom_on_attach },
+      tsserver = { on_attach = custom_on_attach },
       nixd = {
         on_attach = custom_on_attach,
         nixpkgs = {
