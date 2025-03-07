@@ -48,13 +48,10 @@ let
       nvim-ufo # Folding improvements
       promise-async # Dependency of nvim-ufo
 
-      # 0.13.1 isn't on nixpkgs yet, so fetch it directly
-      # inputs.blink-cmp.packages.${pkgs.system}.blink-cmp
-			blink-cmp
-      blink-compat
       nui-nvim
-			noice-nvim
-      friendly-snippets
+      noice-nvim
+
+      mini-icons
 
       nvim-lspconfig
       lspsaga-nvim
@@ -105,7 +102,7 @@ let
           toml
           yaml
           markdown
-					latex
+          latex
         ]
       ))
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/

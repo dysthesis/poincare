@@ -18,6 +18,10 @@
       url = "github:slugbyte/lackluster.nvim";
       flake = false;
     };
+    "plugin-lazy:mini.completion" = {
+      url = "github:echasnovski/mini.completion";
+      flake = false;
+    };
     # blink-cmp = {
     #   url = "github:Saghen/blink.cmp";
     #   inputs.nixpkgs.follows = "nixpkgs";
