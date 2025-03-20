@@ -52,28 +52,11 @@
         "type": "github"
       }
     },
-    "plugin-lazy:mini.completion": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1741369121,
-        "narHash": "sha256-55A5hnOsP7Gy7QN57nI6TJqirxJ+KZHVZQxwNByevqY=",
-        "owner": "echasnovski",
-        "repo": "mini.completion",
-        "rev": "b76983f10d6016c3cd35e5d90eb51891159e0796",
-        "type": "github"
-      },
-      "original": {
-        "owner": "echasnovski",
-        "repo": "mini.completion",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "babel": "babel",
         "nixpkgs": "nixpkgs",
         "plugin-lazy:lackluster.nvim": "plugin-lazy:lackluster.nvim",
-        "plugin-lazy:mini.completion": "plugin-lazy:mini.completion",
         "treefmt-nix": "treefmt-nix"
       }
     },

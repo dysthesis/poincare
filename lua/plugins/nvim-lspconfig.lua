@@ -64,10 +64,7 @@ require('lz.n').load {
     --  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
     --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
     local capabilities = vim.lsp.protocol.make_client_capabilities()
-    -- capabilities = vim.tbl_deep_extend('force', capabilities, require('blink.cmp').get_lsp_capabilities())
-    local custom_on_attach = function(client, buf_id)
-      vim.bo[buf_id].omnifunc = 'v:lua.MiniCompletion.completefunc_lsp'
-    end
+    capabilities = vim.tbl_deep_extend('force', capabilities, require('blink.cmp').get_lsp_capabilities())
 
     local servers = {
       clangd = {
@@ -76,7 +73,7 @@ require('lz.n').load {
           { '<leader>cR', '<cmd>ClangdSwitchSourceHeader<cr>', desc = 'Switch Source/Header (C/C++)' },
         },
 
-        on_attach = function(client, buf_id)
+        on_attach = function()
           require('clangd_extensions').setup {
             inlay_hints = {
               inline = vim.fn.has('nvim-0.10') == 1,
@@ -138,7 +135,6 @@ require('lz.n').load {
               border = 'none',
             },
           }
-          custom_on_attach(client, buf_id)
         end,
 
         root_dir = function(fname)
@@ -180,16 +176,11 @@ require('lz.n').load {
         },
       },
 
-      pyright = {
-        on_attach = custom_on_attach,
-      },
-      texlab = {
-        on_attach = custom_on_attach,
-      },
-      basedpyright = { on_attach = custom_on_attach },
-      tsserver = { on_attach = custom_on_attach },
+      pyright = {},
+      texlab = {},
+      basedpyright = {},
+      tsserver = {},
       nixd = {
-        on_attach = custom_on_attach,
         nixpkgs = {
           expr = 'import <nixpkgs> { }',
         },
@@ -199,7 +190,6 @@ require('lz.n').load {
       },
 
       lua_ls = {
-        on_attach = custom_on_attach,
         settings = {
           Lua = {
             runtime = {

@@ -51,7 +51,8 @@ let
       nui-nvim
       noice-nvim
 
-      mini-snippets
+      blink-cmp
+      blink-compat
       friendly-snippets
 
       nvim-lspconfig
