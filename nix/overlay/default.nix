@@ -52,9 +52,6 @@ let
   lazy-plugins =
     with pkgs.vimPlugins;
     [
-      nvim-ufo # Folding improvements
-      promise-async # Dependency of nvim-ufo
-
       nui-nvim
       noice-nvim
 
