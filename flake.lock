@@ -8,11 +8,11 @@
         "treefmt": "treefmt"
       },
       "locked": {
-        "lastModified": 1740822998,
-        "narHash": "sha256-OIg2kAyX7aNkXkphC8XW9VNcNcFWinVUHlNNQ0h1FmU=",
+        "lastModified": 1742515638,
+        "narHash": "sha256-BZAGcP2AzZEvV2Tq7DvfO2MnNJVxr/Q6yaJbllvFbIc=",
         "owner": "dysthesis",
         "repo": "babel",
-        "rev": "7ffec5173a2657d996bbaf6db4eb10e1e868abad",
+        "rev": "4a3cf0f885b42e10be8a2d5d7ac792c06d428986",
         "type": "github"
       },
       "original": {
@@ -36,27 +36,10 @@
         "type": "github"
       }
     },
-    "plugin-lazy:lackluster.nvim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1735469289,
-        "narHash": "sha256-oZca/MfsYBW0Fa/yBUGXFZKxJ05DfDNeWj5XaOoU4Mo=",
-        "owner": "slugbyte",
-        "repo": "lackluster.nvim",
-        "rev": "662fba7e6719b7afc155076385c00d79290bc347",
-        "type": "github"
-      },
-      "original": {
-        "owner": "slugbyte",
-        "repo": "lackluster.nvim",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "babel": "babel",
         "nixpkgs": "nixpkgs",
-        "plugin-lazy:lackluster.nvim": "plugin-lazy:lackluster.nvim",
         "treefmt-nix": "treefmt-nix"
       }
     },
@@ -68,11 +51,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1739829690,
-        "narHash": "sha256-mL1szCeIsjh6Khn3nH2cYtwO5YXG6gBiTw1A30iGeDU=",
+        "lastModified": 1742370146,
+        "narHash": "sha256-XRE8hL4vKIQyVMDXykFh4ceo3KSpuJF3ts8GKwh5bIU=",
         "owner": "numtide",
         "repo": "treefmt-nix",
-        "rev": "3d0579f5cc93436052d94b73925b48973a104204",
+        "rev": "adc195eef5da3606891cedf80c0d9ce2d3190808",
         "type": "github"
       },
       "original": {
