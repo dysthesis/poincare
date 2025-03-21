@@ -5,7 +5,6 @@ require('lz.n').load {
 
   load = function(name)
     vim.cmd.packadd(name)
-    vim.cmd.packadd('mini.completion')
   end,
 
   after = function()
