@@ -10,19 +10,26 @@ let
   inherit (builtins)
     readDir
     attrNames
-    concatStringsSep
+		concatStringsSep
     stringLength
     substring
     ;
 
   inherit (lib)
     filterAttrs
+		mapAttrsToList
     ;
 
   inherit (lib.babel.nvim)
     mkNeovim
+		mkNvimPlugin
     mapPlugins
     ;
+	
+	npins = import ./npins;
+  mkNpins = mapAttrsToList (pname: src: mkNvimPlugin {inherit pkgs src pname; version = src.revision;});
+	builtNpins = mkNpins npins;
+
 
   pkgs = final;
 
@@ -110,6 +117,7 @@ let
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
       smart-splits-nvim
     ]
+		++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy";
 
   plugins =

@@ -1,0 +1,17 @@
+{
+  "pins": {
+    "lackluster.nvim": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "slugbyte",
+        "repo": "lackluster.nvim"
+      },
+      "branch": "main",
+      "revision": "662fba7e6719b7afc155076385c00d79290bc347",
+      "url": "https://github.com/slugbyte/lackluster.nvim/archive/662fba7e6719b7afc155076385c00d79290bc347.tar.gz",
+      "hash": "1jp02km6hmryb9g36z239qkv34hmjx0hbwmg2ns1aq7cqzy1m5x1"
+    }
+  },
+  "version": 3
+}

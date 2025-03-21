@@ -8,5 +8,6 @@ pkgs.mkShell {
     deadnix
     lua-language-server
     stylua
+    npins
   ];
 }
