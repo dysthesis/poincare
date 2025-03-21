@@ -52,6 +52,7 @@ let
   lazy-plugins =
     with pkgs.vimPlugins;
     [
+		  neogen
       nui-nvim
       noice-nvim
 
