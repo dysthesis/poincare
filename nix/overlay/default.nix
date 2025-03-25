@@ -52,7 +52,7 @@ let
   lazy-plugins =
     with pkgs.vimPlugins;
     [
-		  neogen
+      neogen
       nui-nvim
       noice-nvim
 
@@ -112,6 +112,7 @@ let
           latex
         ]
       ))
+      glance-nvim
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
       smart-splits-nvim
     ]
