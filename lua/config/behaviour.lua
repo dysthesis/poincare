@@ -1,57 +1,58 @@
+local opt = vim.opt
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
-vim.opt.compatible = false
+opt.compatible = false
 
-vim.opt.colorcolumn = '100'
+opt.colorcolumn = '100'
 
 -- [[ Setting options ]]
--- See `:help vim.opt`
+-- See `:help opt`
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 
 -- Enable mouse mode, can be useful for resizing splits for example!
-vim.opt.mouse = 'a'
+opt.mouse = 'a'
 
 -- Don't show the mode, since it's already in the status line
-vim.opt.showmode = false
+opt.showmode = false
 
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
-vim.opt.clipboard = 'unnamedplus'
+opt.clipboard = 'unnamedplus'
 
 -- Enable break indent
-vim.opt.breakindent = true
+opt.breakindent = true
 
 -- Save undo history
-vim.opt.undofile = true
+opt.undofile = true
 
 -- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
+opt.ignorecase = true
+opt.smartcase = true
 
-vim.opt.smartindent = true
+opt.smartindent = true
 
-vim.opt.showmode = false -- Dont show mode since we have a statusline
-vim.opt.sidescrolloff = 8 -- Columns of context
-vim.opt.signcolumn = 'yes' -- Always show the signcolumn, otherwise it would shift the text each time
-vim.opt.termguicolors = true
-vim.opt.wrap = false
+opt.showmode = false -- Dont show mode since we have a statusline
+opt.sidescrolloff = 8 -- Columns of context
+opt.signcolumn = 'yes' -- Always show the signcolumn, otherwise it would shift the text each time
+opt.termguicolors = true
+opt.wrap = false
 
 -- Decrease update time
-vim.opt.updatetime = 250
+opt.updatetime = 250
 
 -- Use rg
 vim.o.grepprg = [[rg --glob "!.git" --no-heading --vimgrep --follow $*]]
-vim.opt.grepformat = vim.opt.grepformat ^ { '%f:%l:%c:%m' }
+opt.grepformat = opt.grepformat ^ { '%f:%l:%c:%m' }
 
-vim.opt.jumpoptions = 'view'
+opt.jumpoptions = 'view'
 
-vim.opt.pumblend = 10
-vim.opt.pumheight = 10
-vim.opt.scrolloff = 4
-vim.opt.shiftround = true
-vim.opt.sessionoptions = {
+opt.pumblend = 10
+opt.pumheight = 10
+opt.scrolloff = 4
+opt.shiftround = true
+opt.sessionoptions = {
   'buffers', -- saves all open buffers
   'curdir', -- restores current working directory
   'tabpages', -- saves the state of all tab pages
@@ -62,25 +63,25 @@ vim.opt.sessionoptions = {
   'folds', -- records the folding state of the buffer
 }
 
-vim.opt.softtabstop = 2
-vim.opt.tabstop = 2
-vim.opt.shiftwidth = 2
-vim.opt.foldcolumn = '1'
+opt.softtabstop = 2
+opt.tabstop = 2
+opt.shiftwidth = 2
+opt.foldcolumn = '1'
 
 if vim.fn.has('nvim-0.10') == 1 then
-  vim.opt.smoothscroll = true
-  vim.opt.foldexpr = "v:lua.require'utils.folding'.foldexpr()"
-  vim.opt.foldmethod = 'expr'
-  vim.o.foldtext = 'v:lua.vim.treesitter.foldtext()'
+  opt.smoothscroll = true
+  opt.foldexpr = "v:lua.require'utils.folding'.foldexpr()"
+  opt.foldmethod = 'expr'
+  opt.foldtext = ''
 else
-  vim.opt.foldmethod = 'indent'
-  vim.opt.foldtext = "v:lua.require'lazyvim.util'.ui.foldtext()"
+  opt.foldmethod = 'indent'
+  opt.foldtext = "v:lua.require'lazyvim.util'.ui.foldtext()"
 end
 
 -- Fold by treesitter expression
-vim.opt.foldlevel = 99
-vim.opt.expandtab = true -- Use spaces instead of tabs
-vim.opt.fillchars = {
+opt.foldlevel = 99
+opt.expandtab = true -- Use spaces instead of tabs
+opt.fillchars = {
   foldopen = '',
   foldclose = '',
   fold = ' ',
@@ -119,12 +120,6 @@ vim.api.nvim_create_autocmd({ 'VimResized' }, {
     vim.cmd.tabdo('wincmd =')
   end,
 })
-
--- Highlight folded text
-local bg = vim.api.nvim_get_hl(0, { name = 'StatusLine' }).bg
-local hl = vim.api.nvim_get_hl(0, { name = 'Folded' })
-hl.bg = bg
-vim.api.nvim_set_hl(0, 'Folded', hl)
 
 -- let sqlite.lua (which some plugins depend on) know where to find sqlite
 vim.g.sqlite_clib_path = require('luv').os_getenv('LIBSQLITE')
