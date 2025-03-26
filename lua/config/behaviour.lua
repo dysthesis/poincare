@@ -32,6 +32,12 @@ vim.opt.smartcase = true
 
 vim.opt.smartindent = true
 
+vim.opt.showmode = false -- Dont show mode since we have a statusline
+vim.opt.sidescrolloff = 8 -- Columns of context
+vim.opt.signcolumn = 'yes' -- Always show the signcolumn, otherwise it would shift the text each time
+vim.opt.termguicolors = true
+vim.opt.wrap = false
+
 -- Decrease update time
 vim.opt.updatetime = 250
 
@@ -39,20 +45,26 @@ vim.opt.updatetime = 250
 vim.o.grepprg = [[rg --glob "!.git" --no-heading --vimgrep --follow $*]]
 vim.opt.grepformat = vim.opt.grepformat ^ { '%f:%l:%c:%m' }
 
+vim.opt.jumpoptions = 'view'
+
+vim.opt.pumblend = 10
+vim.opt.pumheight = 10
+vim.opt.scrolloff = 4
+vim.opt.shiftround = true
+vim.opt.sessionoptions = { 'buffers', 'curdir', 'tabpages', 'winsize', 'help', 'globals', 'skiprtp', 'folds' }
+
 vim.o.softtabstop = 2
 vim.o.tabstop = 2
 vim.o.shiftwidth = 2
 
 -- Fold by treesitter expression
+vim.opt.smoothscroll = true
+vim.opt.foldexpr = "v:lua.require'utils.folding'.foldexpr()"
 vim.opt.foldmethod = 'expr'
--- vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
-vim.opt.foldcolumn = '1'
-vim.opt.foldlevel = 99
-vim.opt.foldlevelstart = 99
-vim.opt.foldenable = true
 vim.opt.foldtext = ''
--- vim.o.fillchars = "eob: ,fold: ,foldopen:,foldsep: ,foldclose:"
+vim.opt.foldlevel = 99
+vim.opt.expandtab = true -- Use spaces instead of tabs
+vim.o.fillchars = 'eob: ,fold: ,foldopen:,foldsep: ,foldclose:'
 
 -- I make this typo way too much
 vim.cmd('cnoreabbrev W! w!')
