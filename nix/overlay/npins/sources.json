@@ -11,6 +11,21 @@
       "revision": "662fba7e6719b7afc155076385c00d79290bc347",
       "url": "https://github.com/slugbyte/lackluster.nvim/archive/662fba7e6719b7afc155076385c00d79290bc347.tar.gz",
       "hash": "1jp02km6hmryb9g36z239qkv34hmjx0hbwmg2ns1aq7cqzy1m5x1"
+    },
+    "namu.nvim": {
+      "type": "GitRelease",
+      "repository": {
+        "type": "GitHub",
+        "owner": "bassamsdata",
+        "repo": "namu.nvim"
+      },
+      "pre_releases": false,
+      "version_upper_bound": null,
+      "release_prefix": null,
+      "version": "v0.3.0",
+      "revision": "a173d6cf3e206c2c6315219f4a5c3f7e1f4ef2ec",
+      "url": "https://api.github.com/repos/bassamsdata/namu.nvim/tarball/v0.3.0",
+      "hash": "157ydcnirvnxn4indg9vs03q4aa40d28b8nffsrzlx0lligvhk6m"
     }
   },
   "version": 3
