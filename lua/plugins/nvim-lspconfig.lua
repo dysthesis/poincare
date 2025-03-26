@@ -178,7 +178,7 @@ require('lz.n').load {
       pyright = {},
       texlab = {},
       basedpyright = {},
-      tsserver = {},
+      ts_ls = {},
 
       zls = {},
 
