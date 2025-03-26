@@ -51,20 +51,43 @@ vim.opt.pumblend = 10
 vim.opt.pumheight = 10
 vim.opt.scrolloff = 4
 vim.opt.shiftround = true
-vim.opt.sessionoptions = { 'buffers', 'curdir', 'tabpages', 'winsize', 'help', 'globals', 'skiprtp', 'folds' }
+vim.opt.sessionoptions = {
+  'buffers', -- saves all open buffers
+  'curdir', -- restores current working directory
+  'tabpages', -- saves the state of all tab pages
+  'winsize', -- remembers the sizes of windows
+  'help', -- includes any help buffers in the session
+  'globals', -- saves global variables so that session-specific state is maintained
+  'skiprtp', -- excludes the runtime path from the session file
+  'folds', -- records the folding state of the buffer
+}
 
-vim.o.softtabstop = 2
-vim.o.tabstop = 2
-vim.o.shiftwidth = 2
+vim.opt.softtabstop = 2
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2
+vim.opt.foldcolumn = '1'
+
+if vim.fn.has('nvim-0.10') == 1 then
+  vim.opt.smoothscroll = true
+  vim.opt.foldexpr = "v:lua.require'utils.folding'.foldexpr()"
+  vim.opt.foldmethod = 'expr'
+  vim.o.foldtext = 'v:lua.vim.treesitter.foldtext()'
+else
+  vim.opt.foldmethod = 'indent'
+  vim.opt.foldtext = "v:lua.require'lazyvim.util'.ui.foldtext()"
+end
 
 -- Fold by treesitter expression
-vim.opt.smoothscroll = true
-vim.opt.foldexpr = "v:lua.require'utils.folding'.foldexpr()"
-vim.opt.foldmethod = 'expr'
-vim.opt.foldtext = ''
 vim.opt.foldlevel = 99
 vim.opt.expandtab = true -- Use spaces instead of tabs
-vim.o.fillchars = 'eob: ,fold: ,foldopen:,foldsep: ,foldclose:'
+vim.opt.fillchars = {
+  foldopen = '',
+  foldclose = '',
+  fold = ' ',
+  foldsep = ' ',
+  diff = '╱',
+  eob = ' ',
+}
 
 -- I make this typo way too much
 vim.cmd('cnoreabbrev W! w!')
@@ -96,6 +119,12 @@ vim.api.nvim_create_autocmd({ 'VimResized' }, {
     vim.cmd.tabdo('wincmd =')
   end,
 })
+
+-- Highlight folded text
+local bg = vim.api.nvim_get_hl(0, { name = 'StatusLine' }).bg
+local hl = vim.api.nvim_get_hl(0, { name = 'Folded' })
+hl.bg = bg
+vim.api.nvim_set_hl(0, 'Folded', hl)
 
 -- let sqlite.lua (which some plugins depend on) know where to find sqlite
 vim.g.sqlite_clib_path = require('luv').os_getenv('LIBSQLITE')
