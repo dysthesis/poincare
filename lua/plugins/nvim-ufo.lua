@@ -56,8 +56,7 @@ require('lz.n').load {
     require('ufo').setup {
       fold_virt_text_handler = handler,
       close_fold_kinds_for_ft = {
-        c = { '@function.inner' },
-        python = { '@function.inner' },
+        default = { 'imports', 'comment' },
       },
       provider_selector = function(bufnr, filetype, buftype)
         return { 'treesitter', 'indent' }
