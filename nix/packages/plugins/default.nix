@@ -102,6 +102,7 @@
       ))
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
       smart-splits-nvim
+      nvim-lint
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy";

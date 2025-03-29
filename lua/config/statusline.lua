@@ -377,6 +377,14 @@ local function filetype()
   return string.format(' %%#%s#%s %%#StatuslineTitle#%s', icon_hl, icon, filetype)
 end
 
+local lint_progress = function()
+  local linters = require('lint').get_running()
+  if #linters == 0 then
+    return '󰦕'
+  end
+  return '󱉶 ' .. table.concat(linters, ', ')
+end
+
 StatusLine = {}
 
 StatusLine.inactive = function()
@@ -428,6 +436,7 @@ StatusLine.active = function()
     '%=',
     file_percentage(),
     total_lines(),
+    lint_progress(),
     lsp_clients(),
     filetype(),
     ' ▊',
