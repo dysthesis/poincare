@@ -45,6 +45,7 @@ require('lz.n').load {
     lint.linters_by_ft = {
       zig = { 'zlint' },
       rust = { 'clippy' },
+      nix { 'statix' },
       markdown = { 'vale' },
     }
     local lint_augroup = vim.api.nvim_create_augroup('lint', { clear = true })
