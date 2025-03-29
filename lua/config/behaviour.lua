@@ -70,8 +70,6 @@ opt.foldcolumn = '1'
 
 if vim.fn.has('nvim-0.10') == 1 then
   opt.smoothscroll = true
-  opt.foldexpr = "v:lua.require'utils.folding'.foldexpr()"
-  opt.foldmethod = 'expr'
   opt.foldtext = ''
 else
   opt.foldmethod = 'indent'
@@ -149,5 +147,6 @@ autocmd('BufWinEnter', {
     end
   end,
 })
+
 -- let sqlite.lua (which some plugins depend on) know where to find sqlite
 vim.g.sqlite_clib_path = require('luv').os_getenv('LIBSQLITE')

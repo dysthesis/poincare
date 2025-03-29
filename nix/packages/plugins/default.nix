@@ -36,8 +36,10 @@
   # }
   lazy-plugins = with pkgs.vimPlugins;
     [
-      nvim-ufo
-      promise-async
+      # nvim-ufo
+      # promise-async
+
+      trouble-nvim
 
       neogen
       nui-nvim
