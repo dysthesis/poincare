@@ -38,6 +38,7 @@
     [
       # nvim-ufo
       # promise-async
+      glance-nvim
 
       trouble-nvim
 
