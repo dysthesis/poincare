@@ -82,6 +82,7 @@
       (nvim-treesitter.withPlugins (
         p:
           with p; [
+            go
             bash
             fish
             diff
