@@ -37,7 +37,7 @@ opt.showmode = false -- Dont show mode since we have a statusline
 opt.sidescrolloff = 8 -- Columns of context
 opt.signcolumn = 'yes' -- Always show the signcolumn, otherwise it would shift the text each time
 opt.termguicolors = true
-opt.wrap = false
+opt.wrap = true
 
 -- Decrease update time
 opt.updatetime = 250
