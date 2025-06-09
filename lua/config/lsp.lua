@@ -33,7 +33,7 @@ vim.diagnostic.config {
 
 -- NOTE: Define LSPs to enable here
 local lsps = {
-  'luals',
+  'lua-language-server',
   'tinymist',
   'rust-analyzer',
 }

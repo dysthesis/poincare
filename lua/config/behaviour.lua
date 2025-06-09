@@ -47,6 +47,7 @@ vim.o.grepprg = [[rg --glob "!.git" --no-heading --vimgrep --follow $*]]
 opt.grepformat = opt.grepformat ^ { '%f:%l:%c:%m' }
 vim.o.completeopt = 'menu,menuone,noselect,popup,fuzzy'
 vim.o.wildoptions = 'fuzzy,pum,tagfile'
+vim.bo.omnifunc = 'v:lua.vim.lsp.omnifunc'
 
 opt.jumpoptions = 'view'
 
