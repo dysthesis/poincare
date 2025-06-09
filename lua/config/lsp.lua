@@ -36,6 +36,7 @@ local lsps = {
   'lua-language-server',
   'tinymist',
   'rust-analyzer',
+  'nixd',
 }
 
 for _, lsp in ipairs(lsps) do
