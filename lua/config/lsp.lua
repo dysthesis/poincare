@@ -12,8 +12,6 @@ vim.diagnostic.config {
     end,
   },
 
-  virtual_lines = { current_line = true },
-
   underline = true,
 
   signs = {
@@ -47,11 +45,19 @@ end
 vim.api.nvim_create_autocmd('LspAttach', {
   desc = 'LSP actions',
   callback = function(event)
-    if vim.lsp.inlay_hint then
-      vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
-    end
-    local opts = { buffer = event.buf }
+    local bufnr = event.buf
+    local client = vim.lsp.get_client_by_id(event.data.client_id)
 
+    -- Enable inlay hints
+    if vim.lsp.inlay_hint then
+      vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+    end
+    local opts = { buffer = bufnr }
+
+    -- Set up built-in completions
+    require('utils.completion').setup(client, bufnr)
+
+    -- Configure LSP-related keybinds
     require('lz.n').trigger_load('mini.pick')
     -- Display documentation of the symbol under the cursor
     vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>', opts)

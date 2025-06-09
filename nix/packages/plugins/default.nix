@@ -36,18 +36,8 @@
   # }
   lazy-plugins = with pkgs.vimPlugins;
     [
-      # nvim-ufo
-      # promise-async
-      glance-nvim
-
       trouble-nvim
 
-      neogen
-      nui-nvim
-      noice-nvim
-
-      blink-cmp
-      blink-compat
       friendly-snippets
 
       conform-nvim
@@ -68,6 +58,7 @@
       zk-nvim
 
       # Navigation
+      glance-nvim
       leap-nvim
       mini-pick
       mini-surround
