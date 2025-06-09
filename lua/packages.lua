@@ -42,7 +42,6 @@ local plugins = {
 
   { 'nvim-treesitter/nvim-treesitter', build = ':TSUpdate' }, -- tree sitter integration
   'nvim-treesitter/nvim-treesitter-textobjects',
-  'neovim/nvim-lspconfig', -- configurations for LSPs
   'stevearc/conform.nvim',
 
   'folke/todo-comments.nvim',
@@ -50,7 +49,6 @@ local plugins = {
 
   -- Language extensions
   -- Rust
-  'mrcjkb/rustaceanvim',
   'saecki/crates.nvim', -- rust crates
 
   -- LaTeX

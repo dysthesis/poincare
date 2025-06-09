@@ -57,20 +57,24 @@
 
       inc-rename-nvim
 
-      rustaceanvim
+      # Rust
       crates-nvim
 
+      # LaTeX
       vimtex
       nabla-nvim
 
+      # Notetaking
       zk-nvim
-      leap-nvim
 
+      # Navigation
+      leap-nvim
       mini-pick
       mini-surround
       mini-icons
       mini-ai
       mini-indentscope
+
       lz-n
       neogit
       diffview-nvim
