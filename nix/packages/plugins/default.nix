@@ -54,6 +54,9 @@
       vimtex
       nabla-nvim
 
+      # Typst
+      typst-preview-nvim
+
       # Notetaking
       zk-nvim
 
