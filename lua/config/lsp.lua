@@ -39,7 +39,9 @@ local lsps = {
 }
 
 for _, lsp in ipairs(lsps) do
-  vim.lsp.enable(lsp)
+  if vim.fn.executable(lsp) == 1 then
+    vim.lsp.enable(lsp)
+  end
 end
 
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -48,7 +50,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     local bufnr = event.buf
     local client = vim.lsp.get_client_by_id(event.data.client_id)
 
-    -- Enable inlay hints
+    -- Enable inlay hint
     if vim.lsp.inlay_hint then
       vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
     end

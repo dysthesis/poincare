@@ -1,3 +1,4 @@
+vim.o.winborder = 'rounded'
 vim.opt.termguicolors = true
 
 -- Use the global statusline
