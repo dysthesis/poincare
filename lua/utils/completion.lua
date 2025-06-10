@@ -23,6 +23,38 @@ end
 
 return {
   setup = function(client, bufnr)
+    local kind_icons = {
+      '󰊄', -- Text
+      '󰡱', -- Method
+      '󰊕', -- Function
+      '', -- Constructor
+      '󰓽', -- Field
+      '', -- Variable
+      '󰠱', -- Class
+      '', -- Interface
+      '󰕳', -- Module
+      '󰜢', -- Property
+      '󰑭', -- Unit
+      '󰎠', -- Value
+      '', -- Enum
+      '󰌋', -- Keyword
+      '', -- Snippet
+      '󰏘', -- Color
+      '󰈚', -- File
+      '', -- Reference
+      '󰉋', -- Folder
+      '󰗅', -- EnumMember
+      '󰉒', -- Constant
+      '󰙏', -- Struct
+      '󰀫', -- Event
+      '󰏺', -- Operator
+      '󰰄', -- TypeParameter
+    }
+
+    for i, icon in ipairs(kind_icons) do
+      vim.lsp.protocol.CompletionItemKind[i] = icon
+    end
+
     -- Enable completion and configure keybindings.
     if client.supports_method('textDocument/completion') then
       vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true })
