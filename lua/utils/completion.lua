@@ -24,32 +24,50 @@ end
 return {
   setup = function(client, bufnr)
     local kind_icons = {
-      '󰊄', -- Text
-      '󰡱', -- Method
-      '󰊕', -- Function
-      '', -- Constructor
-      '󰓽', -- Field
-      '', -- Variable
-      '󰠱', -- Class
-      '', -- Interface
-      '󰕳', -- Module
-      '󰜢', -- Property
-      '󰑭', -- Unit
-      '󰎠', -- Value
-      '', -- Enum
-      '󰌋', -- Keyword
-      '', -- Snippet
-      '󰏘', -- Color
-      '󰈚', -- File
-      '', -- Reference
-      '󰉋', -- Folder
-      '󰗅', -- EnumMember
-      '󰉒', -- Constant
-      '󰙏', -- Struct
-      '󰀫', -- Event
-      '󰏺', -- Operator
-      '󰰄', -- TypeParameter
+      ' 󰊄 ', -- Text
+      ' 󰡱 ', -- Method
+      ' 󰊕 ', -- Function
+      '  ', -- Constructor
+      ' 󰓽 ', -- Field
+      '  ', -- Variable
+      ' 󰠱 ', -- Class
+      '  ', -- Interface
+      ' 󰕳 ', -- Module
+      ' 󰜢 ', -- Property
+      ' 󰑭 ', -- Unit
+      ' 󰎠 ', -- Value
+      '  ', -- Enum
+      ' 󰌋 ', -- Keyword
+      '  ', -- Snippet
+      ' 󰏘 ', -- Color
+      ' 󰈚 ', -- File
+      '  ', -- Reference
+      ' 󰉋 ', -- Folder
+      ' 󰗅', -- EnumMember
+      ' 󰉒 ', -- Constant
+      ' 󰙏 ', -- Struct
+      ' 󰀫 ', -- Event
+      ' 󰏺 ', -- Operator
+      ' 󰰄 ', -- TypeParameter
     }
+
+    local palette = {
+      bg = '#000000',
+      fg = '#ffffff',
+      hl = '#7788AA',
+    }
+
+    local hi = vim.api.nvim_set_hl
+    hi(0, 'Pmenu', { bg = palette.bg, fg = palette.fg, blend = 0 })
+    hi(0, 'PmenuKind', { fg = palette.hl }) -- all kinds
+    hi(0, 'PmenuKindSel', { fg = palette.hl, bold = true })
+
+    -- Slight transparency
+    vim.o.pumblend = 10
+
+    -- Size limits
+    vim.o.pumheight = 12
+    vim.o.pumwidth = 30
 
     for i, icon in ipairs(kind_icons) do
       vim.lsp.protocol.CompletionItemKind[i] = icon
