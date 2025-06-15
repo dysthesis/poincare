@@ -58,7 +58,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     local opts = { buffer = bufnr }
 
     -- Set up built-in completions
-    require('utils.completion').setup(client, bufnr)
+    -- require('utils.completion').setup(client, bufnr)
 
     -- Configure LSP-related keybinds
     require('lz.n').trigger_load('mini.pick')

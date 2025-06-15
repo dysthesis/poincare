@@ -103,6 +103,11 @@
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
       smart-splits-nvim
       nvim-lint
+
+      neogen
+
+      blink-cmp
+      blink-compat
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy";
