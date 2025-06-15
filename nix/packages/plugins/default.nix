@@ -104,10 +104,9 @@
       smart-splits-nvim
       nvim-lint
 
-      neogen
-
       blink-cmp
       blink-compat
+      neogen
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy";
