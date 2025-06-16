@@ -37,6 +37,7 @@ local lsps = {
   'tinymist',
   'rust-analyzer',
   'nixd',
+  'zls',
 }
 
 for _, lsp in ipairs(lsps) do
