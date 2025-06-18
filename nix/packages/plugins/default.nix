@@ -38,6 +38,10 @@
     [
       trouble-nvim
 
+      nvim-dap
+      nvim-dap-ui
+      nvim-nio
+
       friendly-snippets
 
       conform-nvim
