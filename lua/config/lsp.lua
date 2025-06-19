@@ -35,7 +35,7 @@ vim.diagnostic.config {
 local lsps = {
   'lua-language-server',
   'tinymist',
-  'rust-analyzer',
+  -- 'rust-analyzer',
   'nixd',
   'zls',
 }

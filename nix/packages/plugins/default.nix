@@ -40,7 +40,9 @@
 
       nvim-dap
       nvim-dap-ui
+      nvim-dap-virtual-text
       nvim-nio
+      rustaceanvim
 
       friendly-snippets
 
@@ -107,6 +109,8 @@
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
       smart-splits-nvim
       nvim-lint
+
+      neotest
 
       blink-cmp
       blink-compat
