@@ -6,6 +6,16 @@ vim.g.rustaceanvim = function()
     server = {
       default_settings = {
         ['rust-analyzer'] = {
+          check = {
+            command = 'clippy',
+            extraArgs = { '--no-deps' },
+          },
+          diagnostics = {
+            experimental = {
+              enabled = true,
+            },
+          },
+
           cargo = {
             loadOutDirsFromCheck = true,
             runBuildScripts = true,
@@ -26,14 +36,6 @@ vim.g.rustaceanvim = function()
       adapter = require('rustaceanvim.config').get_codelldb_adapter(vim.g.codelldb_path, vim.g.liblldb_path),
     },
   }
-  vim.keymap.set(
-    'n',
-    'K', -- Override Neovim's built-in hover keymap with rustaceanvim's hover actions
-    function()
-      vim.cmd.RustLsp { 'hover', 'actions' }
-    end,
-    { silent = true, buffer = bufnr }
-  )
 
   vim.keymap.set('n', '<leader>dc', function()
     vim.cmd.RustLsp('debuggables')

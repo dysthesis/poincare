@@ -49,6 +49,9 @@ end
 vim.api.nvim_create_autocmd('LspAttach', {
   desc = 'LSP actions',
   callback = function(event)
+    vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, {
+      focusable = true,
+    })
     local bufnr = event.buf
     local client = vim.lsp.get_client_by_id(event.data.client_id)
 
@@ -89,5 +92,12 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
     -- Selects a code action available at the current cursor position
     vim.keymap.set('n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
+    -- Check if rustaceanvim is the client
+    if client and client.name == 'rust-analyzer' then
+      -- Set up custom keybindings for rustaceanvim
+      vim.keymap.set('n', 'K', function()
+        vim.cmd.RustLsp { 'hover', 'actions' }
+      end, { buffer = bufnr, silent = true })
+    end
   end,
 })

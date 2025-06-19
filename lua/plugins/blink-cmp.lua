@@ -2,11 +2,8 @@ require('lz.n').load {
   'blink.cmp',
   event = 'InsertEnter',
   after = function()
-    require('blink.cmp').setup {
-      fuzzy = {
-        implementation = 'rust',
-      },
-
+    local cmp = require('blink.cmp')
+    cmp.setup {
       completion = {
         documentation = { auto_show = true, auto_show_delay_ms = 0, window = { border = 'single' } },
         ghost_text = { enabled = true },
@@ -31,6 +28,10 @@ require('lz.n').load {
             },
           },
         },
+      },
+
+      fuzzy = {
+        implementation = 'rust',
       },
       appearance = { use_nvim_cmp_as_default = false },
       signature = { enabled = true },
