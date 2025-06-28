@@ -21,8 +21,7 @@
   extraPackages = with pkgs; [
     ripgrep
     fd
-    fzf
-    hostname
+    uutils-coreutils-noprefix
   ];
 
   path = self;
