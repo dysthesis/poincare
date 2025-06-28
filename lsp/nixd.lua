@@ -1,4 +1,4 @@
-local file = io.popen('/bin/hostname')
+local file = io.popen('hostname')
 if file == nil then
   return
 end
