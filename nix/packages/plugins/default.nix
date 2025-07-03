@@ -104,6 +104,7 @@
             yaml
             markdown
             latex
+            typst
           ]
       ))
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
