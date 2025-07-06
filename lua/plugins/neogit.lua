@@ -3,11 +3,11 @@ require('lz.n').load {
   cmd = 'Neogit',
   keys = {
     {
-      '<leader>gg',
+      '<leader>g',
       function()
         require('neogit').open { kind = 'auto' }
       end,
-      desc = '[G]it Neo[G]it',
+      desc = 'Neo[G]it',
     },
   },
   after = function()

@@ -3,23 +3,16 @@ require('lz.n').load {
   cmd = 'Pick',
   keys = {
     {
-      '<leader>ff',
+      '<leader>f',
       function()
         require('mini.pick').builtin.files()
       end,
       desc = '[F]ind [F]iles',
     },
     {
-      '<leader>fg',
+      '<leader>/',
       function()
         require('mini.pick').builtin.grep_live()
-      end,
-      desc = '[F]ind [G]rep',
-    },
-    {
-      '<leader>fh',
-      function()
-        require('mini.pick').builtin.help()
       end,
       desc = '[F]ind [G]rep',
     },
