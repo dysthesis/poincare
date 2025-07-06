@@ -87,4 +87,7 @@ require('lz.n').load {
       desc = 'Find [D]AP [F]rames',
     },
   },
+  after = function()
+    require('fzf-lua').register_ui_select()
+  end,
 }
