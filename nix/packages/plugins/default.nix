@@ -42,7 +42,6 @@
       nvim-dap-ui
       nvim-dap-virtual-text
       nvim-nio
-      rustaceanvim
 
       friendly-snippets
 
@@ -54,6 +53,7 @@
       inc-rename-nvim
 
       # Rust
+      rustaceanvim
       crates-nvim
 
       # LaTeX

@@ -36,18 +36,61 @@ configs.setup {
         ['aC'] = '@call.outer',
         ['iC'] = '@call.inner',
         ['a#'] = '@comment.outer',
-        ['i#'] = '@comment.outer',
+        ['i#'] = '@comment.inner',
         ['ai'] = '@conditional.outer',
         ['ii'] = '@conditional.outer',
         ['al'] = '@loop.outer',
         ['il'] = '@loop.inner',
         ['aP'] = '@parameter.outer',
         ['iP'] = '@parameter.inner',
+
+        -- Assignment
+        ['aa'] = '@assignment.outer',
+        ['ia'] = '@assignment.inner',
+        -- LHS / RHS (optional)
+        ['aL'] = '@assignment.lhs',
+        ['iL'] = '@assignment.lhs',
+        ['aR'] = '@assignment.rhs',
+        ['iR'] = '@assignment.rhs',
+
+        -- Attributes / fields
+        ['aA'] = '@attribute.outer',
+        ['iA'] = '@attribute.inner',
+
+        -- Blocks
+        ['ab'] = '@block.outer',
+        ['ib'] = '@block.inner',
+
+        -- Frames (language-specific grouping)
+        ['aF'] = '@frame.outer',
+        ['iF'] = '@frame.inner',
+
+        -- Numbers
+        ['an'] = '@number.outer',
+        ['in'] = '@number.inner',
+
+        -- Regex literals
+        ['aX'] = '@regex.outer',
+        ['iX'] = '@regex.inner',
+
+        -- Return statements
+        ['ar'] = '@return.outer',
+        ['ir'] = '@return.inner',
+
+        -- Statements
+        ['as'] = '@statement.outer',
+
+        -- Scope names (function / class names)
+        ['ns'] = '@scopename.inner',
       },
       selection_modes = {
-        ['@parameter.outer'] = 'v', -- charwise
-        ['@function.outer'] = 'V', -- linewise
-        ['@class.outer'] = '<c-v>', -- blockwise
+        ['@block.outer'] = '<c-v>',
+        ['@frame.outer'] = '<c-v>',
+        ['@statement.outer'] = 'V',
+        ['@assignment.outer'] = 'V',
+        ['@comment.outer'] = 'V',
+        ['@comment.inner'] = 'v',
+        ['@conditional.inner'] = 'v',
       },
     },
     swap = {
