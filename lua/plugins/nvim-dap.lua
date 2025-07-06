@@ -2,7 +2,7 @@ require('lz.n').load {
   'nvim-dap',
   keys = {
     {
-      '<leader>db',
+      '<leader>Db',
       function()
         require('dap').toggle_breakpoint()
       end,
@@ -10,35 +10,35 @@ require('lz.n').load {
     },
 
     {
-      '<leader>dc',
+      '<leader>Dc',
       function()
         require('dap').continue()
       end,
       desc = 'Continue',
     },
     {
-      '<leader>ds',
+      '<leader>Ds',
       function()
         require('dap').step_over()
       end,
       desc = 'Step over',
     },
     {
-      '<leader>dS',
+      '<leader>DS',
       function()
         require('dap').step_into()
       end,
       desc = 'Step into',
     },
     {
-      '<leader>dr',
+      '<leader>Dr',
       function()
         require('dap').repl.open()
       end,
       desc = 'Open DAP repl',
     },
     {
-      '<leader>dC',
+      '<leader>DC',
       function()
         require('dap').run_to_cursor()
       end,
@@ -46,7 +46,7 @@ require('lz.n').load {
     },
 
     {
-      '<leader>dT',
+      '<leader>DT',
       function()
         require('dap').terminate()
       end,

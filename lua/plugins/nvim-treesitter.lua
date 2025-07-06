@@ -136,7 +136,7 @@ configs.setup {
 vim.filetype.add {
   pattern = { ['.*/hypr/.*%.conf'] = 'hyprlang' },
 }
-if vim.fn.has('nvim-0.10') == 1 then
-  vim.opt.foldexpr = "v:lua.require'utils.folding'.foldexpr()"
-  vim.opt.foldmethod = 'expr'
-end
+-- if vim.fn.has('nvim-0.10') == 1 then
+--   vim.opt.foldexpr = "v:lua.require'utils.folding'.foldexpr()"
+--   vim.opt.foldmethod = 'expr'
+-- end

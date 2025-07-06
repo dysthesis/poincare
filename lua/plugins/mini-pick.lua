@@ -1,46 +1,46 @@
-require('lz.n').load {
-  'mini.pick',
-  cmd = 'Pick',
-  keys = {
-    {
-      '<leader>f',
-      function()
-        require('mini.pick').builtin.files()
-      end,
-      desc = '[F]ind [F]iles',
-    },
-    {
-      '<leader>/',
-      function()
-        require('mini.pick').builtin.grep_live()
-      end,
-      desc = '[F]ind [G]rep',
-    },
-  },
-  after = function()
-    local MiniPick = require('mini.pick')
-    MiniPick.setup {
-      options = {
-        use_cache = true,
-      },
-      window = {
-        prompt_prefix = '   ',
-        config = function()
-          -- centered on screen
-          local height = math.floor(0.618 * vim.o.lines)
-          local width = math.floor(0.618 * vim.o.columns)
-          return {
-            anchor = 'NW',
-            border = 'rounded',
-            height = height,
-            width = width,
-            row = math.floor(0.5 * (vim.o.lines - height)),
-            col = math.floor(0.5 * (vim.o.columns - width)),
-          }
-        end,
-      },
-    }
-
-    vim.ui.select = MiniPick.ui_select
-  end,
-}
+-- require('lz.n').load {
+--   'mini.pick',
+--   cmd = 'Pick',
+--   keys = {
+--     {
+--       '<leader>f',
+--       function()
+--         require('mini.pick').builtin.files()
+--       end,
+--       desc = '[F]ind [F]iles',
+--     },
+--     {
+--       '<leader>/',
+--       function()
+--         require('mini.pick').builtin.grep_live()
+--       end,
+--       desc = '[F]ind [G]rep',
+--     },
+--   },
+--   after = function()
+--     local MiniPick = require('mini.pick')
+--     MiniPick.setup {
+--       options = {
+--         use_cache = true,
+--       },
+--       window = {
+--         prompt_prefix = '   ',
+--         config = function()
+--           -- centered on screen
+--           local height = math.floor(0.618 * vim.o.lines)
+--           local width = math.floor(0.618 * vim.o.columns)
+--           return {
+--             anchor = 'NW',
+--             border = 'rounded',
+--             height = height,
+--             width = width,
+--             row = math.floor(0.5 * (vim.o.lines - height)),
+--             col = math.floor(0.5 * (vim.o.columns - width)),
+--           }
+--         end,
+--       },
+--     }
+--
+--     vim.ui.select = MiniPick.ui_select
+--   end,
+-- }

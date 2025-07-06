@@ -69,7 +69,7 @@
       # Navigation
       glance-nvim
       leap-nvim
-      mini-pick
+      fzf-lua
       mini-surround
       mini-icons
       mini-ai
