@@ -76,7 +76,6 @@
       mini-indentscope
 
       lz-n
-      neogit
       diffview-nvim
       gitsigns-nvim
       oil-nvim

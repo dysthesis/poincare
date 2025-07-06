@@ -27,8 +27,8 @@ local plugins = {
   'savq/paq-nvim', -- the package manager itself
 
   -- Folding
-  'kevinhwang91/nvim-ufo',
-  'kevinhwang91/promise-async',
+  -- 'kevinhwang91/nvim-ufo',
+  -- 'kevinhwang91/promise-async',
 
   -- Completion
   { -- supposedly faster than nvim-cmp
@@ -73,7 +73,6 @@ local plugins = {
   'echasnovski/mini.ai', -- more a/i textobjects
   'echasnovski/mini.indentscope', -- visualise and operate om indent scope
   'nvim-neorocks/lz.n', -- a lazy loader
-  'NeogitOrg/neogit', -- a git ui
   'sindrets/diffview.nvim', -- a nice diff viewing ui
   'lewis6991/gitsigns.nvim', -- some nice git integration
   'stevearc/oil.nvim',
