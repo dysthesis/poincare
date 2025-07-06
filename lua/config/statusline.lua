@@ -146,16 +146,16 @@ local function get_git_diff(type)
 end
 
 local modes = {
-  ['n'] = 'NORMAL',
-  ['no'] = 'NORMAL',
-  ['v'] = 'VISUAL',
+  ['n'] = 'NOR',
+  ['no'] = 'NOR',
+  ['v'] = 'VIS',
   ['V'] = 'VISUAL LINE',
   [''] = 'VISUAL BLOCK',
-  ['s'] = 'SELECT',
+  ['s'] = 'SEL',
   ['S'] = 'SELECT LINE',
   [''] = 'SELECT BLOCK',
-  ['i'] = 'INSERT',
-  ['ic'] = 'INSERT',
+  ['i'] = 'INS',
+  ['ic'] = 'INS',
   ['R'] = 'REPLACE',
   ['Rv'] = 'VISUAL REPLACE',
   ['c'] = 'COMMAND',
@@ -332,17 +332,17 @@ local function full_git()
 
   local added = git_diff_added()
   if added ~= '' then
-    full = full .. added .. space
+    full = full .. added
   end
 
   local changed = git_diff_changed()
   if changed ~= '' then
-    full = full .. changed .. space
+    full = full .. changed
   end
 
   local removed = git_diff_removed()
   if removed ~= '' then
-    full = full .. removed .. space
+    full = full .. removed
   end
 
   return full
@@ -358,8 +358,10 @@ end
 
 --- @return string
 local function total_lines()
-  local lines = vim.fn.line('$')
-  return string.format('%%#StatusLineMedium#of %s %%*', lines)
+  local row = vim.fn.line('.')
+  local col = vim.fn.col('.')
+  local total = vim.fn.line('$')
+  return string.format('%%#StatusLineMedium#%d:%d of %d %%*', row, col, total)
 end
 
 --- @param hlgroup string
@@ -422,24 +424,14 @@ StatusLine.active = function()
   end
 
   local statusline = {
-    '▊',
     mode(),
     filename(),
     full_git(),
     '%=',
-    '%S ',
-    lsp_active(),
-    diagnostics_error(),
-    diagnostics_warns(),
-    diagnostics_hint(),
-    diagnostics_info(),
     '%=',
     file_percentage(),
     total_lines(),
-    lint_progress(),
-    lsp_clients(),
     filetype(),
-    ' ▊',
   }
 
   return table.concat(statusline)
