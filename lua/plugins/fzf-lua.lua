@@ -17,6 +17,13 @@ require('lz.n').load {
       desc = 'Find [G]rep',
     },
     {
+      '<leader>G',
+      function()
+        require('fzf-lua').git_commits()
+      end,
+      desc = 'Find [G]it commits',
+    },
+    {
       'gR',
       function()
         require('fzf-lua').lsp_references()
