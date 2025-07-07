@@ -77,7 +77,7 @@ require('lz.n').load {
   end,
   after = function()
     require('zk').setup {
-      picker = 'fzf-lua',
+      picker = 'fzf_lua',
     }
   end,
 }
