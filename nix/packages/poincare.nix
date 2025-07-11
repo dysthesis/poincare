@@ -3,15 +3,58 @@
   symlinkJoin,
   neovim-unwrapped,
   makeWrapper,
+  runCommand,
   runCommandLocal,
   vimPlugins,
+  vimUtils,
   lib,
   ...
 }: let
   sources = import ./npins;
   npins = lib.mapAttrs (k: v: import sources.${k} {}) sources;
   packageName = "plugins";
-  plugins = with vimPlugins; with npins; [telescope-nvim lackluster-nvim];
+
+  config = vimUtils.buildVimPlugin {
+    name = "poincare";
+    src = runCommand "poincare-config-src" {} ''
+      mkdir -p $out/plugin
+      cp -r ${self}/src/init.lua $out/plugin/
+      cp -r ${self}/src/lua $out/
+    '';
+    doCheck = false;
+  };
+
+  plugins = with vimPlugins;
+  with npins; [
+    config
+    (nvim-treesitter.withPlugins (
+      p:
+        with p; [
+          go
+          bash
+          fish
+          diff
+          dockerfile
+          asm
+          disassembly
+          git_config
+          git_rebase
+          gitignore
+          python
+          zig
+          rust
+          haskell
+          nix
+          lua
+          toml
+          yaml
+          markdown
+          latex
+          typst
+        ]
+    ))
+    lackluster-nvim
+  ];
   packPath = runCommandLocal "packpath" {} ''
     mkdir -p $out/pack/${packageName}/{start,opt}
     ${
@@ -29,7 +72,7 @@ in
     postBuild = ''
       wrapProgram $out/bin/nvim \
         --add-flags "-u" \
-        --add-flags "${self}/src/init.lua" \
+        --add-flags "NORC" \
         --add-flags "--cmd" \
         --add-flags "'set packpath^=${packPath} | set runtimepath^=${packPath}'" \
         --set-default NVIM_APPNAME ${name}

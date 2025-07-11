@@ -1,2 +1,2 @@
-require('config.behaviour')
 require('config.colour')
+require('config.behaviour')
