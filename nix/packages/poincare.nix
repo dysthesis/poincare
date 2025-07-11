@@ -1,58 +1,41 @@
 {
   self,
-  inputs,
-  pkgs,
+  symlinkJoin,
+  neovim-unwrapped,
+  makeWrapper,
+  runCommandLocal,
+  vimPlugins,
   lib,
   ...
 }: let
-  inherit (lib.babel.nvim) mkNeovim;
-  inherit
-    (builtins)
-    readDir
-    attrNames
-    concatStringsSep
-    stringLength
-    substring
-    ;
-
-  inherit (lib) filterAttrs;
-
-  plugins = import ./plugins {inherit pkgs inputs lib;};
-  extraPackages = with pkgs; [
-    ripgrep
-    fd
-    uutils-coreutils-noprefix
-  ];
-
-  path = self;
-in
-  mkNeovim {
-    inherit
-      path
-      pkgs
+  sources = import ./npins;
+  npins = lib.mapAttrs (k: v: import sources.${k} {}) sources;
+  packageName = "plugins";
+  plugins = with vimPlugins; with npins; [telescope-nvim lackluster-nvim];
+  packPath = runCommandLocal "packpath" {} ''
+    mkdir -p $out/pack/${packageName}/{start,opt}
+    ${
+      lib.concatMapStringsSep
+      "\n"
+      (plugin: "ln -vsfT ${plugin} $out/pack/${packageName}/start/${lib.getName plugin}")
       plugins
-      extraPackages
-      ;
-    ignoreConfigRegexes = ["^lua/packages.lua"];
-
-    # Get rid of the import to `lua/packages.lua`
-    trimLines = 2;
-    extraLuaConfig = let
-      codelldb = pkgs.vscode-extensions.vadimcn.vscode-lldb;
-      loadPlugins =
-        ../../lua/plugins
-        |> readDir
-        |> (filterAttrs (_name: value: value == "regular"))
-        |> attrNames
-        # Trim the ".lua" at the end
-        |> (xs: map (x: substring 0 (stringLength x - 4) x) xs)
-        |> (map (x: "require('plugins.${x}')"))
-        |> (concatStringsSep "\n");
-    in
-      # lua
-      ''
-        vim.g.codelldb_path = '${codelldb}/share/vscode/extensions/vadimcn.vscode-lldb/adapter/codelldb'
-        vim.g.liblldb_path = '${codelldb}/share/vscode/extensions/vadimcn.vscode-lldb/lldb/lib/liblldb.so'
-        ${loadPlugins}
-      '';
+    }
+  '';
+in
+  symlinkJoin rec {
+    name = "poincare";
+    paths = [neovim-unwrapped];
+    nativeBuildInputs = [makeWrapper];
+    postBuild = ''
+      wrapProgram $out/bin/nvim \
+        --add-flags "-u" \
+        --add-flags "${self}/src/init.lua" \
+        --add-flags "--cmd" \
+        --add-flags "'set packpath^=${packPath} | set runtimepath^=${packPath}'" \
+        --set-default NVIM_APPNAME ${name}
+    '';
+    passthru = {
+      inherit packPath;
+    };
+    meta.mainProgram = "nvim";
   }

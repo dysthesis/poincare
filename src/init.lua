@@ -1,61 +1,41 @@
-local opt = vim.opt
--- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
-opt.compatible = false
 
-opt.colorcolumn = '100'
+local o = vim.opt
+o.expandtab = true
+o.shiftwidth = 4
+o.softtabstop = -1
+o.compatible = false
+o.colorcolumn = '100'
+o.mouse = 'a'
+o.showmode = false
+o.clipboard = 'unnamedplus'
+o.laststatus = 0
+o.breakindent = true
+o.undofile = true
+o.ignorecase = true
+o.smartcase = true
+o.smartindent = true
+o.showmode = false 
+o.sidescrolloff = 8 
+o.signcolumn = 'yes' 
+o.termguicolors = true
+o.wrap = true
+o.updatetime = 250
 
--- [[ Setting options ]]
--- See `:help opt`
--- NOTE: You can change these options as you wish!
---  For more options, you can see `:help option-list`
+o.grepprg = [[rg --glob "!.git" --no-heading --vimgrep --follow $*]]
+o.grepformat = o.grepformat ^ { '%f:%l:%c:%m' }
+o.completeopt = 'menu,menuone,noselect,popup,fuzzy'
+o.wildoptions = 'fuzzy,pum,tagfile'
 
--- Enable mouse mode, can be useful for resizing splits for example!
-opt.mouse = 'a'
-
--- Don't show the mode, since it's already in the status line
-opt.showmode = false
-
--- Sync clipboard between OS and Neovim.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
-opt.clipboard = 'unnamedplus'
-
--- Enable break indent
-opt.breakindent = true
-
--- Save undo history
-opt.undofile = true
-
--- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
-opt.ignorecase = true
-opt.smartcase = true
-
-opt.smartindent = true
-
-opt.showmode = false -- Dont show mode since we have a statusline
-opt.sidescrolloff = 8 -- Columns of context
-opt.signcolumn = 'yes' -- Always show the signcolumn, otherwise it would shift the text each time
-opt.termguicolors = true
-opt.wrap = true
-
--- Decrease update time
-opt.updatetime = 250
-
--- Use rg
-vim.o.grepprg = [[rg --glob "!.git" --no-heading --vimgrep --follow $*]]
-opt.grepformat = opt.grepformat ^ { '%f:%l:%c:%m' }
-vim.o.completeopt = 'menu,menuone,noselect,popup,fuzzy'
-vim.o.wildoptions = 'fuzzy,pum,tagfile'
 vim.bo.omnifunc = 'v:lua.vim.lsp.omnifunc'
 
-opt.jumpoptions = 'view'
+o.jumpoptions = 'view'
 
-opt.pumblend = 10
-opt.pumheight = 10
-opt.scrolloff = 4
-opt.shiftround = true
-opt.sessionoptions = {
+o.pumblend = 10
+o.pumheight = 10
+o.scrolloff = 4
+o.shiftround = true
+o.sessionoptions = {
   'buffers', -- saves all open buffers
   'curdir', -- restores current working directory
   'tabpages', -- saves the state of all tab pages
@@ -66,23 +46,22 @@ opt.sessionoptions = {
   'folds', -- records the folding state of the buffer
 }
 
-opt.softtabstop = 2
-opt.tabstop = 2
-opt.shiftwidth = 2
-opt.foldcolumn = '1'
+o.softtabstop = 2
+o.tabstop = 2
+o.shiftwidth = 2
+o.foldcolumn = '1'
 
 if vim.fn.has('nvim-0.10') == 1 then
-  opt.smoothscroll = true
-  opt.foldtext = ''
+  o.smoothscroll = true
+  o.foldtext = ''
 else
-  opt.foldmethod = 'indent'
-  opt.foldtext = "v:lua.require'lazyvim.util'.ui.foldtext()"
+  o.foldmethod = 'indent'
+  o.foldtext = "v:lua.require'lazyvim.util'.ui.foldtext()"
 end
 
 -- Fold by treesitter expression
-opt.foldlevel = 99
-opt.expandtab = true -- Use spaces instead of tabs
-opt.fillchars = {
+o.foldlevel = 99
+o.fillchars = {
   foldopen = '',
   foldclose = '',
   fold = ' ',
@@ -153,3 +132,16 @@ autocmd('BufWinEnter', {
 
 -- let sqlite.lua (which some plugins depend on) know where to find sqlite
 vim.g.sqlite_clib_path = require('luv').os_getenv('LIBSQLITE')
+
+local lackluster = require('lackluster')
+lackluster.setup {
+  tweak_background = {
+    normal = 'none',
+    telescope = 'none',
+    menu = 'none',
+    popup = 'none',
+  },
+}
+
+vim.cmd.colorscheme('lackluster-night')
+vim.api.nvim_set_hl(0, 'Folded', { bg = '#191919' })
