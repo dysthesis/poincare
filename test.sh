@@ -13,5 +13,10 @@ rg --files --hidden --follow --glob '!.git/*' | while IFS= read -r path; do
   #
   # - the path has no dirname, _i.e.,_ dirname == path, and
   # - the path has a dirname.
-  echo "$(tput setaf 244)$dirname/$(tput sgr0)$(tput bold)$basename$(tput sgr0)"
+  if [[ "$dirname" == $path ]]; then
+    echo "$(tput bold)$basename$(tput sgr0)"
+  else
+    # NOTE: If the terminal does not support 256-colour, replace `setaf 244` with `dim`.
+    echo "$(tput setaf 244)$dirname/$(tput sgr0)$(tput bold)$basename$(tput sgr0)"
+  fi
 done
