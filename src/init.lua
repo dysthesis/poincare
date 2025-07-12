@@ -8,3 +8,5 @@ require('plugins.smart-splits')
 require('plugins.leap')
 require('plugins.treesitter')
 require('plugins.mini-surround')
+
+require('utils.autopairs')
