@@ -21,3 +21,7 @@ map('v', '<A-K>', ":m '<-2<CR>gv=gv") -- move line down(v)
 map('n', '<leader>f', function()
   require('utils.file_picker').open()
 end)
+
+map('n', '<leader>g', function()
+  require('utils.live_grep').open()
+end)

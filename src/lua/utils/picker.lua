@@ -39,7 +39,7 @@ end
 function M.run(spec)
   local shell, flag = get_shell() -- guard against v:null
   local caller = vim.api.nvim_get_current_win()
-  local buf, term = open_split(0.35) -- winfixheight split
+  local buf, term = open_split(0.2) -- winfixheight split
 
   -- build full fzf pipeline once
   local fzf_cmd = BASE_FZF
