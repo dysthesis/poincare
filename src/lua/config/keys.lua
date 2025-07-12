@@ -17,3 +17,7 @@ map('n', '<A-J>', ':m .+1<CR>==') -- move line up(n)
 map('n', '<A-K>', ':m .-2<CR>==') -- move line down(n)
 map('v', '<A-J>', ":m '>+1<CR>gv=gv") -- move line up(v)
 map('v', '<A-K>', ":m '<-2<CR>gv=gv") -- move line down(v)
+
+map('n', '<leader>f', function()
+  require('utils.file_picker').open()
+end)

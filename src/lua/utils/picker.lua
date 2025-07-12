@@ -1,134 +1,89 @@
 local M = {}
 
-M.config = {
-  picker_cmd =
-    -- We get ripgrep to
-    -- - emit only the paths that it would search (`--files`),
-    -- - include any hidden files or directories (`--hidden`),
-    -- - follow symbolic links (`follow`), and
-    -- - ignore any file under `.git` (`--glob '!.git/*'`)...
-    'rg '
-    .. '--files '
-    .. '--hidden '
-    .. '--follow '
-    .. "--glob '!.git/*' "
-    -- ...and then we pipe it to...
-    .. '|'
-    -- ...fzf, which
-    -- - accepts ANSI colour codes (`--ansi`),
-    -- - aceepts multiple selections (`--multi`),
-    -- - maps Ctrl-A to select every entry (`--bind 'ctrl-a:select-all'`),
-    -- - maps Ctrl-V to open the new file in a vsplit (`--expect ctrl-v`),
-    -- - delimits the output with NUL instead of newline (`--print0`)
-    -- - and previews the files with `bat` (`--preview 'bat --style=numbers --color=always`)>
-    .. 'fzf '
-    .. '--ansi '
-    .. '--multi '
-    .. "--bind 'ctrl-a:select-all' "
-    .. '--expect ctrl-v '
-    .. '--no-clear '
-    .. "--preview 'bat --style=numbers --color=always {}' "
-    .. '--preview-window=right:75%:wrap',
-}
--- Open a new window
-local function open_split(buf, opts)
-  local caller = vim.api.nvim_get_current_win()
-  vim.cmd(opts.side == 'top' and 'topleft split' or 'botright split')
+-- base command that every picker inherits;
+local BASE_FZF = table.concat({
+  'fzf',
+  -- allow ANSI colour code
+  '--ansi',
+  -- allow multiple selections
+  '--multi',
+  -- enter Ctrl-A to select everything
+  "--bind 'ctrl-a:select-all'",
+  '--expect ctrl-v',
+  '--no-clear',
+}, ' ')
+
+local function open_split(height_pct)
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
+  vim.cmd('botright split')
   local win = vim.api.nvim_get_current_win()
   vim.api.nvim_win_set_buf(win, buf)
-
-  if opts.height then
-    local rows = math.floor(vim.o.lines * opts.height)
-    vim.api.nvim_win_set_option(win, 'winfixheight', true)
-    vim.api.nvim_win_set_height(win, rows)
-  end
-  return win, caller
+  vim.api.nvim_win_set_option(win, 'winfixheight', true)
+  vim.api.nvim_win_set_height(win, math.floor(vim.o.lines * height_pct))
+  return buf, win
 end
 
-local function get_shell_and_flag()
-  local sh = vim.o.shell
-  local flag = vim.o.shellcmdflag
-  if not sh or sh == '' then
-    sh = '/bin/sh'
-  end
-  if not flag or flag == '' then
-    flag = '-c'
-  end
-  -- refuse to launch if the shell itself is missing
-  if vim.fn.executable(sh) == 0 then
-    vim.notify(string.format('fzf-picker: shell %q not found‼', sh), vim.log.levels.ERROR)
-    return nil
-  end
+local function get_shell()
+  local sh = vim.o.shell ~= '' and vim.o.shell or '/bin/sh'
+  local flag = vim.o.shellcmdflag ~= '' and vim.o.shellcmdflag or '-c'
+  assert(vim.fn.executable(sh) == 1, 'No usable shell found')
   return sh, flag
 end
 
-function M.open()
-  -- Ensure we have a valid shell & flag
-  local shell, flag = get_shell_and_flag()
-  if not shell then
-    return
-  end -- abort early if even /bin/sh missing
+-- producer: shell string that generates lines for fzf
+-- preview: (optional) fzf --preview string
+-- extra: (optional) extra fzf flags (string)
+-- parse: function(list_of_lines) -> lua_table
+-- sink: function(lua_table, key) – side-effect
+function M.run(spec)
+  local shell, flag = get_shell() -- guard against v:null
+  local caller = vim.api.nvim_get_current_win()
+  local buf, term = open_split(0.35) -- winfixheight split
 
-  -- Prepare buffer + horizontal split
-  local buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
-  local term_win, caller_win = open_split(buf, { height = 0.35, side = 'bottom' })
-  vim.api.nvim_set_current_win(term_win)
+  -- build full fzf pipeline once
+  local fzf_cmd = BASE_FZF
+  if spec.preview then
+    fzf_cmd = fzf_cmd .. ' --preview ' .. vim.fn.shellescape(spec.preview)
+  end
+  if spec.extra then
+    fzf_cmd = fzf_cmd .. ' ' .. spec.extra
+  end
 
-  -- Build a single string; avoids the nil-element problem
-  local full_cmd = string.format('%s %s "%s"', shell, flag, M.config.picker_cmd)
+  local pipeline = spec.producer .. ' | ' .. fzf_cmd
 
-  vim.fn.termopen(full_cmd, {
-    on_exit = function(job, code, signal)
+  vim.fn.termopen({ shell, flag, pipeline }, {
+    on_exit = function()
       vim.schedule(function()
-        M._on_exit(buf, term_win, caller_win, job, code, signal)
+        local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false) -- scroll-back harvest
+        local out, seen = {}, false
+        for i = #lines, 1, -1 do
+          local l = vim.trim(lines[i])
+          if l ~= '' then
+            seen = true
+          end
+          if seen then
+            table.insert(out, 1, l)
+          end
+          if seen and l == '' then
+            break
+          end
+        end
+        if vim.api.nvim_win_is_valid(term) then
+          vim.api.nvim_win_close(term, true)
+        end
+        if not next(out) then
+          return
+        end
+        local key = (out[1] == 'ctrl-v') and table.remove(out, 1) or ''
+        vim.api.nvim_set_current_win(caller)
+        spec.sink(spec.parse(out), key)
       end)
     end,
   })
-
   vim.schedule(function()
     vim.cmd('startinsert')
-  end)
-end
-
-function M._on_exit(buf, term_win, caller_win, job, code, _signal)
-  -- harvest the tail of the scroll-back (unchanged)
-  local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-  local results = {}
-  for i = #lines, 1, -1 do
-    local l = vim.trim(lines[i])
-    if l == '' and #results == 0 then
-      goto continue
-    elseif l == '' then
-      break
-    end
-    table.insert(results, 1, l)
-    ::continue::
-  end
-  if vim.tbl_isempty(results) then
-    return
-  end
-
-  -- split key / paths (unchanged)
-  local key = (results[1] == 'ctrl-v') and table.remove(results, 1) or ''
-  local opener = ({ ['ctrl-v'] = 'vsplit' })[key] or 'edit'
-
-  -- Close the terminal window, jump back, then open
-  if vim.api.nvim_win_is_valid(term_win) then
-    vim.api.nvim_win_close(term_win, true) -- remove picker split
-  end
-  if vim.api.nvim_win_is_valid(caller_win) then
-    vim.api.nvim_set_current_win(caller_win) -- focus caller
-  end
-
-  for _, path in ipairs(results) do -- open files normally
-    vim.cmd(opener .. ' ' .. vim.fn.fnameescape(path))
-  end
-end
-
-function M.setup(user_opts)
-  M.config = vim.tbl_deep_extend('force', M.config, user_opts or {})
-  vim.keymap.set('n', '<leader>f', M.open, { desc = 'FZF file picker' })
+  end) -- enter Terminal-Insert
 end
 
 return M

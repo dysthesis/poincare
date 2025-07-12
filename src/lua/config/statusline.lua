@@ -70,36 +70,6 @@ local function mode()
 end
 
 --- @return string
-local function git_branch_icon()
-  return '%#StatusLineGitBranchIcon#%*'
-end
-
---- @return string
-local function git_branch()
-  local branch = vim.b.gitsigns_head
-
-  if branch == '' or branch == nil then
-    return ''
-  end
-
-  return string.format('%%#StatusLineMedium#%s%%*', branch)
-end
-
---- @return string
-local function full_git()
-  local full = ''
-  local space = '%#StatusLineMedium# %*'
-
-  local branch = git_branch()
-  if branch ~= '' then
-    local icon = git_branch_icon()
-    full = full .. space .. icon .. space .. branch .. space
-  end
-
-  return full
-end
-
---- @return string
 local function file_percentage()
   local current_line = vim.api.nvim_win_get_cursor(0)[1]
   local lines = vim.api.nvim_buf_line_count(0)
@@ -165,7 +135,6 @@ StatusLine.active = function()
   local statusline = {
     mode(),
     filename(),
-    full_git(),
     '%=',
     '%=',
     file_percentage(),
