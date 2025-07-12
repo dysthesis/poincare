@@ -31,15 +31,17 @@ local function get_shell()
   return sh, flag
 end
 
--- producer: shell string that generates lines for fzf
--- preview: (optional) fzf --preview string
--- extra: (optional) extra fzf flags (string)
--- parse: function(list_of_lines) -> lua_table
--- sink: function(lua_table, key) – side-effect
+-- Runs the fuzzy finder menu. This function takes in a spec containing
+-- - `producer`, which is a shell string that generates lines for `fzf`,
+-- - `preview`, which is an optional `fzf --preview` string,
+-- - `extra`, which is an optional extra `fzf` flags (string),
+-- - `parse`, which si a function that parses the menu options into a Lua table, and
+-- - `sink`, which is a function that takes the Lua table produced by `parse` and performs some
+--   action with it.
 function M.run(spec)
   local shell, flag = get_shell() -- guard against v:null
   local caller = vim.api.nvim_get_current_win()
-  local buf, term = open_split(0.2) -- winfixheight split
+  local buf, term = open_split(0.25) -- winfixheight split
 
   -- build full fzf pipeline once
   local fzf_cmd = BASE_FZF
