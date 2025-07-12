@@ -13,6 +13,9 @@ local BASE_FZF = table.concat({
   '--no-clear',
 }, ' ')
 
+-- Helper function to open a split menu. It takes in
+--
+-- - `height_pct`, which is the height of the popup buffer to open in percent.`
 local function open_split(height_pct)
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
@@ -24,6 +27,7 @@ local function open_split(height_pct)
   return buf, win
 end
 
+-- Helper function to find the shell in the system
 local function get_shell()
   local sh = vim.o.shell ~= '' and vim.o.shell or '/bin/sh'
   local flag = vim.o.shellcmdflag ~= '' and vim.o.shellcmdflag or '-c'
@@ -32,6 +36,7 @@ local function get_shell()
 end
 
 -- Runs the fuzzy finder menu. This function takes in a spec containing
+--
 -- - `producer`, which is a shell string that generates lines for `fzf`,
 -- - `preview`, which is an optional `fzf --preview` string,
 -- - `extra`, which is an optional extra `fzf` flags (string),

@@ -1,1 +1,1 @@
-vim.keymap.set({ 'n', 'x', 'o' }, 'z', '<Plug>(leap)')
+vim.keymap.set({ 'n', 'x', 'o' }, 'f', '<Plug>(leap)')
