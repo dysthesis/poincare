@@ -55,36 +55,47 @@ function M.run(spec)
   vim.fn.termopen({ shell, flag, pipeline }, {
     on_exit = function(_, exit_code, _)
       vim.schedule(function()
-        local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-        local out, seen = {}, false
-        for i = #lines, 1, -1 do
-          local l = vim.trim(lines[i])
-          if l ~= '' then
-            seen = true
+        if exit_code ~= 0 then
+          -- Close the window and do nothing on non-zero exit (e.g., user pressed Esc)
+          if vim.api.nvim_win_is_valid(caller) then
+            vim.api.nvim_set_current_win(caller)
           end
-          if seen then
-            table.insert(out, 1, l)
+          if vim.api.nvim_win_is_valid(term) then
+            vim.api.nvim_win_close(term, true)
           end
-          if seen and l == '' then
-            break
-          end
+          vim.cmd('redraw')
+          return
         end
+
+        -- Get all lines from the buffer and filter out any empty ones.
+        local all_lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+        local out = vim.tbl_filter(function(v)
+          return v ~= ''
+        end, all_lines)
 
         -- always return focus to caller before closing split
         if vim.api.nvim_win_is_valid(caller) then
           vim.api.nvim_set_current_win(caller)
         end
         if vim.api.nvim_win_is_valid(term) then
-          vim.api.nvim_win_close(term, true) 
+          vim.api.nvim_win_close(term, true)
         end
         vim.cmd('redraw')
 
-        if exit_code ~= 0 or not next(out) then 
+        -- If there's no output, we're done.
+        if not next(out) then
           return
         end
 
         -- normal path; parse key and open files
-        local key = (out[1] == 'ctrl-v') and table.remove(out, 1) or ''
+        local key = ''
+        if out[1] == 'ctrl-v' then
+          key = table.remove(out, 1)
+        end
+        -- Don't process if the only thing returned was the key (i.e., no selections)
+        if not next(out) then
+          return
+        end
         spec.sink(spec.parse(out), key)
       end)
     end,

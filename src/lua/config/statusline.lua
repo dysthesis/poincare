@@ -1,35 +1,35 @@
 -- Originally from:
 -- https://github.com/shivambegin/Neovim/blob/a1b6009501f88dcc82d4fc681bb28dc2ab781d77/lua/config/statusline.lua
-  local statusline_bg = '#080808' -- Dark blue background (adjust to your preference)
+local statusline_bg = '#080808' -- Dark blue background (adjust to your preference)
 
-  -- Set the default StatusLine highlight group
-  vim.api.nvim_set_hl(0, 'StatusLine', {
-    fg = '#ffffff', -- Default text color
-    bg = statusline_bg,
-  })
+-- Set the default StatusLine highlight group
+vim.api.nvim_set_hl(0, 'StatusLine', {
+  fg = '#ffffff', -- Default text color
+  bg = statusline_bg,
+})
 
-  -- Set StatusLineNC (non-current statusline) to match
-  vim.api.nvim_set_hl(0, 'StatusLineNC', {
-    fg = '#565f89', -- Dimmer text for inactive statuslines
-    bg = statusline_bg,
-  })
+-- Set StatusLineNC (non-current statusline) to match
+vim.api.nvim_set_hl(0, 'StatusLineNC', {
+  fg = '#565f89', -- Dimmer text for inactive statuslines
+  bg = statusline_bg,
+})
 
-  -- Now set all your custom statusline highlight groups to use the same background
-  vim.api.nvim_set_hl(0, 'StatusLineModeBold', {
-    fg = '#ffffff', -- Mode text color
-    bg = statusline_bg,
-    bold = true,
-  })
+-- Now set all your custom statusline highlight groups to use the same background
+vim.api.nvim_set_hl(0, 'StatusLineModeBold', {
+  fg = '#ffffff', -- Mode text color
+  bg = statusline_bg,
+  bold = true,
+})
 
-  vim.api.nvim_set_hl(0, 'StatusLineMode', {
-    fg = '#ffffff',
-    bg = statusline_bg,
-  })
+vim.api.nvim_set_hl(0, 'StatusLineMode', {
+  fg = '#ffffff',
+  bg = statusline_bg,
+})
 
-  vim.api.nvim_set_hl(0, 'StatusLineMedium', {
-    fg = '#444444',
-    bg = statusline_bg,
-  })
+vim.api.nvim_set_hl(0, 'StatusLineMedium', {
+  fg = '#444444',
+  bg = statusline_bg,
+})
 local statusline_augroup = vim.api.nvim_create_augroup('native_statusline', { clear = true })
 
 --- @return string
