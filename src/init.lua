@@ -10,3 +10,4 @@ require('plugins.treesitter')
 require('plugins.mini-surround')
 
 require('utils.autopairs')
+require('utils.format')
