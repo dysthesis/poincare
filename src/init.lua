@@ -1,2 +1,4 @@
 require('config.colour')
 require('config.behaviour')
+require('config.statusline')
+require('config.ui')
