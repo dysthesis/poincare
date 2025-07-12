@@ -30,6 +30,7 @@
     lz-n
     smart-splits-nvim
     leap-nvim
+    mini-surround
     nvim-treesitter-textobjects
     (nvim-treesitter.withPlugins (
       p:
