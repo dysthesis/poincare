@@ -1,9 +1,9 @@
-local core = require('utils.picker')
+local picker = require('utils.picker')
 
 local M = {}
 
 M.open = function()
-  core.run {
+  picker.run {
     producer = "rg --files --hidden --follow --glob '!.git/*'", -- fast file list
     preview = 'bat --style=numbers --color=always {}', -- colourful view
     parse = function(lines)

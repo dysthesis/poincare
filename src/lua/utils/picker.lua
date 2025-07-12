@@ -53,9 +53,9 @@ function M.run(spec)
   local pipeline = spec.producer .. ' | ' .. fzf_cmd
 
   vim.fn.termopen({ shell, flag, pipeline }, {
-    on_exit = function()
+    on_exit = function(_, exit_code, _)
       vim.schedule(function()
-        local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false) -- scroll-back harvest
+        local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
         local out, seen = {}, false
         for i = #lines, 1, -1 do
           local l = vim.trim(lines[i])
@@ -69,21 +69,29 @@ function M.run(spec)
             break
           end
         end
-        if vim.api.nvim_win_is_valid(term) then
-          vim.api.nvim_win_close(term, true)
+
+        -- always return focus to caller before closing split
+        if vim.api.nvim_win_is_valid(caller) then
+          vim.api.nvim_set_current_win(caller)
         end
-        if not next(out) then
+        if vim.api.nvim_win_is_valid(term) then
+          vim.api.nvim_win_close(term, true) 
+        end
+        vim.cmd('redraw')
+
+        if exit_code ~= 0 or not next(out) then 
           return
         end
+
+        -- normal path; parse key and open files
         local key = (out[1] == 'ctrl-v') and table.remove(out, 1) or ''
-        vim.api.nvim_set_current_win(caller)
         spec.sink(spec.parse(out), key)
       end)
     end,
   })
   vim.schedule(function()
     vim.cmd('startinsert')
-  end) -- enter Terminal-Insert
+  end)
 end
 
 return M
