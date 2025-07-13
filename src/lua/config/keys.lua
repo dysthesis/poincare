@@ -26,7 +26,7 @@ map('n', '<leader>f', function()
 end)
 
 map('n', '<leader>g', function()
-  require('utils.live_grep').open()
+  require('utils.picker.live_grep').open()
 end)
 
 map('n', '<leader>n', function()
