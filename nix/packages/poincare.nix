@@ -8,35 +8,40 @@
   vimPlugins,
   vimUtils,
   lib,
+  dash,
   ...
-}:
-let
+}: let
   sources = import ./npins;
-  npins = lib.mapAttrs (k: _v: import sources.${k} { }) sources;
+  npins = lib.mapAttrs (k: _v: import sources.${k} {}) sources;
   packageName = "plugins";
 
   config = vimUtils.buildVimPlugin {
     name = "poincare";
-    src = runCommand "poincare-config-src" { } ''
+
+    src = runCommand "poincare-config-src" {} ''
       mkdir -p $out/plugin
-      cp -r ${self}/src/init.lua $out/plugin/
+
+      cat ${self}/src/init.lua >  $out/plugin/init.lua
+      printf 'vim.o.shell        = "%s"\n' "${lib.getExe dash}" \
+           >> $out/plugin/init.lua
+      printf 'vim.o.shellcmdflag = "-c"\n'           >> $out/plugin/init.lua
+
       cp -r ${self}/src/lua $out/
     '';
     doCheck = false;
   };
 
-  plugins =
-    with vimPlugins;
-    with npins;
-    [
-      config
-      lz-n
-      smart-splits-nvim
-      leap-nvim
-      mini-surround
-      nvim-treesitter-textobjects
-      (nvim-treesitter.withPlugins (
-        p: with p; [
+  plugins = with vimPlugins;
+  with npins; [
+    config
+    lz-n
+    smart-splits-nvim
+    leap-nvim
+    mini-surround
+    nvim-treesitter-textobjects
+    (nvim-treesitter.withPlugins (
+      p:
+        with p; [
           go
           bash
           fish
@@ -59,30 +64,31 @@ let
           latex
           typst
         ]
-      ))
-      lackluster-nvim
-    ];
-  packPath = runCommandLocal "packpath" { } ''
+    ))
+    lackluster-nvim
+  ];
+  packPath = runCommandLocal "packpath" {} ''
     mkdir -p $out/pack/${packageName}/{start,opt}
     ${lib.concatMapStringsSep "\n" (
-      plugin: "ln -vsfT ${plugin} $out/pack/${packageName}/start/${lib.getName plugin}"
-    ) plugins}
+        plugin: "ln -vsfT ${plugin} $out/pack/${packageName}/start/${lib.getName plugin}"
+      )
+      plugins}
   '';
 in
-symlinkJoin rec {
-  name = "poincare";
-  paths = [ neovim-unwrapped ];
-  nativeBuildInputs = [ makeWrapper ];
-  postBuild = ''
-    wrapProgram $out/bin/nvim \
-      --add-flags "-u" \
-      --add-flags "NORC" \
-      --add-flags "--cmd" \
-      --add-flags "'set packpath^=${packPath} | set runtimepath^=${packPath}'" \
-      --set-default NVIM_APPNAME ${name}
-  '';
-  passthru = {
-    inherit packPath;
-  };
-  meta.mainProgram = "nvim";
-}
+  symlinkJoin rec {
+    name = "poincare";
+    paths = [neovim-unwrapped dash];
+    nativeBuildInputs = [makeWrapper];
+    postBuild = ''
+      wrapProgram $out/bin/nvim \
+        --add-flags "-u" \
+        --add-flags "NORC" \
+        --add-flags "--cmd" \
+        --add-flags "'set packpath^=${packPath} | set runtimepath^=${packPath}'" \
+        --set-default NVIM_APPNAME ${name}
+    '';
+    passthru = {
+      inherit packPath;
+    };
+    meta.mainProgram = "nvim";
+  }
