@@ -76,6 +76,7 @@ function M.run(spec)
 
         -- Get all lines from the buffer and filter out any empty ones.
         local all_lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+
         local out = vim.tbl_filter(function(v)
           return v ~= ''
         end, all_lines)
@@ -103,7 +104,8 @@ function M.run(spec)
         if not next(out) then
           return
         end
-        spec.sink(spec.parse(out), key)
+        local parsed = spec.parse(out)
+        spec.sink(parsed, key)
       end)
     end,
   })

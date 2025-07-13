@@ -25,3 +25,15 @@ end)
 map('n', '<leader>g', function()
   require('utils.live_grep').open()
 end)
+
+map('n', '<leader>n', function()
+  require('utils.notes_edit').open()
+end)
+
+map('n', '<leader>i', function()
+  require('utils.notes_link_insert').open()
+end)
+
+map('i', '<A-i>', function()
+  require('utils.notes_link_insert').open()
+end)
