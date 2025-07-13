@@ -34,6 +34,14 @@ map('n', '<leader>i', function()
   require('utils.notes_link_insert').open()
 end)
 
+map('n', '<leader>b', function()
+  require('utils.notes_backlinks_edit').open()
+end)
+
+map('n', '<leader>B', function()
+  require('utils.notes_backlinks_insert').open()
+end)
+
 map('i', '<A-i>', function()
   require('utils.notes_link_insert').open()
 end)

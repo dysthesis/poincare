@@ -1,4 +1,4 @@
-local picker = require('utils.notes_picker')
+local picker = require('utils.notes_backlinks_picker')
 
 local function urlencode(str)
   return str:gsub('([^A-Za-z0-9_%-%.~])', function(c)
@@ -21,7 +21,6 @@ M.open = function()
 
     local title, path = sel:match('(.+):(.+)')
     if not (title and path) then
-      vim.notify('Selection not in title:path format', vim.log.levels.WARN)
       return
     end
 
@@ -44,7 +43,7 @@ M.open = function()
     vim.api.nvim_win_set_cursor(0, { row + 1, new_col })
   end
 
-  local extra = ' --accept-nth \'{1}:{2}\' --prompt="Insert link to note > "'
+  local extra = ' --accept-nth \'{1}:{2}\' --prompt="Insert backlink to note > "'
   picker.run(sink, extra)
 end
 
