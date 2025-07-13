@@ -45,7 +45,7 @@ M.open = function()
     vim.api.nvim_win_set_cursor(0, { row + 1, new_col })
   end
 
-  local extra = " --accept-nth '{1}:{2}'"
+  local extra = ' --accept-nth \'{1}:{2}\' --prompt="Insert link to note > "'
   picker.run(sink, extra)
 end
 

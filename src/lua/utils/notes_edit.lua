@@ -10,7 +10,7 @@ local sink = function(paths, key)
   vim.cmd(string.format('%s %s', cmd, esc))
 end
 
-local extra = ' --accept-nth=2'
+local extra = ' --accept-nth=2 --prompt="Open note > "'
 
 local M = {}
 M.open = function()
