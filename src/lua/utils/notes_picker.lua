@@ -13,7 +13,7 @@ M.run = function(sink, extra)
   picker.run {
     producer = producer,
     preview = preview,
-    extra = default_extra .. extra,
+    extra = default_extra .. ' ' .. extra,
     parse = parse,
     sink = sink,
   }
