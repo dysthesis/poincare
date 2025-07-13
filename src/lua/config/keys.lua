@@ -37,3 +37,12 @@ end)
 map('i', '<A-i>', function()
   require('utils.notes_link_insert').open()
 end)
+
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'markdown',
+  callback = function()
+    vim.keymap.set('n', '<S-CR>', function()
+      require('utils.md_link').follow()
+    end, { buffer = true, silent = true, desc = 'Follow markdown link' })
+  end,
+})
