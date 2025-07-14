@@ -3,6 +3,7 @@ require('config.behaviour')
 require('config.statusline')
 require('config.ui')
 require('config.keys')
+require('config.lsp')
 
 require('plugins.smart-splits')
 require('plugins.leap')

@@ -27,6 +27,7 @@
       printf 'vim.o.shellcmdflag = "-c"\n'           >> $out/plugin/init.lua
 
       cp -r ${self}/src/lua $out/
+      cp -r ${self}/src/lsp $out/
     '';
     doCheck = false;
   };
