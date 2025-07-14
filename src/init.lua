@@ -11,3 +11,4 @@ require('plugins.mini-surround')
 
 require('utils.autopairs')
 require('utils.format')
+require('utils.todo_highlight')
