@@ -12,7 +12,6 @@ M.open = function()
       rg --files --hidden --follow --glob '!.git/*' | while IFS= read -r path; do
         basename="${path##*/}"
         dirname="${path%/*}"
-        
         if [ "$dirname" = "$path" ]; then
           echo "$(tput bold)$basename$(tput sgr0)"
         else

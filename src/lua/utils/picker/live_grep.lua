@@ -7,6 +7,7 @@ local FZF_EXTRA = table.concat({
   '--disabled', -- start with an empty list
   '--phony', -- rely on ripgrep, no secondary filter
   "--delimiter ':'", -- so {1} = file, {2} = line, ...
+  "--preview-window 'right:65%:wrap:+{2}-3'", -- Tell fzf to scroll
   ("--bind 'change:reload:%s,first'"):format(RG_CMD),
 }, ' ')
 
