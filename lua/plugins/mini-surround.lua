@@ -4,7 +4,7 @@ require('lz.n').load {
   after = function()
     require('mini.surround').setup {
       mappings = {
-        add = 's', -- Add surrounding in Normal and Visual modes
+        add = 'S', -- Add surrounding in Normal and Visual modes
         delete = 'ds', -- Delete surrounding
         replace = 'cs', -- Replace surrounding
       },
