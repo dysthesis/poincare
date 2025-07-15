@@ -39,6 +39,7 @@ local lsps = {
   -- 'rust-analyzer',
   'nixd',
   'zls',
+  'texlab',
 }
 
 for _, lsp in ipairs(lsps) do
