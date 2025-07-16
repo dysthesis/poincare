@@ -36,10 +36,11 @@ local lsps = {
   'bash-language-server',
   'lua-language-server',
   'tinymist',
-  -- 'rust-analyzer',
+  -- 'rust-analyzer', -- rustaceanvim handles that instead
   'nixd',
   'zls',
   'texlab',
+  'basedpyright',
 }
 
 for _, lsp in ipairs(lsps) do
