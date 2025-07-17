@@ -37,7 +37,11 @@
   lazy-plugins = with pkgs.vimPlugins;
     [
       trouble-nvim
-      minuet-ai-nvim
+
+      avante-nvim
+      img-clip-nvim
+      dressing-nvim
+      render-markdown-nvim
 
       nvim-dap
       nvim-dap-ui
