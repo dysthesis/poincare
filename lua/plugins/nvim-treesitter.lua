@@ -134,7 +134,8 @@ configs.setup {
 
 -- Tree-sitter based folding
 vim.filetype.add {
-  pattern = { { ['.*/hypr/.*%.conf'] = 'hyprlang' }, { ['*.sage$'] = 'python' } },
+  pattern = { ['.*/hypr/.*%.conf'] = 'hyprlang' },
+  extension = { sage = 'python' },
 }
 -- if vim.fn.has('nvim-0.10') == 1 then
 --   vim.opt.foldexpr = "v:lua.require'utils.folding'.foldexpr()"
