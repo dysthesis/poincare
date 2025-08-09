@@ -41,6 +41,7 @@ local lsps = {
   'zls',
   'texlab',
   'basedpyright',
+  'gopls',
 }
 
 for _, lsp in ipairs(lsps) do
