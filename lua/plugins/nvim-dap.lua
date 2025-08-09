@@ -1,3 +1,14 @@
+local function find_main_go()
+  local root = vim.fn.getcwd()
+
+  local main_go = vim.fn.globpath(root, '**/main.go', 0, 1)
+
+  if #main_go > 0 then
+    return vim.fn.fnamemodify(main_go[1], ':h')
+  end
+
+  return root
+end
 require('lz.n').load {
   'nvim-dap',
   keys = {
@@ -57,6 +68,7 @@ require('lz.n').load {
     vim.cmd.packadd(name)
     vim.cmd.packadd('nvim-dap-ui')
     vim.cmd.packadd('nvim-dap-virtual-text')
+    vim.cmd.packadd('dap-go')
   end,
   after = function()
     vim.fn.sign_define('DapBreakpoint', { text = ' ', texthl = 'DapBreakpoint', linehl = '', numhl = '' })
@@ -184,6 +196,18 @@ require('lz.n').load {
     dap.listeners.before.event_exited.dapui_config = function()
       dapui.close()
     end
+
+    require('dap-go').setup()
+    dap.configurations.go = {
+      {
+        type = 'go',
+        name = 'Debug',
+        request = 'launch',
+        program = function()
+          return find_main_go()
+        end,
+      },
+    }
   end,
 
   require('nvim-dap-virtual-text').setup {},
