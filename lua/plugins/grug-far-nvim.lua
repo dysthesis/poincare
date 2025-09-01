@@ -1,0 +1,6 @@
+require('lz.n').load {
+  'grug-far.nvim',
+  after = function()
+    require('grug-far').setup {}
+  end,
+}

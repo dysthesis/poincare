@@ -17,7 +17,7 @@
 --
 --             padding_left = ' ',
 --             padding_right = ' ',
---             icon = '󰫈 ',
+--             icon = '◉ ',
 --             hl = 'MarkviewHeading1',
 --           },
 --           heading_2 = {
@@ -27,7 +27,7 @@
 --
 --             padding_left = ' ',
 --             padding_right = ' ',
---             icon = '󰫇 ',
+--             icon = '○ ',
 --             hl = 'MarkviewHeading2',
 --           },
 --           heading_3 = {
@@ -35,7 +35,7 @@
 --
 --             padding_left = ' ',
 --             padding_right = ' ',
---             icon = '󰫆 ',
+--             icon = '◈ ',
 --             hl = 'MarkviewHeading3',
 --           },
 --           heading_4 = {
@@ -43,7 +43,7 @@
 --
 --             padding_left = ' ',
 --             padding_right = ' ',
---             icon = '󰫅 ',
+--             icon = '◇ ',
 --             hl = 'MarkviewHeading4',
 --           },
 --           heading_5 = {
@@ -51,7 +51,7 @@
 --
 --             padding_left = ' ',
 --             padding_right = ' ',
---             icon = '󰫄 ',
+--             icon = '✳  ',
 --             hl = 'MarkviewHeading5',
 --           },
 --           heading_6 = {

@@ -44,6 +44,8 @@
       nvim-dap-go
       nvim-nio
 
+      # markview-nvim
+
       friendly-snippets
 
       conform-nvim
@@ -75,6 +77,11 @@
       mini-icons
       mini-ai
       mini-indentscope
+
+      dashboard-nvim
+
+      grug-far-nvim
+      which-key-nvim
 
       lz-n
       diffview-nvim
@@ -110,9 +117,7 @@
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
       smart-splits-nvim
       nvim-lint
-
       neotest
-
       blink-cmp
       blink-compat
       neogen
