@@ -61,8 +61,20 @@ require('lz.n').load {
     },
     {
       '<leader>nf',
-      '<CMD>ZkNotes<CR>',
+      '<CMD>ZkNotes { tags = { "NOT literature", "NOT journal" } }<CR>',
       desc = '[N]ote [F]ind',
+      mode = 'n',
+    },
+    {
+      '<leader>nL',
+      '<CMD>ZkNotes { tags = { "literature" } }<CR>',
+      desc = '[N]ote [L]iterature',
+      mode = 'n',
+    },
+    {
+      '<leader>nj',
+      '<CMD>ZkNotes { tags = { "journal" } }<CR>',
+      desc = '[N]ote [J]ournal',
       mode = 'n',
     },
     {
