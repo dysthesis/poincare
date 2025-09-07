@@ -78,7 +78,7 @@
       mini-ai
       mini-indentscope
 
-      dashboard-nvim
+      # dashboard-nvim
 
       grug-far-nvim
       which-key-nvim
