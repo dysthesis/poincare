@@ -62,9 +62,17 @@ require('lz.n').load {
     {
       '<leader>nf',
       function()
-        require('zk').edit({ tags = { 'NOT literature', 'NOT journal' } }, { title = 'Notes' })
+        require('zk').edit({ tags = { 'NOT literature', 'NOT journal', 'NOT fleeting' } }, { title = 'Notes' })
       end,
       desc = '[N]ote [F]ind',
+      mode = 'n',
+    },
+    {
+      '<leader>nF',
+      function()
+        require('zk').edit({ tags = { 'fleeting' } }, { title = 'Fleeting' })
+      end,
+      desc = '[N]ote [F]leeting',
       mode = 'n',
     },
     {
