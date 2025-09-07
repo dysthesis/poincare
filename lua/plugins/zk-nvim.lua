@@ -8,82 +8,99 @@ require('lz.n').load {
       .. '**.md',
     'BufNewFile ' .. path .. '/**.md',
   },
-  keys = {
-    {
-      '<S-CR>',
-      function()
-        vim.lsp.buf.definition()
-      end,
-      desc = 'Follow link',
-      mode = 'n',
-    },
-    {
-      '<C-CR>',
-      "viw:'<,'>ZkNewFromTitleSelection { dir = vim.fn.expand('%:p:h') }<CR>",
-      desc = 'New note for word under cursor',
-      mode = 'n',
-    },
-    {
-      '<C-CR>',
-      ":'<,'>ZkNewFromTitleSelection { dir = vim.fn.expand('%:p:h') }<CR>",
-      desc = 'New note from selection',
-      mode = 'v',
-    },
-    {
-      '<leader>nn',
-      "<Cmd>ZkNew { dir = vim.fn.expand('%:p:h'), title = vim.fn.input('Title: ') }<CR>",
-      desc = '[N]ote [N]ew',
-      mode = 'n',
-    },
-    {
-      '<leader>nnt',
-      ":'<,'>ZkNewFromTitleSelection { dir = vim.fn.expand('%:p:h') }<CR>",
-      desc = '[N]ew [N]ote from [T]itle',
-      mode = 'v',
-    },
-    {
-      '<leader>nnc',
-      ":'<,'>ZkNewFromContentSelection { dir = vim.fn.expand('%:p:h'), title = vim.fn.input('Title: ') }<CR>",
-      desc = '[N]ew [N]ote from [C]ontent',
-      mode = 'v',
-    },
-    {
-      '<leader>nb',
-      '<CMD>ZkBacklinks<CR>',
-      desc = '[N]ote [B]acklinks',
-      mode = 'n',
-    },
-    {
-      '<leader>nl',
-      '<CMD>ZkLinks<CR>',
-      desc = '[N]ote [L]inks',
-      mode = 'n',
-    },
-    {
-      '<leader>nf',
-      '<CMD>ZkNotes { tags = { "NOT literature", "NOT journal" } }<CR>',
-      desc = '[N]ote [F]ind',
-      mode = 'n',
-    },
-    {
-      '<leader>nL',
-      '<CMD>ZkNotes { tags = { "literature" } }<CR>',
-      desc = '[N]ote [L]iterature',
-      mode = 'n',
-    },
-    {
-      '<leader>nj',
-      '<CMD>ZkNotes { tags = { "journal" } }<CR>',
-      desc = '[N]ote [J]ournal',
-      mode = 'n',
-    },
-    {
-      '<leader>nt',
-      '<CMD>ZkTags<CR>',
-      desc = '[N]ote [T]ags',
-      mode = 'n',
-    },
-  },
+  keys = function()
+    local zk = require('zk')
+    local commands = require('zk.commands')
+
+    local function make_edit_fn(defaults, picker_options)
+      return function(options)
+        options = vim.tbl_extend('force', defaults, options or {})
+        zk.edit(options, picker_options)
+      end
+    end
+    return {
+      {
+        '<S-CR>',
+        function()
+          vim.lsp.buf.definition()
+        end,
+        desc = 'Follow link',
+        mode = 'n',
+      },
+      {
+        '<C-CR>',
+        "viw:'<,'>ZkNewFromTitleSelection { dir = vim.fn.expand('%:p:h') }<CR>",
+        desc = 'New note for word under cursor',
+        mode = 'n',
+      },
+      {
+        '<C-CR>',
+        ":'<,'>ZkNewFromTitleSelection { dir = vim.fn.expand('%:p:h') }<CR>",
+        desc = 'New note from selection',
+        mode = 'v',
+      },
+      {
+        '<leader>nn',
+        "<Cmd>ZkNew { dir = vim.fn.expand('%:p:h'), title = vim.fn.input('Title: ') }<CR>",
+        desc = '[N]ote [N]ew',
+        mode = 'n',
+      },
+      {
+        '<leader>nnt',
+        ":'<,'>ZkNewFromTitleSelection { dir = vim.fn.expand('%:p:h') }<CR>",
+        desc = '[N]ew [N]ote from [T]itle',
+        mode = 'v',
+      },
+      {
+        '<leader>nnc',
+        ":'<,'>ZkNewFromContentSelection { dir = vim.fn.expand('%:p:h'), title = vim.fn.input('Title: ') }<CR>",
+        desc = '[N]ew [N]ote from [C]ontent',
+        mode = 'v',
+      },
+      {
+        '<leader>nb',
+        '<CMD>ZkBacklinks<CR>',
+        desc = '[N]ote [B]acklinks',
+        mode = 'n',
+      },
+      {
+        '<leader>nl',
+        '<CMD>ZkLinks<CR>',
+        desc = '[N]ote [L]inks',
+        mode = 'n',
+      },
+      {
+        '<leader>nf',
+        function()
+          make_edit_fn { tags = { 'NOT literature', 'NOT journal' }, { title = 'Notes' } }
+        end,
+        desc = '[N]ote [F]ind',
+        mode = 'n',
+      },
+      {
+        '<leader>nL',
+        function()
+          make_edit_fn { tags = { 'literature' }, { title = 'Literature' } }
+        end,
+        desc = '[N]ote [L]iterature',
+        mode = 'n',
+      },
+      {
+        '<leader>nj',
+        function()
+          make_edit_fn { tags = { 'journal' }, { title = 'Journal' } }
+        end,
+        desc = '[N]ote [J]ournal',
+        mode = 'n',
+      },
+      {
+        '<leader>nt',
+        '<CMD>ZkTags<CR>',
+        desc = '[N]ote [T]ags',
+        mode = 'n',
+      },
+    }
+  end,
   before = function()
     require('lz.n').trigger_load('mini.pick')
   end,
