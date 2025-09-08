@@ -92,6 +92,7 @@
         p:
           with p; [
             go
+            css
             bash
             fish
             diff
