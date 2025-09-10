@@ -10,7 +10,7 @@ require('lz.n').load {
       desc = '[F]ind [F]iles',
     },
     {
-      '<leader>/',
+      '<leader>g',
       function()
         require('mini.pick').builtin.grep_live()
       end,
