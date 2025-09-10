@@ -70,17 +70,12 @@
       zk-nvim
 
       # Navigation
-      glance-nvim
       leap-nvim
       mini-pick
       mini-surround
       mini-icons
       mini-ai
       mini-indentscope
-
-      # dashboard-nvim
-
-      grug-far-nvim
       which-key-nvim
 
       lz-n
