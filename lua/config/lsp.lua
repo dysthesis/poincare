@@ -42,6 +42,7 @@ local lsps = {
   'texlab',
   'basedpyright',
   'gopls',
+  'clangd',
 }
 
 for _, lsp in ipairs(lsps) do
