@@ -24,6 +24,7 @@ require('lz.n').load {
         nix = { 'alejandra' },
         c = { 'clang-format' },
         rust = { 'rustfmt' },
+        go = { 'go/fmt' },
       },
     }
   end,

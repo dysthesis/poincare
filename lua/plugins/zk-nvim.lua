@@ -61,8 +61,34 @@ require('lz.n').load {
     },
     {
       '<leader>nf',
-      '<CMD>ZkNotes<CR>',
+      function()
+        require('zk').edit({ tags = { 'NOT literature', 'NOT journal', 'NOT fleeting' } }, { title = 'Notes' })
+      end,
       desc = '[N]ote [F]ind',
+      mode = 'n',
+    },
+    {
+      '<leader>nF',
+      function()
+        require('zk').edit({ tags = { 'fleeting' } }, { title = 'Fleeting' })
+      end,
+      desc = '[N]ote [F]leeting',
+      mode = 'n',
+    },
+    {
+      '<leader>nL',
+      function()
+        require('zk').edit({ tags = { 'literature' } }, { title = 'Literature' })
+      end,
+      desc = '[N]ote [L]iterature',
+      mode = 'n',
+    },
+    {
+      '<leader>nj',
+      function()
+        require('zk').edit({ tags = { 'journal' } }, { title = 'Journal' })
+      end,
+      desc = '[N]ote [J]ournal',
       mode = 'n',
     },
     {
@@ -77,7 +103,7 @@ require('lz.n').load {
   end,
   after = function()
     require('zk').setup {
-      picker = 'fzf_lua',
+      picker = 'minipick',
     }
   end,
 }

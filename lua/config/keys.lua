@@ -17,3 +17,14 @@ map('n', '<A-J>', ':m .+1<CR>==') -- move line up(n)
 map('n', '<A-K>', ':m .-2<CR>==') -- move line down(n)
 map('v', '<A-J>', ":m '>+1<CR>gv=gv") -- move line up(v)
 map('v', '<A-K>', ":m '<-2<CR>gv=gv") -- move line down(v)
+map('v', '<Tab>', '>>') -- indent selection
+map('v', '<S-Tab>', '<<') -- unindent selection
+
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'markdown', 'markdown.mdx' },
+  callback = function(args)
+    map('n', '<leader>or', function()
+      require('utils.references').open_reference(args.buf)
+    end, { buffer = true, silent = true, desc = 'Open front-matter reference' })
+  end,
+})

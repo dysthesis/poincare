@@ -41,7 +41,10 @@
       nvim-dap
       nvim-dap-ui
       nvim-dap-virtual-text
+      nvim-dap-go
       nvim-nio
+
+      # markview-nvim
 
       friendly-snippets
 
@@ -67,13 +70,13 @@
       zk-nvim
 
       # Navigation
-      glance-nvim
       leap-nvim
-      fzf-lua
+      mini-pick
       mini-surround
       mini-icons
       mini-ai
       mini-indentscope
+      which-key-nvim
 
       lz-n
       diffview-nvim
@@ -84,6 +87,7 @@
         p:
           with p; [
             go
+            css
             bash
             fish
             diff
@@ -109,9 +113,7 @@
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
       smart-splits-nvim
       nvim-lint
-
       neotest
-
       blink-cmp
       blink-compat
       neogen

@@ -34,6 +34,7 @@ in
       extraPackages
       ;
     ignoreConfigRegexes = ["^lua/packages.lua"];
+    extraLuaPackages = p: with p; [lyaml];
 
     # Get rid of the import to `lua/packages.lua`
     trimLines = 2;

@@ -41,6 +41,8 @@ local lsps = {
   'zls',
   'texlab',
   'basedpyright',
+  'gopls',
+  'clangd',
 }
 
 for _, lsp in ipairs(lsps) do
@@ -68,7 +70,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     -- require('utils.completion').setup(client, bufnr)
 
     -- Configure LSP-related keybinds
-    require('lz.n').trigger_load('fzf-lua')
+    -- require('lz.n').trigger_load('fzf-lua')
     -- Display documentation of the symbol under the cursor
     vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>', opts)
 
