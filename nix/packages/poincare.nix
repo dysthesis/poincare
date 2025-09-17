@@ -53,6 +53,7 @@ in
       ''
         vim.g.codelldb_path = '${codelldb}/share/vscode/extensions/vadimcn.vscode-lldb/adapter/codelldb'
         vim.g.liblldb_path = '${codelldb}/share/vscode/extensions/vadimcn.vscode-lldb/lldb/lib/liblldb.so'
+        vim.g.isabelle_path = '${lib.getExe pkgs.isabelle}'
         ${loadPlugins}
       '';
   }

@@ -1,5 +1,18 @@
 {
   "pins": {
+    "isabelle-syn.nvim": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "Treeniks",
+        "repo": "isabelle-syn.nvim"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "114b06dc34edf1707be7249b5a3815733e68d4c9",
+      "url": "https://github.com/Treeniks/isabelle-syn.nvim/archive/114b06dc34edf1707be7249b5a3815733e68d4c9.tar.gz",
+      "hash": "084qpcx8la05f06fsq8hidc2s4vms6k7hj6gqcyqphjl9k426kkz"
+    },
     "lackluster.nvim": {
       "type": "Git",
       "repository": {
