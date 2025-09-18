@@ -4,6 +4,7 @@ require('config.ui')
 require('config.behaviour')
 require('config.statusline')
 require('config.lsp')
+require('config.isabelle')
 
 vim.cmd.filetype('plugin', 'indent', 'on')
 vim.cmd.packadd('cfilter') -- Allows filtering the quickfix list with :cfdo
