@@ -71,12 +71,13 @@
 
       # Navigation
       leap-nvim
-      mini-pick
       mini-surround
       mini-icons
       mini-ai
       mini-indentscope
       which-key-nvim
+
+      fzf-lua
 
       lz-n
       diffview-nvim
