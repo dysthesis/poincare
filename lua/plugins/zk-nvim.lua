@@ -99,7 +99,7 @@ require('lz.n').load {
     },
   },
   before = function()
-    require('lz.n').trigger_load('mini.pick')
+    require('lz.n').trigger_load('fzf-lua')
   end,
   after = function()
     require('zk').setup {
