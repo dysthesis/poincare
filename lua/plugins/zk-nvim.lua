@@ -103,7 +103,7 @@ require('lz.n').load {
   end,
   after = function()
     require('zk').setup {
-      picker = 'minipick',
+      picker = 'fzf-lua',
     }
   end,
 }
