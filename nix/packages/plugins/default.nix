@@ -79,6 +79,9 @@
 
       fzf-lua
 
+      zen-mode-nvim
+      twilight-nvim
+
       lz-n
       diffview-nvim
       gitsigns-nvim
