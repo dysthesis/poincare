@@ -104,6 +104,7 @@
             haskell
             nix
             lua
+            c
             toml
             yaml
             markdown
