@@ -80,8 +80,11 @@
       fzf-lua
 
       lz-n
+
       diffview-nvim
       gitsigns-nvim
+      git-conflict-nvim
+
       oil-nvim
       ultimate-autopair-nvim
       (nvim-treesitter.withPlugins (

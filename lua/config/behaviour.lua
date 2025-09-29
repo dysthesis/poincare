@@ -216,3 +216,18 @@ vim.api.nvim_create_autocmd('FileType', {
     }
   end,
 })
+-- Prefer internal engine with smarter matching
+vim.opt.diffopt = vim.opt.diffopt
+  + { 'internal', 'filler', 'closeoff', 'indent-heuristic', 'algorithm:histogram', 'inline:word', 'linematch:60' }
+
+-- Use vertical splits by default when diffing
+vim.opt.diffopt:append('vertical')
+
+-- When entering a merge (git mergetool opens files with &diff set), drop linematch to avoid misalignment
+vim.api.nvim_create_autocmd('BufWinEnter', {
+  callback = function()
+    if vim.wo.diff then
+      vim.opt_local.diffopt:remove('linematch:60')
+    end
+  end,
+})
