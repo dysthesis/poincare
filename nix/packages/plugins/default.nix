@@ -38,6 +38,9 @@
     [
       trouble-nvim
 
+      lean-nvim
+      plenary-nvim
+
       nvim-dap
       nvim-dap-ui
       nvim-dap-virtual-text

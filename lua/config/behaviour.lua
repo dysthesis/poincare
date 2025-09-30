@@ -45,9 +45,15 @@ opt.updatetime = 250
 -- Use rg
 vim.o.grepprg = [[rg --glob "!.git" --no-heading --vimgrep --follow $*]]
 opt.grepformat = opt.grepformat ^ { '%f:%l:%c:%m' }
-vim.o.completeopt = 'menu,menuone,noselect,popup,fuzzy'
 vim.o.wildoptions = 'fuzzy,pum,tagfile'
 vim.bo.omnifunc = 'v:lua.vim.lsp.omnifunc'
+vim.opt.completeopt = { 'menu', 'menuone', 'noselect' }
+pcall(function()
+  vim.opt.completeopt:append('popup')
+end)
+pcall(function()
+  vim.opt.completeopt:append('fuzzy')
+end)
 
 opt.jumpoptions = 'view'
 
@@ -69,7 +75,11 @@ opt.sessionoptions = {
 opt.softtabstop = 2
 opt.tabstop = 2
 opt.shiftwidth = 2
-opt.foldcolumn = '1'
+if vim.fn.has('nvim-0.10') == 1 then
+  vim.opt.foldcolumn = '1'
+else
+  vim.opt.foldcolumn = 1
+end
 
 if vim.fn.has('nvim-0.10') == 1 then
   opt.smoothscroll = true
@@ -217,8 +227,24 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 -- Prefer internal engine with smarter matching
+local function try(opt, val)
+  pcall(function()
+    vim.opt[opt]:append(val)
+  end)
+end
+-- ensure it's a list (no-op if already)
 vim.opt.diffopt = vim.opt.diffopt
-  + { 'internal', 'filler', 'closeoff', 'indent-heuristic', 'algorithm:histogram', 'inline:word', 'linematch:60' }
+try('diffopt', 'internal')
+try('diffopt', 'filler')
+try('diffopt', 'closeoff')
+try('diffopt', 'indent-heuristic')
+try('diffopt', 'algorithm:histogram')
+try('diffopt', 'inline:word')
+try('diffopt', 'linematch:60')
+-- vertical diff is always fine
+pcall(function()
+  vim.opt.diffopt:append('vertical')
+end)
 
 -- Use vertical splits by default when diffing
 vim.opt.diffopt:append('vertical')
