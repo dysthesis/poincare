@@ -78,7 +78,7 @@
       mini-icons
       mini-ai
       mini-indentscope
-      which-key-nvim
+      mini-clue
 
       fzf-lua
 
