@@ -6,6 +6,8 @@ return {
     zls = {
       -- Neovim already provides basic syntax highlighting
       semantic_tokens = 'partial',
+      enable_build_on_save = true,
+      build_on_save_step = 'check',
     },
   },
 }
