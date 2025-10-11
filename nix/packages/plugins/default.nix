@@ -46,6 +46,7 @@
       nvim-dap-virtual-text
       nvim-dap-go
       nvim-nio
+      fidget-nvim
 
       # markview-nvim
 
