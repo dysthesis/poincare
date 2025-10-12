@@ -5,6 +5,7 @@
   ...
 }: let
   inherit (lib) mapAttrsToList;
+  inherit (lib.attrsets) removeAttrs;
   inherit (builtins) isAttrs;
 
   inherit
@@ -14,12 +15,30 @@
     ;
 
   npins = import ./npins;
+  zigLampSrc = npins."zig-lamp";
+
   mkNpins = mapAttrsToList (pname: src:
     mkNvimPlugin {
       inherit pkgs src pname;
       version = src.revision;
     });
-  builtNpins = mkNpins npins;
+  zigLampVersion =
+    if zigLampSrc ? version
+    then zigLampSrc.version
+    else zigLampSrc.revision;
+  zigLampPlugin = pkgs.vimUtils.buildVimPlugin {
+    pname = "zig-lamp";
+    version = zigLampVersion;
+    src = zigLampSrc;
+    dependencies = [
+      pkgs.vimPlugins.plenary-nvim
+    ];
+  };
+  builtNpins =
+    mkNpins (removeAttrs npins [ "zig-lamp" ])
+    ++ [
+      zigLampPlugin
+    ];
 
   # Make sure we use the pinned nixpkgs instance for wrapNeovimUnstable,
   # otherwise it could have an incompatible signature when applying this overlay.

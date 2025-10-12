@@ -25,6 +25,22 @@
       "revision": "b247a6f51cb43e49f3f753f4a59553b698bf5438",
       "url": "https://github.com/slugbyte/lackluster.nvim/archive/b247a6f51cb43e49f3f753f4a59553b698bf5438.tar.gz",
       "hash": "03rasbjila8jdx5g9n6ds2l5600chqv5v3r785zrlvh3g28dg1f4"
+    },
+    "zig-lamp": {
+      "type": "GitRelease",
+      "repository": {
+        "type": "GitHub",
+        "owner": "jinzhongjia",
+        "repo": "zig-lamp"
+      },
+      "pre_releases": false,
+      "version_upper_bound": null,
+      "release_prefix": null,
+      "submodules": false,
+      "version": "0.0.6",
+      "revision": "dcd2af8d5483b02d1ae741fc8cd0335f081e2d86",
+      "url": "https://api.github.com/repos/jinzhongjia/zig-lamp/tarball/0.0.6",
+      "hash": "0yjamqwa23vrjh2gc6wdc76k0jmy0wmrpf76zrvijfdz6yv760yl"
     }
   },
   "version": 5
