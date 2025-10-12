@@ -26,14 +26,31 @@
     if zigLampSrc ? version
     then zigLampSrc.version
     else zigLampSrc.revision;
-  zigLampPlugin = pkgs.vimUtils.buildVimPlugin {
-    pname = "zig-lamp";
-    version = zigLampVersion;
-    src = zigLampSrc;
-    dependencies = [
-      pkgs.vimPlugins.plenary-nvim
-    ];
-  };
+  zigLampPlugin =
+    (pkgs.vimUtils.buildVimPlugin {
+      pname = "zig-lamp";
+      version = zigLampVersion;
+      src = zigLampSrc;
+      dependencies = [
+        pkgs.vimPlugins.plenary-nvim
+      ];
+    })
+    .overrideAttrs (
+      final: prev: {
+        nativeBuildInputs = (prev.nativeBuildInputs or [ ]) ++ [ pkgs.zig ];
+        buildPhase = ''
+          runHook preBuild
+          export HOME="$TMPDIR"
+          export ZIG_CACHE_DIR="$TMPDIR/zig-cache"
+          export ZIG_GLOBAL_CACHE_DIR="$TMPDIR/zig-global-cache"
+          mkdir -p "$ZIG_CACHE_DIR" "$ZIG_GLOBAL_CACHE_DIR"
+          zig build \
+            --cache-dir "$ZIG_CACHE_DIR" \
+            --global-cache-dir "$ZIG_GLOBAL_CACHE_DIR"
+          runHook postBuild
+        '';
+      }
+    );
   builtNpins =
     mkNpins (removeAttrs npins [ "zig-lamp" ])
     ++ [
