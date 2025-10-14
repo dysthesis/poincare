@@ -22,6 +22,8 @@ let
     ripgrep
     fd
     uutils-coreutils-noprefix
+    tree-sitter
+    nodejs
   ];
 
   path = self;
