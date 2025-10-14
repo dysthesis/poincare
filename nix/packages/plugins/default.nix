@@ -15,14 +15,44 @@
     ;
 
   npins = import ./npins;
-  mkNpins = mapAttrsToList (
-    pname: src:
-      mkNvimPlugin {
-        inherit pkgs src pname;
-        version = src.revision;
+  zigLampSrc = npins."zig-lamp";
+
+  mkNpins = mapAttrsToList (pname: src:
+    mkNvimPlugin {
+      inherit pkgs src pname;
+      version = src.revision;
+    });
+  zigLampVersion = zigLampSrc.version or zigLampSrc.revision;
+  zigLampPlugin =
+    (pkgs.vimUtils.buildVimPlugin {
+      pname = "zig-lamp";
+      version = zigLampVersion;
+      src = zigLampSrc;
+      dependencies = [
+        pkgs.vimPlugins.plenary-nvim
+      ];
+    })
+    .overrideAttrs (
+      final: prev: {
+        nativeBuildInputs = (prev.nativeBuildInputs or []) ++ [pkgs.zig];
+        buildPhase = ''
+          runHook preBuild
+          export HOME="$TMPDIR"
+          export ZIG_CACHE_DIR="$TMPDIR/zig-cache"
+          export ZIG_GLOBAL_CACHE_DIR="$TMPDIR/zig-global-cache"
+          mkdir -p "$ZIG_CACHE_DIR" "$ZIG_GLOBAL_CACHE_DIR"
+          zig build \
+            --cache-dir "$ZIG_CACHE_DIR" \
+            --global-cache-dir "$ZIG_GLOBAL_CACHE_DIR"
+          runHook postBuild
+        '';
       }
-  );
-  builtNpins = mkNpins npins;
+    );
+  builtNpins =
+    mkNpins (removeAttrs npins ["zig-lamp"])
+    ++ [
+      zigLampPlugin
+    ];
 
   # Make sure we use the pinned nixpkgs instance for wrapNeovimUnstable,
   # otherwise it could have an incompatible signature when applying this overlay.
@@ -86,8 +116,6 @@
 
       fzf-lua
 
-      neoscroll-nvim
-
       zen-mode-nvim
       twilight-nvim
 
@@ -130,6 +158,7 @@
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
       smart-splits-nvim
       nvim-lint
+      neoscroll-nvim
       neotest
       blink-cmp
       blink-compat
@@ -138,11 +167,8 @@
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy";
 
-  plugins = with pkgs.vimPlugins;
-    [
-    ]
-    # Plugins that should be lazily loaded
-    ++ map (
+  plugins =
+    map (
       x:
         if isAttrs x
         then
