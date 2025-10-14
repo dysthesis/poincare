@@ -4,10 +4,10 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   inherit (lib.babel.nvim) mkNeovim;
-  inherit
-    (builtins)
+  inherit (builtins)
     readDir
     attrNames
     concatStringsSep
@@ -17,7 +17,7 @@
 
   inherit (lib) filterAttrs;
 
-  plugins = import ./plugins {inherit pkgs inputs lib;};
+  plugins = import ./plugins { inherit pkgs inputs lib; };
   extraPackages = with pkgs; [
     ripgrep
     fd
@@ -26,19 +26,20 @@
 
   path = self;
 in
-  mkNeovim {
-    inherit
-      path
-      pkgs
-      plugins
-      extraPackages
-      ;
-    ignoreConfigRegexes = ["^lua/packages.lua"];
-    extraLuaPackages = p: with p; [lyaml];
+mkNeovim {
+  inherit
+    path
+    pkgs
+    plugins
+    extraPackages
+    ;
+  ignoreConfigRegexes = [ "^lua/packages.lua" ];
+  extraLuaPackages = p: with p; [ lyaml ];
 
-    # Get rid of the import to `lua/packages.lua`
-    trimLines = 2;
-    extraLuaConfig = let
+  # Get rid of the import to `lua/packages.lua`
+  trimLines = 2;
+  extraLuaConfig =
+    let
       codelldb = pkgs.vscode-extensions.vadimcn.vscode-lldb;
       loadPlugins =
         ../../lua/plugins
@@ -50,11 +51,11 @@ in
         |> (map (x: "require('plugins.${x}')"))
         |> (concatStringsSep "\n");
     in
-      # lua
-      ''
-        vim.g.codelldb_path = '${codelldb}/share/vscode/extensions/vadimcn.vscode-lldb/adapter/codelldb'
-        vim.g.liblldb_path = '${codelldb}/share/vscode/extensions/vadimcn.vscode-lldb/lldb/lib/liblldb.so'
-        vim.g.isabelle_path = '${lib.getExe pkgs.isabelle}'
-        ${loadPlugins}
-      '';
-  }
+    # lua
+    ''
+      vim.g.codelldb_path = '${codelldb}/share/vscode/extensions/vadimcn.vscode-lldb/adapter/codelldb'
+      vim.g.liblldb_path = '${codelldb}/share/vscode/extensions/vadimcn.vscode-lldb/lldb/lib/liblldb.so'
+      vim.g.isabelle_path = '${lib.getExe pkgs.isabelle}'
+      ${loadPlugins}
+    '';
+}
