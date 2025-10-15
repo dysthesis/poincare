@@ -22,10 +22,7 @@
       inherit pkgs src pname;
       version = src.revision;
     });
-  zigLampVersion =
-    if zigLampSrc ? version
-    then zigLampSrc.version
-    else zigLampSrc.revision;
+  zigLampVersion = zigLampSrc.version or zigLampSrc.revision;
   zigLampPlugin =
     (pkgs.vimUtils.buildVimPlugin {
       pname = "zig-lamp";
@@ -37,7 +34,7 @@
     })
     .overrideAttrs (
       final: prev: {
-        nativeBuildInputs = (prev.nativeBuildInputs or [ ]) ++ [ pkgs.zig ];
+        nativeBuildInputs = (prev.nativeBuildInputs or []) ++ [pkgs.zig];
         buildPhase = ''
           runHook preBuild
           export HOME="$TMPDIR"
@@ -52,7 +49,7 @@
       }
     );
   builtNpins =
-    mkNpins (removeAttrs npins [ "zig-lamp" ])
+    mkNpins (removeAttrs npins ["zig-lamp"])
     ++ [
       zigLampPlugin
     ];
@@ -161,6 +158,7 @@
       nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
       smart-splits-nvim
       nvim-lint
+      neoscroll-nvim
       neotest
       blink-cmp
       blink-compat
@@ -169,11 +167,8 @@
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy";
 
-  plugins = with pkgs.vimPlugins;
-    [
-    ]
-    # Plugins that should be lazily loaded
-    ++ map (
+  plugins =
+    map (
       x:
         if isAttrs x
         then

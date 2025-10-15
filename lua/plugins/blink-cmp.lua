@@ -5,12 +5,19 @@ require('lz.n').load {
     local cmp = require('blink.cmp')
     cmp.setup {
       completion = {
+        accept = {
+          -- experimental auto-brackets support
+          auto_brackets = {
+            enabled = true,
+          },
+        },
         documentation = { auto_show = true, auto_show_delay_ms = 0, window = { border = 'single' } },
         ghost_text = { enabled = true },
         menu = {
           border = 'rounded',
           -- Use mini.icons
           draw = {
+            treesitter = { 'lsp' },
             gap = 2,
             components = {
               kind_icon = {
@@ -37,6 +44,7 @@ require('lz.n').load {
       signature = { enabled = true },
       cmdline = { completion = { ghost_text = { enabled = false } } },
 
+      signature = { enabled = true },
       -- Pick sources depending on file type and/or tree-sitter node
       sources = {
         default = function(ctx)
