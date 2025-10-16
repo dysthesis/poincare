@@ -52,6 +52,7 @@
 
       friendly-snippets
 
+      neoscroll-nvim
       conform-nvim
 
       todo-comments-nvim
