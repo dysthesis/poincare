@@ -48,8 +48,6 @@ local plugins = {
   { 'ThePrimeagen/harpoon', branch = 'harpoon2' }, -- tree sitter integration
 
   -- Language extensions
-  -- Zig
-  'jinzhongjia/zig-lamp',
   -- Rust
   'saecki/crates.nvim', -- rust crates
 
