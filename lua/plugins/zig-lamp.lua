@@ -1,48 +1,48 @@
-require('lz.n').load {
-  'zig-lamp',
-  ft = { 'zig', 'zon' },
-  load = function(name)
-    vim.cmd.packadd(name)
-    vim.cmd.packadd('plenary.nvim')
-  end,
-  before = function()
-    if vim.g.zig_lamp_fall_back_sys_zls == nil then
-      vim.g.zig_lamp_fall_back_sys_zls = 1
-    end
-  end,
-  after = function()
-    local group = vim.api.nvim_create_augroup('zig-lamp-keymaps', { clear = true })
-
-    local function set_keymaps(bufnr)
-      local function map(lhs, rhs, desc)
-        vim.keymap.set('n', lhs, rhs, {
-          buffer = bufnr,
-          silent = true,
-          desc = desc,
-        })
-      end
-
-      map('<leader>Zi', '<cmd>ZigLamp info<CR>', 'ZigLamp: info panel')
-      map('<leader>Zp', '<cmd>ZigLamp pkg<CR>', 'ZigLamp: package manager')
-      map('<leader>Zb', '<cmd>ZigLamp build<CR>', 'ZigLamp: build project')
-      map('<leader>Zt', '<cmd>ZigLamp test<CR>', 'ZigLamp: test project')
-    end
-
-    vim.api.nvim_create_autocmd('FileType', {
-      group = group,
-      pattern = { 'zig', 'zon' },
-      callback = function(args)
-        set_keymaps(args.buf)
-      end,
-    })
-
-    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-      if vim.api.nvim_buf_is_loaded(buf) then
-        local ft = vim.api.nvim_get_option_value('filetype', { buf = buf })
-        if ft == 'zig' or ft == 'zon' then
-          set_keymaps(buf)
-        end
-      end
-    end
-  end,
-}
+-- require('lz.n').load {
+--   'zig-lamp',
+--   ft = { 'zig', 'zon' },
+--   load = function(name)
+--     vim.cmd.packadd(name)
+--     vim.cmd.packadd('plenary.nvim')
+--   end,
+--   before = function()
+--     if vim.g.zig_lamp_fall_back_sys_zls == nil then
+--       vim.g.zig_lamp_fall_back_sys_zls = 1
+--     end
+--   end,
+--   after = function()
+--     local group = vim.api.nvim_create_augroup('zig-lamp-keymaps', { clear = true })
+--
+--     local function set_keymaps(bufnr)
+--       local function map(lhs, rhs, desc)
+--         vim.keymap.set('n', lhs, rhs, {
+--           buffer = bufnr,
+--           silent = true,
+--           desc = desc,
+--         })
+--       end
+--
+--       map('<leader>Zi', '<cmd>ZigLamp info<CR>', 'ZigLamp: info panel')
+--       map('<leader>Zp', '<cmd>ZigLamp pkg<CR>', 'ZigLamp: package manager')
+--       map('<leader>Zb', '<cmd>ZigLamp build<CR>', 'ZigLamp: build project')
+--       map('<leader>Zt', '<cmd>ZigLamp test<CR>', 'ZigLamp: test project')
+--     end
+--
+--     vim.api.nvim_create_autocmd('FileType', {
+--       group = group,
+--       pattern = { 'zig', 'zon' },
+--       callback = function(args)
+--         set_keymaps(args.buf)
+--       end,
+--     })
+--
+--     for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+--       if vim.api.nvim_buf_is_loaded(buf) then
+--         local ft = vim.api.nvim_get_option_value('filetype', { buf = buf })
+--         if ft == 'zig' or ft == 'zon' then
+--           set_keymaps(buf)
+--         end
+--       end
+--     end
+--   end,
+-- }
