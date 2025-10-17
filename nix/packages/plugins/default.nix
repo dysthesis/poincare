@@ -123,7 +123,6 @@
             typst
           ]
       ))
-      nvim-treesitter-textobjects # https://github.com/nvim-treesitter/nvim-treesitter-textobjects/
       smart-splits-nvim
       nvim-lint
       neotest
@@ -134,11 +133,8 @@
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy";
 
-  plugins = with pkgs.vimPlugins;
-    [
-    ]
-    # Plugins that should be lazily loaded
-    ++ map (
+  plugins =
+    map (
       x:
         if isAttrs x
         then
