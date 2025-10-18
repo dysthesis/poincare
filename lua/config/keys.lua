@@ -28,3 +28,6 @@ vim.api.nvim_create_autocmd('FileType', {
     end, { buffer = true, silent = true, desc = 'Open front-matter reference' })
   end,
 })
+
+vim.keymap.set('n', '<Tab>', 'za', { noremap = true, silent = true, desc = 'Toggle fold' })
+vim.keymap.set('n', '<S-Tab>', 'zA', { noremap = true, silent = true, desc = 'Toggle fold (recursive)' })

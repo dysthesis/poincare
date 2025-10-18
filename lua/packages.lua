@@ -27,8 +27,8 @@ local plugins = {
   'savq/paq-nvim', -- the package manager itself
 
   -- Folding
-  -- 'kevinhwang91/nvim-ufo',
-  -- 'kevinhwang91/promise-async',
+  'kevinhwang91/nvim-ufo',
+  'kevinhwang91/promise-async',
 
   -- Completion
   { -- supposedly faster than nvim-cmp

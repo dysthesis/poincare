@@ -124,6 +124,8 @@
           ]
       ))
       smart-splits-nvim
+      nvim-ufo
+      promise-async
       nvim-lint
       neotest
       blink-cmp

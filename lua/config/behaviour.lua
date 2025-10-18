@@ -86,11 +86,29 @@ if vim.fn.has('nvim-0.10') == 1 then
   opt.foldtext = ''
 else
   opt.foldmethod = 'indent'
-  opt.foldtext = "v:lua.require'lazyvim.util'.ui.foldtext()"
 end
 
 -- Fold by treesitter expression
-opt.foldlevel = 99
+do
+  local zig_folds = [[
+    ;; Match the { ... } block whose *parent* is a function-like node.
+    ((block) @fold
+      (#has-parent? @fold "function_declaration"))
+
+    ;; Back-compat for parsers that name it `fn_decl`.
+    ((block) @fold
+      (#has-parent? @fold "fn_decl"))
+  ]]
+
+  require('vim.treesitter.query').set('zig', 'folds', zig_folds)
+end
+vim.wo.foldmethod = 'expr'
+vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+-- opt.foldmethod = 'expr'
+-- opt.foldexpr = 'nvim_treesitter#foldexpr()'
+vim.opt.foldenable = true
+vim.opt.foldlevel = 0 -- everything eligible is closed
+vim.opt.foldlevelstart = 0
 opt.expandtab = true -- Use spaces instead of tabs
 opt.fillchars = {
   foldopen = '',
