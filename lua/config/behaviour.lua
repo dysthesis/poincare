@@ -3,7 +3,7 @@ local opt = vim.opt
 vim.g.have_nerd_font = true
 opt.compatible = false
 
-opt.colorcolumn = '100'
+opt.colorcolumn = '80'
 
 -- [[ Setting options ]]
 -- See `:help opt`
@@ -120,13 +120,12 @@ do
     ]]
   )
 end
-vim.wo.foldmethod = 'expr'
-vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 -- opt.foldmethod = 'expr'
 -- opt.foldexpr = 'nvim_treesitter#foldexpr()'
+vim.opt.viewoptions:remove('folds')
 vim.opt.foldenable = true
-vim.opt.foldlevel = 0 -- everything eligible is closed
-vim.opt.foldlevelstart = 0
+vim.opt.foldlevel = 99
+vim.opt.foldlevelstart = 99
 opt.expandtab = true -- Use spaces instead of tabs
 opt.fillchars = {
   foldopen = '',

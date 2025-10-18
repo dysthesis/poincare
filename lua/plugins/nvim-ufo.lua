@@ -55,10 +55,15 @@ require('lz.n').load {
   after = function()
     require('ufo').setup {
       fold_virt_text_handler = handler,
+      -- Close only the kinds we care about the first time the buffer is shown.
+      -- 'treesitter' provider exposes node types as "kinds".
       close_fold_kinds_for_ft = {
         default = { 'imports', 'comment' },
+        zig = { 'block' }, -- your query creates folds only for function blocks
+        rust = { 'block' }, -- idem
+        c = { 'compound_statement' }, -- function bodies in your query
       },
-      provider_selector = function(bufnr, filetype, buftype)
+      provider_selector = function()
         return { 'treesitter', 'indent' }
       end,
     }
