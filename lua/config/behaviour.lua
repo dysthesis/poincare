@@ -101,6 +101,32 @@ do
   ]]
 
   require('vim.treesitter.query').set('zig', 'folds', zig_folds)
+
+  require('vim.treesitter.query').set(
+    'rust',
+    'folds',
+    [[
+  (block) @fold
+  (#has-parent? @fold "function_item")
+]]
+  )
+
+  require('vim.treesitter.query').set(
+    'c',
+    'folds',
+    [[
+    (function_definition
+      body: (compound_statement) @fold)
+    ]]
+  )
+
+  vim.api.nvim_create_autocmd('FileType', {
+    pattern = { 'c' },
+    callback = function(ev)
+      vim.bo[ev.buf].foldmethod = 'expr'
+      vim.bo[ev.buf].foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+    end,
+  })
 end
 vim.wo.foldmethod = 'expr'
 vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
