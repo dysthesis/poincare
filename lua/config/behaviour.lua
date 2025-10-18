@@ -119,14 +119,6 @@ do
       body: (compound_statement) @fold)
     ]]
   )
-
-  vim.api.nvim_create_autocmd('FileType', {
-    pattern = { 'c' },
-    callback = function(ev)
-      vim.bo[ev.buf].foldmethod = 'expr'
-      vim.bo[ev.buf].foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-    end,
-  })
 end
 vim.wo.foldmethod = 'expr'
 vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
