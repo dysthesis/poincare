@@ -79,6 +79,10 @@ require('lz.n').load {
       options = {
         use_cache = true,
       },
+      mappings = {
+        move_down = '<C-j>',
+        move_up = '<C-k>',
+      },
       window = {
         prompt_prefix = '   ',
         config = function()
