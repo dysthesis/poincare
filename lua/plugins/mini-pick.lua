@@ -40,11 +40,17 @@ require('lz.n').load {
     {
       '<leader>g',
       function()
-        require('mini.extra').pickers.git_hunks()
+        require('mini.extra').pickers.git_commits()
       end,
-      desc = 'Find [D]iagnostics',
+      desc = 'Find [G]it commits',
     },
-
+    {
+      '<leader>G',
+      function()
+        require('mini.extra').pickers.git_branches()
+      end,
+      desc = 'Find [G]it branches',
+    },
     {
       '<leader>s',
       function()
@@ -154,3 +160,4 @@ require('lz.n').load {
     vim.ui.select = MiniPick.ui_select
   end,
 }
+
