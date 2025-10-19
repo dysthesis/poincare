@@ -76,13 +76,13 @@
 
       # Navigation
       leap-nvim
+
       mini-surround
       mini-icons
       mini-ai
       mini-indentscope
       mini-clue
-
-      fzf-lua
+      mini-pick
 
       zen-mode-nvim
       twilight-nvim
