@@ -83,6 +83,7 @@
       mini-indentscope
       mini-clue
       mini-pick
+      mini-extra
 
       zen-mode-nvim
       twilight-nvim
