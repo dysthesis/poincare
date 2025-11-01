@@ -9,5 +9,6 @@ pkgs.mkShell {
     lua-language-server
     stylua
     npins
+    fennel-ls
   ];
 }
