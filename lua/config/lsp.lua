@@ -43,7 +43,7 @@ local lsps = {
   'basedpyright',
   'gopls',
   'clangd',
-  'fennel-language-server',
+  'fennel-ls',
 }
 
 for _, lsp in ipairs(lsps) do
