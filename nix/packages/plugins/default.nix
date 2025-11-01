@@ -100,6 +100,7 @@
       (nvim-treesitter.withPlugins (
         p:
           with p; [
+            fennel
             go
             css
             bash
