@@ -36,6 +36,7 @@
   # }
   lazy-plugins = with pkgs.vimPlugins;
     [
+      parinfer-rust
       trouble-nvim
 
       lean-nvim
