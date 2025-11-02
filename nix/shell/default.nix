@@ -10,5 +10,6 @@ pkgs.mkShell {
     stylua
     npins
     fennel-ls
+    vale
   ];
 }
