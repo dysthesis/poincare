@@ -108,7 +108,7 @@
       '';
 
       passthru = {
-        inherit packPath;
+        inherit packPath runtimePath;
         config = args;
       };
 
