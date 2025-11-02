@@ -3,6 +3,13 @@
   (= :string (type x)))
 
 (local {: sym? : car} (require :fennel))
+(local unpack (or (. table :unpack) (. _G :unpack)))
+
+(fn expand-exprs [exprs]
+  "Expand a list of expressions into multiple return values for macro output."
+  (if (and exprs (= :table (type exprs)))
+      (values (unpack exprs))
+      exprs))
 
 (lambda poincare! [...]
   "Declare modules to use in this configuration. Modules are defined in modules/.
@@ -57,7 +64,7 @@
     (icollect [module-name module-def (pairs registry)]
       (init-module module-name module-def)))
 
-  (let [inits (init-modules _G.nyoom/modules)]
+  (let [inits (init-modules _G.poincare/modules)]
     (expand-exprs inits)))
 
 (lambda poincare-compile-modules! []
@@ -70,5 +77,9 @@
     (icollect [module-name module-def (pairs registry)]
       (compile-module module-name module-def)))
 
-  (let [source (compile-modules _G.nyoom/modules)]
+  (let [source (compile-modules _G.poincare/modules)]
     (expand-exprs [(unpack source)])))
+
+{: poincare!
+ : poincare-init-modules!
+ : poincare-compile-modules!}

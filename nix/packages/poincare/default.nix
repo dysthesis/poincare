@@ -12,7 +12,6 @@ in
     plugins = import ./plugins {inherit pkgs inputs lib;};
     withFennelSupport = true;
     includeRtpDirs = [
-      "init.fnl"
       "fnl/"
     ];
   }
