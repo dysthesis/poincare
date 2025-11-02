@@ -3,22 +3,24 @@
   inputs,
   lib,
   ...
-}: let
+}:
+let
   inherit (lib) mapAttrsToList;
   inherit (builtins) isAttrs;
 
-  inherit
-    (lib.babel.nvim)
+  inherit (lib.babel.nvim)
     mapPlugins
     mkNvimPlugin
     ;
 
   npins = import ./npins;
-  mkNpins = mapAttrsToList (pname: src:
+  mkNpins = mapAttrsToList (
+    pname: src:
     mkNvimPlugin {
       inherit pkgs src pname;
       version = src.revision;
-    });
+    }
+  );
   builtNpins = mkNpins npins;
 
   # Make sure we use the pinned nixpkgs instance for wrapNeovimUnstable,
@@ -34,7 +36,8 @@
   #   optional = <true|false>; # Default: false
   #   ...
   # }
-  lazy-plugins = with pkgs.vimPlugins;
+  lazy-plugins =
+    with pkgs.vimPlugins;
     [
       trouble-nvim
 
@@ -97,32 +100,31 @@
       oil-nvim
       ultimate-autopair-nvim
       (nvim-treesitter.withPlugins (
-        p:
-          with p; [
-            go
-            css
-            bash
-            fish
-            diff
-            dockerfile
-            asm
-            disassembly
-            git_config
-            git_rebase
-            gitignore
-            python
-            zig
-            rust
-            haskell
-            nix
-            lua
-            c
-            toml
-            yaml
-            markdown
-            latex
-            typst
-          ]
+        p: with p; [
+          go
+          css
+          bash
+          fish
+          diff
+          dockerfile
+          asm
+          disassembly
+          git_config
+          git_rebase
+          gitignore
+          python
+          zig
+          rust
+          haskell
+          nix
+          lua
+          c
+          toml
+          yaml
+          markdown
+          latex
+          typst
+        ]
       ))
       smart-splits-nvim
       nvim-ufo
@@ -139,19 +141,18 @@
   plugins =
     map (
       x:
-        if isAttrs x
-        then
-          x
-          // {
-            optional = true;
-          }
-        else {
+      if isAttrs x then
+        x
+        // {
+          optional = true;
+        }
+      else
+        {
           plugin = x;
           optional = true;
         }
-    )
-    lazy-plugins
+    ) lazy-plugins
     # bleeding-edge plugins from flake inputs
     ++ mapPlugins pkgs inputs "plugin:";
 in
-  plugins
+plugins
