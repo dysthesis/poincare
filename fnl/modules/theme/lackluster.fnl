@@ -1,7 +1,9 @@
-(local lackluster (require :lackluster))
-(lackluster.setup {:tweak-background {:normal "none"
-                                      :telescope "none"
-                                      :menu "none"
-                                      :popup "none"}})
-(vim.cmd.colorscheme :lackuster-night)
-(vim.api.nvim_set_hl 0 "Folded" {:bg "#191919"})
+(import-macros {: plugin!} :macros)
+
+(plugin! :lackluster.nvim :colorscheme :lackluster-night :after
+         (lambda []
+           ((. (require :lackluster) :setup) {:tweak_background {:menu :none
+                                                                 :normal :none
+                                                                 :popup :none
+                                                                 :telescope :none}})))
+(vim.cmd.colorscheme "lackluster-night")

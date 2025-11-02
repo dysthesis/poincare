@@ -1,4 +1,5 @@
-pkgs: let
+pkgs:
+let
   nvimWrapper = import ../packages/poincare/wrapper.nix {
     inherit pkgs;
     self = ../..;
@@ -9,7 +10,6 @@ pkgs: let
     src = ../..;
     withFennelSupport = true;
     includeRtpDirs = [
-      "init.fnl"
       "fnl/"
     ];
   };
@@ -19,22 +19,22 @@ pkgs: let
      :extra-globals "vim vim.api vim.fn vim.loop fennel.sym?"}
   '';
 in
-  pkgs.mkShell {
-    name = "Poincare";
-    packages = with pkgs; [
-      nixd
-      alejandra
-      statix
-      deadnix
-      lua-language-server
-      stylua
-      npins
-      fennel-ls
-      vale
-      fennel
-    ];
+pkgs.mkShell {
+  name = "Poincare";
+  packages = with pkgs; [
+    nixd
+    alejandra
+    statix
+    deadnix
+    lua-language-server
+    stylua
+    npins
+    fennel-ls
+    vale
+    luaPackages.fennel
+  ];
 
-    shellHook = ''
-      ln -sf ${fennelProject} flsproject.fnl
-    '';
-  }
+  shellHook = ''
+    ln -sf ${fennelProject} flsproject.fnl
+  '';
+}

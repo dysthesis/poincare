@@ -3,12 +3,12 @@
   inputs,
   lib,
   ...
-}: let
+}:
+let
   inherit (lib) mapAttrsToList;
   inherit (builtins) isAttrs;
 
-  inherit
-    (lib.babel.nvim)
+  inherit (lib.babel.nvim)
     mapPlugins
     mkNvimPlugin
     ;
@@ -16,46 +16,46 @@
   npins = import ./npins;
   mkNpins = mapAttrsToList (
     pname: src:
-      mkNvimPlugin {
-        inherit pkgs src pname;
-        version = src.revision;
-      }
+    mkNvimPlugin {
+      inherit pkgs src pname;
+      version = src.revision;
+    }
   );
   builtNpins = mkNpins npins;
 
-  lazy-plugins = with pkgs.vimPlugins;
+  lazy-plugins =
+    with pkgs.vimPlugins;
     [
       mini-pick
       mini-extra
       mini-ai
 
       (nvim-treesitter.withPlugins (
-        p:
-          with p; [
-            go
-            css
-            bash
-            fish
-            diff
-            dockerfile
-            asm
-            disassembly
-            git_config
-            git_rebase
-            gitignore
-            python
-            zig
-            rust
-            haskell
-            nix
-            lua
-            c
-            toml
-            yaml
-            markdown
-            latex
-            typst
-          ]
+        p: with p; [
+          go
+          css
+          bash
+          fish
+          diff
+          dockerfile
+          asm
+          disassembly
+          git_config
+          git_rebase
+          gitignore
+          python
+          zig
+          rust
+          haskell
+          nix
+          lua
+          c
+          toml
+          yaml
+          markdown
+          latex
+          typst
+        ]
       ))
     ]
     ++ builtNpins
@@ -64,19 +64,19 @@
   plugins =
     map (
       x:
-        if isAttrs x
-        then
-          x
-          // {
-            optional = true;
-          }
-        else {
+      if isAttrs x then
+        x
+        // {
+          optional = true;
+        }
+      else
+        {
           plugin = x;
           optional = true;
         }
-    )
-    lazy-plugins
+    ) lazy-plugins
     # bleeding-edge plugins from flake inputs
-    ++ mapPlugins pkgs inputs "plugin:";
+    ++ mapPlugins pkgs inputs "plugin:"
+    ++ (with pkgs.vimPlugins; [ lz-n ]);
 in
-  plugins
+plugins
