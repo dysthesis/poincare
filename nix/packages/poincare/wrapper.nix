@@ -21,6 +21,7 @@
     lib,
     writeTextFile,
     stdenv,
+    fennel,
   }: let
     inherit
       name
@@ -35,6 +36,7 @@
       all
       concatMapStringsSep
       optionalString
+      getExe
       ;
 
     inherit (builtins) match;
@@ -45,7 +47,12 @@
         acc ++ [next] ++ (foldPlugins (next.dependencies or []))
     ) [];
 
-    pluginsWithDeps = foldPlugins (plugins ++ (if withFennelSupport then [pkgs.vimPlugins.hotpot-nvim] else []));
+    pluginsWithDeps = foldPlugins (plugins
+      ++ (
+        if withFennelSupport
+        then [pkgs.vimPlugins.hotpot-nvim]
+        else []
+      ));
 
     packPath = runCommandLocal "packpath-${name}" {} ''
       mkdir -p "$out/pack/${name}/"{start,opt}
@@ -81,15 +88,24 @@
       '';
     };
 
+    compileFennel = name: path:
+      runCommandLocal name {} ''
+        ${getExe fennel} --compile ${path} > $out
+      '';
+
     initLua = writeTextFile {
       name = "init-${name}.lua";
-      text =
+      text = lib.concatStrings [
         # lua
         ''
-          ${optionalString withFennelSupport (builtins.readFile ./load-fennel.lua)}
-          vim.loader.enable()
           vim.opt.rtp:prepend('${runtimePath}')
-        '';
+          vim.loader.enable()
+
+        ''
+        (optionalString withFennelSupport (builtins.readFile (compileFennel "load-fennel" ./load-fennel.fnl)))
+        (optionalString (extraLua != "") "\n")
+        extraLua
+      ];
     };
   in
     symlinkJoin {

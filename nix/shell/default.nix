@@ -16,7 +16,7 @@ pkgs: let
 
   fennelProject = pkgs.writeText "flsproject.fnl" ''
     {:fennel-path "${poincareConfig.runtimePath}/?.fnl;${poincareConfig.runtimePath}/?/init.fnl;./?.fnl;./?/init.fnl;fnl/?.fnl;fnl/?/init.fnl"
-     :extra-globals "vim vim.api vim.fn vim.loop"}
+     :extra-globals "vim vim.api vim.fn vim.loop fennel.sym?"}
   '';
 in
   pkgs.mkShell {
@@ -31,6 +31,7 @@ in
       npins
       fennel-ls
       vale
+      fennel
     ];
 
     shellHook = ''

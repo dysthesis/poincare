@@ -1,4 +1,7 @@
 ;; This file is the entrypoint of the configuration.
-;; Load in modules from ./fnl
-; (require :lang)
 (vim.cmd.colorscheme "lackluster")
+(import-macros {: poincare! : poincare-init-modules! : poincare-compile-modules!} :macros)
+
+(poincare!
+  :theme
+  lackluster)
