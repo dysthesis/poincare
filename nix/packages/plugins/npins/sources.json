@@ -22,9 +22,22 @@
       },
       "branch": "main",
       "submodules": false,
-      "revision": "b247a6f51cb43e49f3f753f4a59553b698bf5438",
-      "url": "https://github.com/slugbyte/lackluster.nvim/archive/b247a6f51cb43e49f3f753f4a59553b698bf5438.tar.gz",
-      "hash": "03rasbjila8jdx5g9n6ds2l5600chqv5v3r785zrlvh3g28dg1f4"
+      "revision": "70dd682e564784893b984deb51dd5ddd263c8cc7",
+      "url": "https://github.com/slugbyte/lackluster.nvim/archive/70dd682e564784893b984deb51dd5ddd263c8cc7.tar.gz",
+      "hash": "1zkvkda5vwzszbiwy1sy48gkhngzfcc0bd3n2kx31vrl8kxrh5rv"
+    },
+    "nvim-treesitter-textobjects": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "nvim-treesitter",
+        "repo": "nvim-treesitter-textobjects"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "1f29f2f788dbbf6573a0d968a6dfe75a0fa628d0",
+      "url": "https://github.com/nvim-treesitter/nvim-treesitter-textobjects/archive/1f29f2f788dbbf6573a0d968a6dfe75a0fa628d0.tar.gz",
+      "hash": "1s0fl1amxybr23225bkv6spn8ifmpk0jfmsjkf9pp7lx561rvicw"
     }
   },
   "version": 5
