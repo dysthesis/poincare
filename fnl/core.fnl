@@ -1,4 +1,7 @@
-(import-macros {: command! : let! : set!} :macros)
+;; This file defines configurations that are meant to be universal and immutable.
+;; Only add them here if there is no reason to make them configurable.
+
+(import-macros { : set!} :macros)
 ;; speedups
 (set! updatetime 250)
 (set! timeoutlen 400)
@@ -52,3 +55,10 @@
                  :precedes "«"
                  :extends "»"})
 (set! scrolloff 4)
+(set! winborder "rounded")
+(set! termguicolors true)
+(set! number true)
+(set! relativenumber true)
+(set! hlsearch true)
+(set! splitright true)
+(set! splitbelow true)

@@ -1,4 +1,4 @@
-(import-macros {: plugin!} :macros)
+(import-macros {: colorscheme : plugin!} :macros)
 
 (plugin! :lackluster.nvim :colorscheme :lackluster-night :after
          (lambda []
@@ -6,4 +6,4 @@
                                                                  :normal :none
                                                                  :popup :none
                                                                  :telescope :none}})))
-(vim.cmd.colorscheme "lackluster-night")
+(colorscheme "lackluster-night")
