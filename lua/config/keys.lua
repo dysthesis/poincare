@@ -23,7 +23,7 @@ map('v', '<S-Tab>', '<<') -- unindent selection
 vim.api.nvim_create_autocmd('FileType', {
   pattern = { 'markdown', 'markdown.mdx' },
   callback = function(args)
-    map('n', '<leader>or', function()
+    map('n', '<leader>o', function()
       require('utils.references').open_reference(args.buf)
     end, { buffer = true, silent = true, desc = 'Open front-matter reference' })
   end,
