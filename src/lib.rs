@@ -2,7 +2,7 @@ use mlua::prelude::LuaFunction;
 use nvim_oxi::{Result, mlua, print};
 
 #[nvim_oxi::plugin]
-fn mlua() -> Result<()> {
+fn poincare() -> Result<()> {
     print!("Hello from nvim-oxi..");
     let lua = mlua::lua();
     let print: LuaFunction = lua.globals().get("print")?;

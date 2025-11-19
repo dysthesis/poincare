@@ -5,7 +5,7 @@
   cargoArtifacts,
   ...
 }: let
-  binary = import ./binary.nix {inherit pkgs craneLib commonArgs cargoArtifacts;};
+  binary = pkgs.callPackage ./binary.nix {inherit pkgs craneLib commonArgs cargoArtifacts;};
 in
   pkgs.runCommandLocal "poincare-config-plugin" {} ''
     set -eu
@@ -23,6 +23,5 @@ in
       exit 1
     fi
 
-    # Expose it as lua module "config" so require('config') works
-    cp "$lib" "$out/lua/config.so"
+    cp "$lib" "$out/lua/poincare.so"
   ''

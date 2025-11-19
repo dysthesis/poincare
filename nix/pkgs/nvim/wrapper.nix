@@ -94,7 +94,7 @@
         lua
         */
         ''
-          require('poincare').hello {}
+          require('poincare')
         '';
     };
   in
@@ -106,10 +106,10 @@
       # Wrap Neovim to point at our init.lua and packpath.
       postBuild = ''
         wrapProgram "$out/bin/nvim" \
-          --add-flags -u \
-          --add-flags ${initLua} \
           --add-flags --cmd \
           --add-flags "'set packpath^=${packPath} | set runtimepath^=${packPath}'" \
+          --add-flags -u \
+          --add-flags ${initLua} \
           --set-default NVIM_APPNAME nvim-custom
       '';
 
