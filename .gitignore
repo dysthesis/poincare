@@ -1,2 +1,7 @@
 .direnv/
 .luarc.json
+
+
+# Added by cargo
+
+/target
