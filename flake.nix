@@ -46,7 +46,7 @@
               inputs.rust-overlay.overlays.default
             ];
           };
-          checks = {
+          checks = import ./nix/checks {
             inherit (packages) poincare;
             inherit (pkgs) lib;
             inherit
