@@ -16,6 +16,27 @@
         "type": "github"
       }
     },
+    "babel": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "treefmt": "treefmt"
+      },
+      "locked": {
+        "lastModified": 1762316746,
+        "narHash": "sha256-MUx3lqGro+9zzrFFZ1MgBQa6gdzXrzCZ38D4xQIqaSg=",
+        "owner": "dysthesis",
+        "repo": "babel",
+        "rev": "579e831c8d422c607608f1df47e32836c1a3b51d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "dysthesis",
+        "repo": "babel",
+        "type": "github"
+      }
+    },
     "crane": {
       "locked": {
         "lastModified": 1763511871,
@@ -83,6 +104,7 @@
     "root": {
       "inputs": {
         "advisory-db": "advisory-db",
+        "babel": "babel",
         "crane": "crane",
         "flake-parts": "flake-parts",
         "nixpkgs": "nixpkgs",
@@ -106,6 +128,27 @@
       "original": {
         "owner": "oxalica",
         "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "treefmt": {
+      "inputs": {
+        "nixpkgs": [
+          "babel",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1744961264,
+        "narHash": "sha256-aRmUh0AMwcbdjJHnytg1e5h5ECcaWtIFQa6d9gI85AI=",
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "rev": "8d404a69efe76146368885110f29a2ca3700bee6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "treefmt-nix",
         "type": "github"
       }
     }

@@ -8,7 +8,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-nvim-oxi = { version = "0.6.0", features = ["neovim-0-11"] }
+nvim-oxi = { version = "0.6.0", features = ["neovim-0-11", "mlua"] }
 
 [profile.release]
 codegen-units = 1

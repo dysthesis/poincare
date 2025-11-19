@@ -1,23 +1,20 @@
 {
+  inputs,
   craneLib,
   pkgs,
-  inputs,
+  lib,
+  self,
   commonArgs,
   cargoArtifacts,
   ...
-}:
-let
-
+}: let
   inherit (pkgs) callPackage;
-in
-rec {
+in rec {
   poincare = callPackage ./poincare.nix {
-    inherit
-      craneLib
-      pkgs
-      commonArgs
-      cargoArtifacts
-      ;
+    inherit craneLib pkgs commonArgs cargoArtifacts;
   };
-  default = poincare;
+  nvim = callPackage ./nvim {
+    inherit pkgs inputs lib self craneLib commonArgs cargoArtifacts;
+  };
+  default = nvim;
 }
