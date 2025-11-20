@@ -7,4 +7,5 @@ mod cfg;
 #[nvim_oxi::plugin]
 fn poincare() -> Result<()> {
     cfg::options::options();
+    Ok(())
 }
