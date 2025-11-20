@@ -1,11 +1,10 @@
 use mlua::prelude::LuaFunction;
 use nvim_oxi::{Result, mlua, print};
 
+mod api;
+mod cfg;
+
 #[nvim_oxi::plugin]
 fn poincare() -> Result<()> {
-    print!("Hello from nvim-oxi..");
-    let lua = mlua::lua();
-    let print: LuaFunction = lua.globals().get("print")?;
-    print.call::<()>("..and goodbye from mlua!")?;
-    Ok(())
+    cfg::options::options();
 }
