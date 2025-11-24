@@ -13,6 +13,19 @@
       "url": "https://github.com/Treeniks/isabelle-syn.nvim/archive/114b06dc34edf1707be7249b5a3815733e68d4c9.tar.gz",
       "hash": "084qpcx8la05f06fsq8hidc2s4vms6k7hj6gqcyqphjl9k426kkz"
     },
+    "jj-diffconflicts": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "rafikdraoui",
+        "repo": "jj-diffconflicts"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "bee239e847cf336fc10925a35c65052f41aa89e3",
+      "url": "https://github.com/rafikdraoui/jj-diffconflicts/archive/bee239e847cf336fc10925a35c65052f41aa89e3.tar.gz",
+      "hash": "10j49zv7ki46q8c3bw8h9qx75yw89v32zm0aajy5hymyii4hnyqm"
+    },
     "lackluster.nvim": {
       "type": "Git",
       "repository": {
