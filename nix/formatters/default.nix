@@ -1,7 +1,7 @@
 _: {
   projectRootFile = "flake.nix";
   programs = {
-    nixfmt.enable = true;
+    alejandra.enable = true;
     mdformat.enable = true;
     deadnix.enable = true;
     stylua.enable = true;
