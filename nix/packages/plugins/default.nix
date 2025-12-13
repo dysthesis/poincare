@@ -103,6 +103,7 @@
             fennel
             go
             css
+            ocaml
             bash
             fish
             diff

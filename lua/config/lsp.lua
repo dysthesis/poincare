@@ -44,6 +44,7 @@ local lsps = {
   'gopls',
   'clangd',
   'fennel-ls',
+  'ocamllsp',
 }
 
 for _, lsp in ipairs(lsps) do

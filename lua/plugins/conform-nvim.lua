@@ -25,6 +25,19 @@ require('lz.n').load {
         c = { 'clang-format' },
         rust = { 'rustfmt' },
         go = { 'go/fmt' },
+        ocaml = { 'ocamlformat' },
+      },
+      formatters = {
+        ocamlformat = {
+          prepend_args = {
+            '--if-then-else',
+            'vertical',
+            '--break-cases',
+            'fit-or-vertical',
+            '--type-decl',
+            'sparse',
+          },
+        },
       },
     }
   end,
