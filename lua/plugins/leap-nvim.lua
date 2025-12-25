@@ -1,7 +1,11 @@
--- Leap lazy loads itself
-require('leap').leap { backward = true }
--- If using the default mappings (`gs` for multi-window mode), you can
--- map e.g. `gS` here.
-vim.keymap.set({ 'n', 'x', 'o' }, 'gs', function()
+-- Leap mappings (explicit, per :help leap-mappings)
+vim.keymap.set({ 'n', 'x', 'o' }, 's', '<Plug>(leap-forward)', { silent = true, desc = 'Leap forward' })
+vim.keymap.set({ 'n', 'x', 'o' }, 'S', '<Plug>(leap-backward)', { silent = true, desc = 'Leap backward' })
+vim.keymap.set('n', 'gs', '<Plug>(leap-from-window)', { silent = true, desc = 'Leap from window' })
+vim.keymap.set({ 'x', 'o' }, 'x', '<Plug>(leap-forward-till)', { silent = true, desc = 'Leap forward till' })
+vim.keymap.set({ 'x', 'o' }, 'X', '<Plug>(leap-backward-till)', { silent = true, desc = 'Leap backward till' })
+
+-- Remote leap action (kept off the default 'gs' mapping)
+vim.keymap.set({ 'n', 'x', 'o' }, 'gS', function()
   require('leap.remote').action()
-end)
+end, { silent = true, desc = 'Leap remote action' })
