@@ -38,6 +38,7 @@ require('lz.n').load {
           c = formatters_if_available { { 'clang-format' } },
           rust = formatters_if_available { { 'rustfmt' } },
           go = formatters_if_available { { 'go/fmt', 'gofmt' } },
+          ocaml = formatters_if_available { { 'ocamlformat' } },
         }
 
         for ft, formatters in pairs(by_ft) do
@@ -48,6 +49,18 @@ require('lz.n').load {
 
         return by_ft
       end)(),
+      formatters = {
+        ocamlformat = {
+          prepend_args = {
+            '--if-then-else',
+            'vertical',
+            '--break-cases',
+            'fit-or-vertical',
+            '--type-decl',
+            'sparse',
+          },
+        },
+      },
     }
   end,
 }
