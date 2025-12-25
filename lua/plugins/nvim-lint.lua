@@ -42,12 +42,32 @@ require('lz.n').load {
         return items
       end,
     }
-    lint.linters_by_ft = {
-      zig = { 'zlint' },
-      rust = { 'clippy' },
-      nix = { 'statix' },
-      markdown = { 'vale' },
+    local function linters_if_available(entries)
+      local result = {}
+      for _, entry in ipairs(entries) do
+        local linter = entry[1]
+        local cmd = entry[2] or linter
+        if vim.fn.executable(cmd) == 1 then
+          table.insert(result, linter)
+        end
+      end
+      return result
+    end
+
+    local by_ft = {
+      zig = linters_if_available { { 'zlint' } },
+      rust = linters_if_available { { 'clippy', 'cargo' } },
+      nix = linters_if_available { { 'statix' } },
+      markdown = linters_if_available { { 'vale' } },
     }
+
+    for ft, linters in pairs(by_ft) do
+      if #linters == 0 then
+        by_ft[ft] = nil
+      end
+    end
+
+    lint.linters_by_ft = by_ft
     local lint_augroup = vim.api.nvim_create_augroup('lint', { clear = true })
     vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
       group = lint_augroup,
