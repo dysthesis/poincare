@@ -14,4 +14,9 @@
       self
       ;
   };
+
+  fennelBuilt = let
+    builder = pkgs.callPackage ./poincare/fennel.nix {};
+  in
+    builder {src = ../..;};
 }
