@@ -43,7 +43,7 @@ in
     extraLuaConfig = let
       codelldb = pkgs.vscode-extensions.vadimcn.vscode-lldb;
       loadPlugins =
-        ../../lua/plugins
+        ../../../lua/plugins
         |> readDir
         |> (filterAttrs (_name: value: value == "regular"))
         |> attrNames
