@@ -1,7 +1,7 @@
 (require-macros :plugins.helpers)
 
 (use "nvim-treesitter"
-  :event ["BufReadPost" "BufNewFile"]
+  :event "DeferredUIEnter"
   :load
   (fn [name]
     (vim.cmd.packadd name)

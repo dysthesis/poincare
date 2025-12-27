@@ -3,10 +3,15 @@
 (require :config.behaviour)
 (require :config.ui)
 
+(schedule.require-on "UIEnter"
+  "config.statusline"
+  {:desc "Load statusline on UI enter"
+   :schedule false})
+
 (schedule.require-on "User"
-  ["config.keys" "config.statusline"]
+  "config.keys"
   {:pattern "DeferredUIEnter"
-   :desc "Load keymaps and statusline after UI enter"})
+   :desc "Load keymaps after deferred UI enter"})
 
 (schedule.require-on ["BufReadPre" "BufNewFile"]
   "config.lsp"

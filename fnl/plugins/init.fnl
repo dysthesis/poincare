@@ -3,15 +3,17 @@
 (local M {})
 
 ;; Hardcoded spec module lists to avoid runtimepath scans.
+;; Register the colourscheme early to reduce visible switching.
 (local early-modules
-  ["plugins.specs.nvim-treesitter"
-   "plugins.specs.nvim-treesitter-textobjects"])
+  ["plugins.specs.lackluster"])
 
+;; All other specs are registered after VimEnter to minimise startup overhead.
 (local late-modules
-  ["plugins.specs.lackluster"
-   "plugins.specs.mini-extra"
+  ["plugins.specs.mini-extra"
    "plugins.specs.mini-icons"
    "plugins.specs.mini-pick"
+   "plugins.specs.nvim-treesitter"
+   "plugins.specs.nvim-treesitter-textobjects"
    "plugins.specs.smart-splits"
    "plugins.specs.vim-tmux-navigator"])
 
@@ -19,7 +21,7 @@
   (when (and modules (> (# modules) 0))
     (helpers.setup modules)))
 
-;; Register minimal specs early so BufReadPost triggers are captured.
+;; Register minimal specs early so their events can trigger.
 (M.setup-modules early-modules)
 
 ;; Defer the bulk of plugin spec registration until after startup.

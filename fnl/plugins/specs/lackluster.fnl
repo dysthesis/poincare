@@ -2,7 +2,7 @@
 
 (use "lackluster.nvim"
   :priority 100
-  :event "DeferredUIEnter"
+  :event "VimEnter"
   :after
   (fn []
     (local lackluster (require :lackluster))

@@ -3,18 +3,38 @@
   (when should-profile
     (local prof (require :profile))
     (prof.instrument_autocmds)
-    (if (string.match (string.lower should-profile) "^start")
+    (local profile-mode (string.lower should-profile))
+    (if (string.match profile-mode "^start")
         (do
           (prof.start "*")
           (vim.api.nvim_create_autocmd "VimEnter"
                                        {:once true
                                         :callback (fn []
                                                     (prof.stop)
-                                                    (prof.export 
+                                                    (prof.export
                                                       "profile-startup.json")
-                                                    (vim.notify 
+                                                    (vim.notify
                                                       "Wrote profile-startup.json"))}))
-        (prof.instrument "*"))))
+        (if (string.match profile-mode "^statusline")
+            (do
+              ;; Ensure require is wrapped before other plugins monkey-patch it.
+              (prof.instrument "config.statusline")
+              (vim.api.nvim_create_autocmd "User"
+                                           {:pattern "DeferredUIEnter"
+                                            :once true
+                                            :callback (fn []
+                                                        (prof.start "config.statusline")
+                                                        ;; DeferredUIEnter schedules the require; stop after it runs.
+                                                        (vim.schedule
+                                                          (fn []
+                                                            (vim.schedule
+                                                              (fn []
+                                                                (prof.stop)
+                                                                (prof.export
+                                                                  "profile-statusline.json")
+                                                                (vim.notify
+                                                                  "Wrote profile-statusline.json"))))))}))
+            (prof.instrument "*")))))
 
 ;; Trigger the lazy-loading of plugins on `require(...)` calls
 ((. (require :lzn-auto-require) :enable))

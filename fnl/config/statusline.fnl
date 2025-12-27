@@ -6,6 +6,40 @@
 (local api vim.api)
 (local vfn vim.fn)
 
+(var prof nil)
+(local profile-mode (os.getenv "NVIM_PROFILE"))
+(local profile-ok false)
+
+;; Default to no-ops unless profiling is explicitly enabled.
+(var prof-start (fn [_] nil))
+(var prof-end (fn [_] nil))
+
+(when profile-mode
+  (set profile-ok
+       (pcall
+         (fn []
+           (set prof (require :profile)))))
+  (when (and profile-ok prof)
+    (set prof-start
+         (fn [label]
+           (when (prof.is_recording)
+             (prof.log_start label))))
+    (set prof-end
+         (fn [label]
+           (when (prof.is_recording)
+             (prof.log_end label))))))
+
+(var mini-icons nil)
+
+(fn ensure-mini-icons []
+  (when (not mini-icons)
+    (local global-icons (rawget _G :MiniIcons))
+    (when (= (type global-icons) :table)
+      (set mini-icons global-icons)))
+  mini-icons)
+
+(prof-start "config.statusline.load")
+
 (local statusline-augroup (api.nvim_create_augroup "native_statusline" {:clear true}))
 
 (local statusline-bg "#080808")
@@ -39,11 +73,14 @@
     (let [[group opts] spec]
       (api.nvim_set_hl 0 group (with-bg opts)))))
 
+(prof-start "statusline.autocmds")
 (api.nvim_create_autocmd "ColorScheme"
   {:group statusline-augroup
    :callback setup-highlights})
 
+(prof-start "statusline.setup-highlights")
 (setup-highlights)
+(prof-end "statusline.setup-highlights")
 
 (fn hl [group s]
   ;; NOTE: this is a statusline string, so we keep raw % characters.
@@ -221,11 +258,15 @@
     (hl group (.. " " ft " "))))
 
 (fn filetype []
-  (let [MiniIcons (require :mini.icons)
-        ft vim.bo.filetype
-        (icon icon-hl _) (MiniIcons.get "filetype" ft)]
-    ;; matches the Lua: icon highlight, then StatuslineTitle for the name
-    (.. " " "%#" icon-hl "#" icon " " "%#StatuslineTitle#" ft)))
+  (let [ft vim.bo.filetype
+        MiniIcons (ensure-mini-icons)]
+    (if (and MiniIcons (= (type MiniIcons) :table) (. MiniIcons :get))
+        (let [(icon icon-hl _) (MiniIcons.get "filetype" ft)]
+          (if (and icon icon-hl)
+              ;; matches the Lua: icon highlight, then StatuslineTitle for the name
+              (.. " " "%#" icon-hl "#" icon " " "%#StatuslineTitle#" ft)
+              (hl "StatusLineMode" (.. " " ft " "))))
+        (hl "StatusLineMode" (.. " " ft " ")))))
 
 (fn lint-progress []
   (let [linters ((. (require "lint") :get_running))]
@@ -276,7 +317,9 @@
 (set _G.StatusLine StatusLine)
 
 ;; global default
+(prof-start "statusline.set-option")
 (set vim.opt.statusline "%!v:lua.StatusLine.active()")
+(prof-end "statusline.set-option")
 
 ;; filetypes/windows which should always use the inactive line
 (api.nvim_create_autocmd ["WinEnter" "BufEnter" "FileType"]
@@ -288,3 +331,6 @@
 
 ;; If you prefer requiring this as a normal module, you may also:
 ;; (return StatusLine)
+
+(prof-end "statusline.autocmds")
+(prof-end "config.statusline.load")
