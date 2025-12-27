@@ -6,11 +6,12 @@
   ...
 }: let
   name = "poincare";
-  optPlugins = import ./plugins {inherit pkgs inputs lib;};
+  optPlugins =
+    (import ./plugins {inherit pkgs inputs lib;})
+    ++ [pkgs.vimPlugins.nvim-treesitter.withAllGrammars];
   startPlugins = with pkgs.vimPlugins; [
     lz-n
     lzn-auto-require
-    nvim-treesitter.withAllGrammars
     (pkgs.vimUtils.buildVimPlugin {
       name = "profile.nvim";
       src = pkgs.fetchFromGitHub {

@@ -3,15 +3,13 @@
 (local M {})
 
 (fn M.spec-paths []
-  (local paths [])
-  (each [_ path (ipairs (vim.api.nvim_get_runtime_file 
-                          "fnl/plugins/specs/*.fnl" 
-                          true))]
-    (table.insert paths path))
-  (each [_ path (ipairs (vim.api.nvim_get_runtime_file 
-                          "lua/plugins/specs/*.lua" 
-                          true))]
-    (table.insert paths path))
+  (var paths (vim.api.nvim_get_runtime_file 
+               "lua/plugins/specs/*.lua" 
+               true))
+  (when (= 0 (# paths))
+    (set paths (vim.api.nvim_get_runtime_file 
+                 "fnl/plugins/specs/*.fnl" 
+                 true)))
   (table.sort paths)
   paths)
 
