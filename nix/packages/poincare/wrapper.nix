@@ -12,15 +12,20 @@
   # Plugins to load lazily, e.g. by `:packadd`
   optPlugins ? [],
   # Init file
-  init ? ../../../init.lua,
+  init ? "${configDir}/init.lua",
   # Optional config directory to prepend to runtimepath
   # This should contain a `lua/` subdirectory with modules referenced by `init`.
   configDir ? null,
+  # Extra packages to make available to Neovim
+  extraPackages ? [],
+  meta ? {},
 }: let
   inherit
     (lib)
     getName
     unique
+    makeBinPath
+    escapeShellArgs
     ;
 
   # Pull all the dependencies of each plugin in the list
@@ -51,43 +56,56 @@
     '';
 
   mkBuild = name: init: packpath: configDir: let
-    withInit = init:
-    # sh
-    ''
-      --add-flags '-u' \
-      --add-flags '${init}'
-    '';
-    withPackpath = packpath:
-    # sh
-    ''
-      --add-flags '--cmd' \
-      --add-flags "'set packpath^=${packpath} | set runtimepath^=${packpath}'" \
-    '';
+    withInit = init: [
+      "--add-flags"
+      "-u"
+      "--add-flags"
+      "${init}"
+    ];
+    withPackpath = packpath: [
+      "--add-flags"
+      "--cmd"
+      "--add-flags"
+      "'set packpath^=${packpath}'"
+      "--add-flags"
+      "--cmd"
+      "--add-flags"
+      "'set runtimepath^=${packpath}'"
+    ];
     withConfigDir = configDir:
     # sh
       if configDir == null || configDir == ""
-      then ""
-      else ''
-        --add-flags '--cmd' \
-        --add-flags "'set runtimepath^=${configDir}'" \
-      '';
-    withAppname = name:
-    # sh
-    ''
-      --set-default NVIM_APPNAME ${name}
-    '';
+      then []
+      else [
+        "--add-flags"
+        "--cmd"
+        "--add-flags"
+        "'set runtimepath^=${configDir}'"
+      ];
+    withAppname = name: [
+      "--set-default"
+      "NVIM_APPNAME"
+      "${name}"
+    ];
+
+    withExtraPackages = packages:
+      lib.optionals (packages != [])
+      ["--prefix" "PATH" ":" (makeBinPath packages)];
+
+    args =
+      withInit init
+      ++ withPackpath packpath
+      ++ withConfigDir configDir
+      ++ withAppname name
+      ++ withExtraPackages extraPackages;
   in
     # sh
     ''
-      wrapProgram $out/bin/nvim \
-        ${withInit init} \
-        ${withPackpath packpath} \
-        ${withConfigDir configDir} \
-        ${withAppname name}
+      wrapProgram $out/bin/nvim ${escapeShellArgs args}
     '';
 in
   symlinkJoin {
-    inherit name;
+    inherit name meta;
     paths = [neovim-unwrapped];
     nativeBuildInputs = [makeWrapper];
     postBuild = mkBuild name init packpath configDir;

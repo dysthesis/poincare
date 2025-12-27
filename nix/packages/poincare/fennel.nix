@@ -10,7 +10,7 @@
   # Version of the derivation,
   version ? "0.1.0",
   # Metadata of the derivation
-  meta ? [],
+  meta ? {},
   # Path to the config directory
   src,
   # Directories to preserve
