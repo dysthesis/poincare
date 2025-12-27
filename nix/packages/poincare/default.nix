@@ -26,7 +26,6 @@
     compileOnlyDirs = ["fnl/lib"];
     extraDirs = [
       "after"
-      "lsp"
     ];
   };
 in

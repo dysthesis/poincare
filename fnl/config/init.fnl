@@ -2,3 +2,4 @@
 (require :config.keys)
 (require :config.statusline)
 (require :config.ui)
+(require :config.lsp)
