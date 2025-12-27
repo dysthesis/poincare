@@ -12,7 +12,7 @@ existed. We therefore construct three subcomponents for the final derivation:
   derivation must be a directory whose structure mirrors the original Fennel
   codebase, but with Lua instead,
 - a [Neovim wrapper](https://ayats.org/blog/neovim-wrapper), ideally one which
-  exposes a passthru helper to declare plugins to install (_e.g._ 
+  exposes a passthru helper to declare plugins to install (_e.g._
   `wrapper.withPlugins (p: with p; [...])`), and
 - a final derivation which puts it all together; it pulls the source directory,
   feeds it to the Fennel builder, and feeds the resulting Lua configuration path
@@ -24,7 +24,7 @@ For `fennel-ls` to behave properly, we'd need to export a `flsproject.fnl`
 informing it on where to find "libraries". We can achieve this by constructing
 a text derivation,
 
-```nix
+````nix
   fennelProject = pkgs.writeText "flsproject.fnl" ''
     {:fennel-path "${poincareConfig.runtimePath}/?.fnl;${poincareConfig.runtimePath}/?/init.fnl;./?.fnl;./?/init.fnl;fnl/?.fnl;fnl/?/init.fnl"
      :extra-globals "vim vim.api vim.fn vim.loop fennel.sym?"}
@@ -39,4 +39,4 @@ pkgs.mkShell {
     ln -sf ${fennelProject} flsproject.fnl
   '';
 }
-```
+````

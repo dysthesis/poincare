@@ -160,4 +160,3 @@ require('lz.n').load {
     vim.ui.select = MiniPick.ui_select
   end,
 }
-
