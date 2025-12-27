@@ -1,5 +1,5 @@
 (local helpers (require :plugins.helpers))
-(local schedule (require :lib.schedule))
+(local schedule (require :utils.schedule))
 (local M {})
 
 ;; Hardcoded spec module lists to avoid runtimepath scans.

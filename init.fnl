@@ -10,8 +10,10 @@
                                        {:once true
                                         :callback (fn []
                                                     (prof.stop)
-                                                    (prof.export "profile-startup.json")
-                                                    (vim.notify "Wrote profile-startup.json"))}))
+                                                    (prof.export 
+                                                      "profile-startup.json")
+                                                    (vim.notify 
+                                                      "Wrote profile-startup.json"))}))
         (prof.instrument "*"))))
 
 ;; Trigger the lazy-loading of plugins on `require(...)` calls

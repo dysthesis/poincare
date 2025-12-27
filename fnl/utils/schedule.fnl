@@ -20,7 +20,7 @@
     (api.nvim_create_autocmd events out)))
 
 (fn M._normalise-modules [mods]
-  (if (nil? mods)
+  (if (= nil mods)
       []
       (= (type mods) :string)
       [mods]
@@ -36,7 +36,7 @@
   (let [mods (M._normalise-modules modules)]
     (when (> (# mods) 0)
       (local opts (or ?opts {}))
-      (when (nil? (. opts :once))
+      (when (= nil (. opts :once))
         (tset opts :once true))
       (M.on events opts (fn [] (M.require-all mods))))))
 
