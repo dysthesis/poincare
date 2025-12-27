@@ -111,6 +111,6 @@ in
     postBuild = mkBuild name init packpath configDir;
 
     passthru = {
-      inherit packpath;
+      inherit packpath configDir;
     };
   }

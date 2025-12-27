@@ -18,6 +18,7 @@
   configDir = buildFennel {
     pname = "${name}-cfg";
     src = self;
+    compileOnlyDirs = ["fnl/lib"];
   };
 in
   pkgs.callPackage ./wrapper.nix {

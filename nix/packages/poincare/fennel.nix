@@ -13,18 +13,38 @@
   meta ? {},
   # Path to the config directory
   src,
-  # Directories to preserve
+  # Directories to copy into the output as-is
   extraDirs ? [],
+  # Directories used only at compile time, e.g. macro libraries
+  compileOnlyDirs ? [],
 }: let
-  # Predicate to preserve `extraDirs`
+  # Predicate to preserve `extraDirs` and `compileOnlyDirs` in the build tree
   extraDirsAbs = map (d: "${toString src}/${d}") extraDirs;
-  isExtraPath = path:
-    lib.any (d: path == d || lib.hasPrefix "${d}/" path) extraDirsAbs;
+  compileOnlyDirsAbs = map (d: "${toString src}/${d}") compileOnlyDirs;
+  preserveDirsAbs = extraDirsAbs ++ compileOnlyDirsAbs;
+  isPreservePath = path:
+    lib.any (d: path == d || lib.hasPrefix "${d}/" path) preserveDirsAbs;
 
   findExclude =
-    lib.concatStringsSep " " (map (d: "-not -path \"$src/${d}/*\"") extraDirs);
+    lib.concatStringsSep
+    " "
+    (map
+      (d: "-not -path \"$src/${d}/*\"")
+      (extraDirs ++ compileOnlyDirs));
+
   extraDirsArgs =
-    lib.concatStringsSep " " (map lib.escapeShellArg extraDirs);
+    lib.concatStringsSep
+    " "
+    (map
+      lib.escapeShellArg
+      extraDirs);
+
+  compileOnlyFennelPath =
+    lib.concatStringsSep
+    ";"
+    (map
+      (d: "$src/${d}/?.fnl;$src/${d}/?/init.fnl;$src/${d}/?/init-macros.fnl")
+      compileOnlyDirs);
 
   # Filter for Fennel files.
   src' =
@@ -33,7 +53,7 @@
         pathStr = toString path;
       in
         # Do we want to explicitly preserve this path?
-        isExtraPath pathStr
+        isPreservePath pathStr
         # Is it a directory?
         || type == "directory"
         # Is it fennel?
@@ -53,6 +73,10 @@ in
     installPhase = ''
       runHook preInstall
       set -euo pipefail
+
+      fennel_path="$src/fnl/?.fnl;$src/fnl/?/init.fnl;$src/fnl/?/init-macros.fnl${lib.optionalString (compileOnlyDirs != []) ";${compileOnlyFennelPath}"}"
+      export FENNEL_PATH="''${fennel_path};''${FENNEL_PATH:-}"
+      export FENNEL_MACRO_PATH="''${fennel_path};''${FENNEL_MACRO_PATH:-}"
 
       mkdir -p "$out"
 

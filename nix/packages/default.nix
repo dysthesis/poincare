@@ -14,9 +14,13 @@
       self
       ;
   };
-
   fennelBuilt = let
     builder = pkgs.callPackage ./poincare/fennel.nix {};
   in
-    builder {src = ../..;};
+    builder {
+      pname = "poincare-fennel";
+      version = "0.1.0";
+      compileOnlyDirs = ["fnl/lib"];
+      src = ../..;
+    };
 }
