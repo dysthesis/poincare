@@ -1,4 +1,18 @@
 {
-  "pins": {},
+  "pins": {
+    "nvim-treesitter-textobjects": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "nvim-treesitter",
+        "repo": "nvim-treesitter-textobjects"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "ecd03f5811eb5c66d2fa420b79121b866feecd82",
+      "url": "https://github.com/nvim-treesitter/nvim-treesitter-textobjects/archive/ecd03f5811eb5c66d2fa420b79121b866feecd82.tar.gz",
+      "hash": "1jx5ygjwcnlva0r7l7rhrc7pnh9h23ygx7q628nkpaf698145k4q"
+    }
+  },
   "version": 5
 }

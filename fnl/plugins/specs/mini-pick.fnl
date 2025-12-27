@@ -1,11 +1,5 @@
 (require-macros :plugins.helpers)
 
-(fn keymap [lhs rhs desc]
-  (local entry [lhs rhs])
-  (when desc
-    (set entry.desc desc))
-  entry)
-
 (use "mini.pick"
    :cmd "Pick"
    :keys

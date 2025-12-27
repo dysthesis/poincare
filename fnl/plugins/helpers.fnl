@@ -22,6 +22,12 @@
       (tset spec k v)))
   spec)
 
+(fn M.keymap [lhs rhs desc]
+  (local entry [lhs rhs])
+  (when desc
+    (set entry.desc desc))
+  entry)
+
 (fn M.normalise [modval]
   (if (not modval)
       []
