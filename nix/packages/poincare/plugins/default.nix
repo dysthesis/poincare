@@ -30,6 +30,7 @@ in
       vim-tmux-navigator # Unified navigation binding with tmux
       blink-cmp # Fast completion
       ultimate-autopair-nvim # Smarter autopairs that recognises more patterns
+      conform-nvim # Asynchronous, automatic formatting
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy"
