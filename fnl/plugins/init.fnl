@@ -16,6 +16,7 @@
    "plugins.specs.nvim-treesitter"
    "plugins.specs.nvim-treesitter-textobjects"
    "plugins.specs.smart-splits"
+   "plugins.specs.ultimate-autopair"
    "plugins.specs.vim-tmux-navigator"])
 
 (fn M.setup-modules [modules]
