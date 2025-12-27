@@ -1,4 +1,7 @@
 ;; lsp/bash-language-server.fnl
 
-{:cmd ["bash-language-server" "start"]
- :filetypes ["bash" "sh"]}
+(local lsp (require :utils.lsp))
+
+(lsp.server
+  {:cmd ["bash-language-server" "start"]
+   :filetypes ["bash" "sh"]})

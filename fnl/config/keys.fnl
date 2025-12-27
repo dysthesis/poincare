@@ -1,12 +1,8 @@
 ;; config/keys.fnl
 ;; Keymaps and keybinding helpers.
 
-(require-macros :lib.vim)
-
-(local api vim.api)
-
-(fn kmap [mode lhs rhs ?opts]
-  (vim.keymap.set mode lhs rhs (or ?opts {})))
+(local keymap (require :utils.keymap))
+(local schedule (require :utils.schedule))
 
 (local mappings
   [;; general
@@ -30,16 +26,17 @@
    ["n" "<S-Tab>" "zA"
     {:noremap true :silent true :desc "Toggle fold (recursive)"}]])
 
-(each [_ [mode lhs rhs opts] (ipairs mappings)]
-  (kmap mode lhs rhs opts))
+(keymap.apply mappings)
 
-(api.nvim_create_autocmd "FileType"
-  {:pattern ["markdown" "markdown.mdx"]
-   :callback
-   (fn [args]
-     (kmap "n" "<leader>o"
-           (fn []
-             ((. (require :utils.references) :open_reference) args.buf))
-           {:buffer true
-            :silent true
-            :desc "Open front-matter reference"}))})
+(schedule.group "keymaps"
+  [{:events "FileType"
+    :opts {:pattern ["markdown" "markdown.mdx"]}
+    :callback
+    (fn [args]
+      (keymap.apply
+        [["n" "<leader>o"
+          (fn []
+            ((. (require :utils.references) :open_reference) args.buf))
+          {:buffer true
+           :silent true
+           :desc "Open front-matter reference"}]]))}])

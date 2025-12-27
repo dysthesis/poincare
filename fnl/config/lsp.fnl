@@ -3,6 +3,8 @@
 
 (local api vim.api)
 (local vfn vim.fn)
+(local keymap (require :utils.keymap))
+(local schedule (require :utils.schedule))
 
 (fn diagnostic-prefix [diagnostic]
   (let [client (vim.lsp.get_client_by_id diagnostic.source)
@@ -44,51 +46,37 @@
   (when (= 1 (vfn.executable lsp))
     (vim.lsp.enable lsp)))
 
-(api.nvim_create_autocmd "LspAttach"
-  {:desc "LSP actions"
-   :callback
-   (fn [event]
-     (set vim.lsp.handlers.textDocument/hover 
-          (vim.lsp.with vim.lsp.handlers.hover {:focusable true}))
-     (let [bufnr event.buf
-           client (vim.lsp.get_client_by_id (?. event :data :client_id))
-           opts {:buffer bufnr}]
-       ;; Enable inlay hints if available
-       (when (?. vim.lsp :inlay_hint)
-         (vim.lsp.inlay_hint.enable true {:bufnr bufnr}))
+(schedule.group "lsp"
+  [{:events "LspAttach"
+    :opts {:desc "LSP actions"}
+    :callback
+    (fn [event]
+      (set vim.lsp.handlers.textDocument/hover 
+           (vim.lsp.with vim.lsp.handlers.hover {:focusable true}))
+      (let [bufnr event.buf
+            client (vim.lsp.get_client_by_id (?. event :data :client_id))
+            opts {:buffer bufnr}
+            maps
+            [["n" "K" vim.lsp.buf.hover]
+             ["n" "gd" vim.lsp.buf.definition]
+             [["n" "x"] "gq"
+              (fn [] (vim.lsp.buf.format {:async true}))]
+             ["i" "<C-s>" vim.lsp.buf.signature_help]
+             ["n" "<leader>cd" vim.lsp.buf.declaration]
+             ["n" "<leader>ci" vim.lsp.buf.implementation]
+             ["n" "<leader>ct" vim.lsp.buf.type_definition]
+             ["n" "<leader>cR" vim.lsp.buf.references]
+             ["n" "<leader>ca" vim.lsp.buf.code_action]]]
+        ;; Enable inlay hints if available
+        (when (?. vim.lsp :inlay_hint)
+          (vim.lsp.inlay_hint.enable true {:bufnr bufnr}))
 
-       ;; Display documentation of the symbol under the cursor
-       (vim.keymap.set "n" "K" vim.lsp.buf.hover opts)
+        ;; Register standard LSP mappings.
+        (keymap.apply maps opts)
 
-       ;; Jump to the definition
-       (vim.keymap.set "n" "gd" vim.lsp.buf.definition opts)
-
-       ;; Format current file
-       (vim.keymap.set ["n" "x"] "gq"
-                       (fn [] (vim.lsp.buf.format {:async true}))
-                       opts)
-
-       ;; Displays a function's signature information
-       (vim.keymap.set "i" "<C-s>" vim.lsp.buf.signature_help opts)
-
-       ;; Jump to declaration
-       (vim.keymap.set "n" "<leader>cd" vim.lsp.buf.declaration opts)
-
-       ;; Lists all the implementations for the symbol under the cursor
-       (vim.keymap.set "n" "<leader>ci" vim.lsp.buf.implementation opts)
-
-       ;; Jumps to the definition of the type symbol
-       (vim.keymap.set "n" "<leader>ct" vim.lsp.buf.type_definition opts)
-
-       ;; Lists all the references
-       (vim.keymap.set "n" "<leader>cR" vim.lsp.buf.references opts)
-
-       ;; Selects a code action available at the current cursor position
-       (vim.keymap.set "n" "<leader>ca" vim.lsp.buf.code_action opts)
-
-       ;; Check if rustaceanvim is the client
-       (when (and client (= client.name "rust-analyzer"))
-         ;; Set up custom keybindings for rustaceanvim
-         (vim.keymap.set "n" "K"
-                         (fn [] (vim.cmd.RustLsp ["hover" "actions"]))
-                         {:buffer bufnr :silent true}))))})
+        ;; Check if rustaceanvim is the client
+        (when (and client (= client.name "rust-analyzer"))
+          ;; Set up custom keybindings for rustaceanvim
+          (vim.keymap.set "n" "K"
+                          (fn [] (vim.cmd.RustLsp ["hover" "actions"]))
+                          {:buffer bufnr :silent true}))))}])

@@ -1,5 +1,7 @@
 (require-macros :plugins.helpers)
 
+(local ui (require :utils.ui))
+
 (use "mini.icons"
      :event "DeferredUIEnter"
      :after
@@ -8,15 +10,13 @@
        (mini-icons.setup)
        (local lackluster (require :lackluster))
        (local colour (. lackluster :color))
-       (local set-hl vim.api.nvim_set_hl)
        (local highlights
-         [["MiniIconsAzure"  (. colour :lack)]
-          ["MiniIconsBlue"   (. colour :hint)]
-          ["MiniIconsGreen"  (. colour :special)]
-          ["MiniIconsGrey"   (. colour :gray4)]
-          ["MiniIconsPurple" "#cba6f7"]
-          ["MiniIconsOrange" (. colour :warn)]
-          ["MiniIconsRed"    (. colour :warn)]
-          ["MiniIconsYellow" "#f9e2af"]])
-       (each [_ pair (ipairs highlights)]
-         (set-hl 0 (. pair 1) {:fg (. pair 2)}))))
+         [["MiniIconsAzure"  {:fg (. colour :lack)}]
+          ["MiniIconsBlue"   {:fg (. colour :hint)}]
+          ["MiniIconsGreen"  {:fg (. colour :special)}]
+          ["MiniIconsGrey"   {:fg (. colour :gray4)}]
+          ["MiniIconsPurple" {:fg "#cba6f7"}]
+          ["MiniIconsOrange" {:fg (. colour :warn)}]
+          ["MiniIconsRed"    {:fg (. colour :warn)}]
+          ["MiniIconsYellow" {:fg "#f9e2af"}]])
+       (ui.apply-highlights highlights)))

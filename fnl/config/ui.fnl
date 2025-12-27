@@ -4,6 +4,7 @@
 (require-macros :lib.vim)
 
 (local api vim.api)
+(local schedule (require :utils.schedule))
 
 (set! :winborder "rounded")
 (set! :termguicolors true)
@@ -52,5 +53,6 @@
       {:pattern "*.md"
        :callback (fn [ev] (update-extmarks ev.buf ns-id))})))
 
-(api.nvim_create_autocmd "VimEnter"
-  {:callback setup-extmarks-autocmd})
+(schedule.group "markdown_styling"
+  [{:events "VimEnter"
+    :callback setup-extmarks-autocmd}])

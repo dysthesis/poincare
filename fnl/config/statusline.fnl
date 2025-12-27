@@ -5,6 +5,8 @@
 
 (local api vim.api)
 (local vfn vim.fn)
+(local schedule (require :utils.schedule))
+(local ui (require :utils.ui))
 
 (var mini-icons nil)
 
@@ -14,8 +16,6 @@
     (when (= (type global-icons) :table)
       (set mini-icons global-icons)))
   mini-icons)
-
-(local statusline-augroup (api.nvim_create_augroup "native_statusline" {:clear true}))
 
 (local statusline-bg "#080808")
 
@@ -44,13 +44,7 @@
    ["StatusLineGitBranchIcon" {:fg "#444444"}]])
 
 (fn setup-highlights []
-  (each [_ spec (ipairs highlight-spec)]
-    (let [[group opts] spec]
-      (api.nvim_set_hl 0 group (with-bg opts)))))
-
-(api.nvim_create_autocmd "ColorScheme"
-  {:group statusline-augroup
-   :callback setup-highlights})
+  (ui.apply-highlights highlight-spec with-bg))
 
 (setup-highlights)
 
@@ -129,62 +123,60 @@
             (.. space (hl "StatusLineLspActive" " ") "LSP")
             ""))))
 
-(fn diagnostics-error []
-  (let [n (get-lsp-diagnostics-count vim.diagnostic.severity.ERROR)]
-    (if (> n 0) (hl "StatusLineLspError" (.. "  " n)) "")))
+(fn mk-diagnostic [severity group icon]
+  (fn []
+    (let [n (get-lsp-diagnostics-count severity)]
+      (if (> n 0) (hl group (.. " " icon " " n)) ""))))
 
-(fn diagnostics-warn []
-  (let [n (get-lsp-diagnostics-count vim.diagnostic.severity.WARN)]
-    (if (> n 0) (hl "StatusLineLspWarn" (.. "  " n)) "")))
+(local diagnostics-error
+  (mk-diagnostic vim.diagnostic.severity.ERROR "StatusLineLspError" ""))
 
-(fn diagnostics-hint []
-  (let [n (get-lsp-diagnostics-count vim.diagnostic.severity.HINT)]
-    (if (> n 0) (hl "StatusLineLspHint" (.. "  " n)) "")))
+(local diagnostics-warn
+  (mk-diagnostic vim.diagnostic.severity.WARN "StatusLineLspWarn" ""))
 
-(fn diagnostics-info []
-  (let [n (get-lsp-diagnostics-count vim.diagnostic.severity.INFO)]
-    (if (> n 0) (hl "StatusLineLspInfo" (.. "  " n)) "")))
+(local diagnostics-hint
+  (mk-diagnostic vim.diagnostic.severity.HINT "StatusLineLspHint" ""))
+
+(local diagnostics-info
+  (mk-diagnostic vim.diagnostic.severity.INFO "StatusLineLspInfo" ""))
 
 (var lsp-progress
   {:client nil :kind nil :title nil :percentage nil :message nil})
 
-(api.nvim_create_autocmd "LspProgress"
-  {:group statusline-augroup
-   :desc "Update LSP progress in statusline"
-   :pattern ["begin" "report" "end"]
-   :callback
-   (fn [args]
-     (let [data (. args :data)]
-       (when (and data (. data :client_id) (. data :params) (?. data :params :value))
-         (let [val (?. data :params :value)]
-           (set lsp-progress
-                {:client (vim.lsp.get_client_by_id (. data :client_id))
-                 :kind (?. val :kind)
-                 :message (?. val :message)
-                 :percentage (?. val :percentage)
-                 :title (?. val :title)})
-           (if (= lsp-progress.kind "end")
-               (do (set lsp-progress.title nil)
-                   (vim.defer_fn
-                     (fn [] (vim.cmd.redrawstatus))
-                     500))
-               (vim.cmd.redrawstatus))))))})
+(fn on-lsp-progress [args]
+  (let [data (. args :data)]
+    (when (and data (. data :client_id) (. data :params) (?. data :params :value))
+      (let [val (?. data :params :value)]
+        (set lsp-progress
+             {:client (vim.lsp.get_client_by_id (. data :client_id))
+              :kind (?. val :kind)
+              :message (?. val :message)
+              :percentage (?. val :percentage)
+              :title (?. val :title)})
+        (if (= lsp-progress.kind "end")
+            (do (set lsp-progress.title nil)
+                (vim.defer_fn
+                  (fn [] (vim.cmd.redrawstatus))
+                  500))
+            (vim.cmd.redrawstatus))))))
 
 ;; -------------------- ;;
 ;;       git bits       ;;
 ;; -------------------- ;;
 
-(fn git-diff-added []
-  (let [n (get-git-diff "added")]
-    (if (> n 0) (hl "StatusLineGitDiffAdded" (.. "  " n)) "")))
+(fn mk-git-diff [kind group icon]
+  (fn []
+    (let [n (get-git-diff kind)]
+      (if (> n 0) (hl group (.. " " icon " " n)) ""))))
 
-(fn git-diff-changed []
-  (let [n (get-git-diff "changed")]
-    (if (> n 0) (hl "StatusLineGitDiffChanged" (.. "  " n)) "")))
+(local git-diff-added
+  (mk-git-diff "added" "StatusLineGitDiffAdded" ""))
 
-(fn git-diff-removed []
-  (let [n (get-git-diff "removed")]
-    (if (> n 0) (hl "StatusLineGitDiffRemoved" (.. "  " n)) "")))
+(local git-diff-changed
+  (mk-git-diff "changed" "StatusLineGitDiffChanged" ""))
+
+(local git-diff-removed
+  (mk-git-diff "removed" "StatusLineGitDiffRemoved" ""))
 
 (fn git-branch-icon [] (hl "StatusLineGitBranchIcon" ""))
 
@@ -292,12 +284,20 @@
 (set vim.opt.statusline "%!v:lua.StatusLine.active()")
 
 ;; filetypes/windows which should always use the inactive line
-(api.nvim_create_autocmd ["WinEnter" "BufEnter" "FileType"]
-  {:group statusline-augroup
-   :pattern ["NvimTree_1" "NvimTree" "TelescopePrompt" "fzf" "lspinfo" "lazy"
-             "netrw" "mason" "noice" "qf"]
-   :callback (fn []
-               (set vim.opt_local.statusline "%!v:lua.StatusLine.inactive()"))})
+(schedule.group "native_statusline"
+  [{:events "ColorScheme"
+    :callback setup-highlights}
+   {:events "LspProgress"
+    :opts {:desc "Update LSP progress in statusline"
+           :pattern ["begin" "report" "end"]}
+    :callback on-lsp-progress}
+   {:events ["WinEnter" "BufEnter" "FileType"]
+    :opts {:pattern ["NvimTree_1" "NvimTree" "TelescopePrompt" "fzf" "lspinfo" "lazy"
+                     "netrw" "mason" "noice" "qf"]}
+    :callback
+    (fn []
+      (set vim.opt_local.statusline "%!v:lua.StatusLine.inactive()"))}]
+  {:clear true})
 
 ;; If you prefer requiring this as a normal module, you may also:
 ;; (return StatusLine)

@@ -1,67 +1,40 @@
 (require-macros :plugins.helpers)
 
+(local km (require :utils.keymap))
+
+(local pick-files (km.lazy-call :mini.pick [:builtin :files]))
+(local pick-grep (km.lazy-call :mini.pick [:builtin :grep_live]))
+(local pick-lines (km.lazy-call :mini.pick [:registry :buffer_lines_current]))
+(local pick-diagnostics (km.lazy-call :mini.extra [:pickers :diagnostic]))
+(local pick-explorer (km.lazy-call :mini.extra [:pickers :explorer]))
+(local pick-git-commits (km.lazy-call :mini.extra [:pickers :git_commits]))
+(local pick-git-branches (km.lazy-call :mini.extra [:pickers :git_branches]))
+(local pick-treesitter (km.lazy-call :mini.extra [:pickers :treesitter]))
+(local pick-lsp (km.lazy-call :mini.extra [:pickers :lsp]))
+
 (use "mini.pick"
    :cmd "Pick"
    :keys
-   [(keymap "<leader>f"
-      (fn []
-        ((. (require :mini.pick) :builtin :files)))
-      "Find [F]iles")
-
-    (keymap "<leader>/"
-      (fn []
-        ((. (require :mini.pick) :builtin :grep_live)))
-      "Find [G]rep")
-
-    (keymap "<leader>l"
-      (fn []
-        ((. (require :mini.pick) :registry :buffer_lines_current)))
-      "Find buffer [L]ines")
-
-    (keymap "<leader>d"
-      (fn []
-        ((. (require :mini.extra) :pickers :diagnostic)))
-      "Find [D]iagnostics")
-
-    (keymap "<leader>e"
-      (fn []
-        ((. (require :mini.extra) :pickers :explorer)))
-      "Find [E]xplorer")
-
-    (keymap "<leader>g"
-      (fn []
-        ((. (require :mini.extra) :pickers :git_commits)))
-      "Find [G]it commits")
-
-    (keymap "<leader>G"
-      (fn []
-        ((. (require :mini.extra) :pickers :git_branches)))
-      "Find [G]it branches")
-
+   [(keymap "<leader>f" pick-files "Find [F]iles")
+    (keymap "<leader>/" pick-grep "Find [G]rep")
+    (keymap "<leader>l" pick-lines "Find buffer [L]ines")
+    (keymap "<leader>d" pick-diagnostics "Find [D]iagnostics")
+    (keymap "<leader>e" pick-explorer "Find [E]xplorer")
+    (keymap "<leader>g" pick-git-commits "Find [G]it commits")
+    (keymap "<leader>G" pick-git-branches "Find [G]it branches")
     (keymap "<leader>s"
-      (fn []
-        ((. (require :mini.extra) :pickers :lsp) {:scope "document_symbol"}))
+      (fn [] (pick-lsp {:scope "document_symbol"}))
       "Find [S]ymbols")
-
     (keymap "<leader>S"
-      (fn []
-        ((. (require :mini.extra) :pickers :lsp) {:scope "workspace_symbol"}))
+      (fn [] (pick-lsp {:scope "workspace_symbol"}))
       "Find Workspace [S]ymbols")
-
     (keymap "<leader>r"
-      (fn []
-        ((. (require :mini.extra) :pickers :lsp) {:scope "references"}))
+      (fn [] (pick-lsp {:scope "references"}))
       "Find [R]eferences")
-
     (keymap "<leader>i"
-      (fn []
-        ((. (require :mini.extra) :pickers :lsp) {:scope "implementation"}))
+      (fn [] (pick-lsp {:scope "implementation"}))
       "Find [I]mplementation")
-
-    (keymap "<leader>T"
-      (fn []
-        ((. (require :mini.extra) :pickers :treesitter)))
-      "Find [T]reesitter nodes")]
+    (keymap "<leader>T" pick-treesitter "Find [T]reesitter nodes")]
 
    :after
    (fn []

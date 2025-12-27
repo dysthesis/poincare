@@ -40,4 +40,12 @@
         (set opts.once true))
       (M.on events opts (fn [] (M.require-all mods))))))
 
+(fn M.group [name specs ?group-opts]
+  (local id (api.nvim_create_augroup name (or ?group-opts {})))
+  (each [_ spec (ipairs specs)]
+    (local opts (vim.tbl_extend "force" {:group id} (or (. spec :opts) {})))
+    (when (= nil (. opts :schedule))
+      (tset opts :schedule false))
+    (M.on (. spec :events) opts (. spec :callback))))
+
 M

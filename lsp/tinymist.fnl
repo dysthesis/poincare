@@ -11,6 +11,7 @@
 ;; LspTinymistGetDocumentMetrics, and LspTinymistPinMain.
 
 (local api vim.api)
+(local lsp (require :utils.lsp))
 
 (fn create-tinymist-command [command-name client bufnr]
   (let [export-type (command-name:match "tinymist%.export(%w+)")
@@ -47,16 +48,17 @@
               handler)))]
     (values run-tinymist-command cmd-name cmd-desc)))
 
-{:cmd ["tinymist"]
- :filetypes ["typst"]
- :root_markers [".git"]
- :settings
- {:exportPdf "onType"
-  :outputPath "$root/target/$dir/$name"
-  :formatterMode "typstyle"
-  :projectResolution "lockDatabase"}
- :on_attach
- (fn [client bufnr]
+(lsp.server
+  {:cmd ["tinymist"]
+   :filetypes ["typst"]
+   :root_markers [".git"]
+   :settings
+   {:exportPdf "onType"
+    :outputPath "$root/target/$dir/$name"
+    :formatterMode "typstyle"
+    :projectResolution "lockDatabase"}
+   :on_attach
+   (fn [client bufnr]
    (each [_ command (ipairs
                       ["tinymist.exportSvg"
                        "tinymist.exportPng"
@@ -89,4 +91,4 @@
            (vim.system ["open" pdf-path])))))
 
    (api.nvim_create_user_command "OpenPdf" open-pdf {})
-   (map "n" "<leader>o" open-pdf {:desc "[O]pen PDF"}))}
+   (map "n" "<leader>o" open-pdf {:desc "[O]pen PDF"}))})

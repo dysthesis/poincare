@@ -2,6 +2,7 @@
 
 (var mod-cache nil)
 (var std-lib nil)
+(local lsp (require :utils.lsp))
 
 (fn identify-go-dir [custom-args on-complete]
   (let [cmd ["go" "env" (. custom-args :envvar_id)]]
@@ -63,12 +64,13 @@
             (or current-root fallback)
             fallback))))
 
-{:cmd ["gopls"]
- :filetypes ["go" "gomod" "gowork" "gotmpl"]
- :root_dir
- (fn [bufnr on-dir]
-   (let [fname (vim.api.nvim_buf_get_name bufnr)]
-     (get-mod-cache-dir)
-     (get-std-lib-dir)
-     ;; see: https://github.com/neovim/nvim-lspconfig/issues/804
-     (on-dir (get-root-dir fname))))}
+(lsp.server
+  {:cmd ["gopls"]
+   :filetypes ["go" "gomod" "gowork" "gotmpl"]
+   :root_dir
+   (fn [bufnr on-dir]
+     (let [fname (vim.api.nvim_buf_get_name bufnr)]
+       (get-mod-cache-dir)
+       (get-std-lib-dir)
+       ;; see: https://github.com/neovim/nvim-lspconfig/issues/804
+       (on-dir (get-root-dir fname))))})

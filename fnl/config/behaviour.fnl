@@ -6,6 +6,7 @@
 (local api vim.api)
 (local vfn vim.fn)
 (local opt vim.opt)
+(local schedule (require :utils.schedule))
 
 ;; Set to true if you have a Nerd Font installed and selected in the terminal.
 (g! :have_nerd_font true)
@@ -120,25 +121,19 @@
   (let [[from to] pair]
     (cnoreabbrev from to)))
 
-(local general-group (api.nvim_create_augroup "general" {}))
+(schedule.group "general"
+  [{:events "BufReadPost"
+    :opts {:desc "Restore last cursor position in file"}
+    :callback
+    (fn []
+      (let [pos (vfn.line "'\"")
+            last (vfn.line "$")]
+        (when (and (> pos 0) (<= pos last))
+          (vfn.setpos "." (vfn.getpos "'\"")))))}
+   {:events ["VimResized"]
+    :opts {:desc "Resize all splits if vim was resized"}
+    :callback (fn [] (vim.cmd.tabdo "wincmd ="))}])
 
-(api.nvim_create_autocmd "BufReadPost"
-  {:group general-group
-   :desc "Restore last cursor position in file"
-   :callback
-   (fn []
-     (let [pos (vfn.line "'\"")
-           last (vfn.line "$")]
-       (when (and (> pos 0) (<= pos last))
-         (vfn.setpos "." (vfn.getpos "'\"")))))})
-
-(api.nvim_create_autocmd ["VimResized"]
-  {:group general-group
-   :desc "Resize all splits if vim was resized"
-   :callback (fn [] (vim.cmd.tabdo "wincmd ="))})
-
-;; Persist view.
-(local view-group (api.nvim_create_augroup "auto_view" {:clear true}))
 (local ignore-filetypes ["gitcommit" "gitrebase" "svg" "hgcommit"])
 
 (fn view-eligible? [buf]
@@ -160,15 +155,14 @@
       (set vars.view_activated true)
       (vim.cmd.loadview {:mods {:emsg_silent true}}))))
 
-(api.nvim_create_autocmd ["BufWinLeave" "BufWritePost" "WinLeave"]
-  {:group view-group
-   :desc "Save view with mkview for real files"
-   :callback (fn [args] (save-view args.buf))})
-
-(api.nvim_create_autocmd "BufWinEnter"
-  {:group view-group
-   :desc "Try to load file view if available and enable view saving for real files"
-   :callback (fn [args] (ensure-view-active args.buf))})
+(schedule.group "auto_view"
+  [{:events ["BufWinLeave" "BufWritePost" "WinLeave"]
+    :opts {:desc "Save view with mkview for real files"}
+    :callback (fn [args] (save-view args.buf))}
+   {:events "BufWinEnter"
+    :opts {:desc "Try to load file view if available and enable view saving for real files"}
+    :callback (fn [args] (ensure-view-active args.buf))}]
+  {:clear true})
 
 ;; Let sqlite.lua know where to find sqlite.
 (local luv (require :luv))

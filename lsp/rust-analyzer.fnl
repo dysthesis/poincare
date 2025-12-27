@@ -1,60 +1,63 @@
 ;; lsp/rust-analyzer.fnl
 
-{:filetypes ["rust"]
- :cmd ["rust-analyzer"]
- :settings
- {:cargo {:features "all"}
+(local lsp (require :utils.lsp))
 
-  :assist
-  {:importEnforceGranularity true
-   :importPrefix "crate"}
+(lsp.server
+  {:filetypes ["rust"]
+   :cmd ["rust-analyzer"]
+   :settings
+   {:cargo {:features "all"}
 
-  :checkOnSave
-  {:enable true
-   :command "clippy"
-   :features "all"}
+    :assist
+    {:importEnforceGranularity true
+     :importPrefix "crate"}
 
-  :inlayHints
-  {:chainingHints
-   {:bindingModeHints {:enable true}
-
-    :chainingHints {:enable true}
-
-    :closingBraceHints
+    :checkOnSave
     {:enable true
-     :minLines 25}
+     :command "clippy"
+     :features "all"}
 
-    :closureCaptureHints {:enable true}
+    :inlayHints
+    {:chainingHints
+     {:bindingModeHints {:enable true}
 
-    :closureReturnTypeHints
-    {:enable "always"}
+      :chainingHints {:enable true}
 
-    :closureStyle "impl_fn"
+      :closingBraceHints
+      {:enable true
+       :minLines 25}
 
-    :discriminantHints
-    {:enable "always"}
+      :closureCaptureHints {:enable true}
 
-    :expressionAdjustmentHints
-    {:hideOutsideUnsafe false
-     :mode "prefix"}
+      :closureReturnTypeHints
+      {:enable "always"}
 
-    :implicitDrops {:enable true}
+      :closureStyle "impl_fn"
 
-    :lifetimeElisionHints
-    {:enable "always"
-     :useParameterNames true}
+      :discriminantHints
+      {:enable "always"}
 
-    :maxLength 25
+      :expressionAdjustmentHints
+      {:hideOutsideUnsafe false
+       :mode "prefix"}
 
-    :parameterHints {:enable true}
+      :implicitDrops {:enable true}
 
-    :rangeExclusiveHints {:enable true}
+      :lifetimeElisionHints
+      {:enable "always"
+       :useParameterNames true}
 
-    :renderColons {:enable true}
+      :maxLength 25
 
-    :typeHints
-    {:enable true
-     :hideClosureInitialization false
-     :hideNamedConstructor false}}}
+      :parameterHints {:enable true}
 
-  :lens {:enable true}}}
+      :rangeExclusiveHints {:enable true}
+
+      :renderColons {:enable true}
+
+      :typeHints
+      {:enable true
+       :hideClosureInitialization false
+       :hideNamedConstructor false}}}
+
+    :lens {:enable true}}})
