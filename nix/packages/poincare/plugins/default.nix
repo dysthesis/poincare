@@ -5,7 +5,6 @@
   ...
 }: let
   inherit (lib) mapAttrsToList;
-  inherit (builtins) isAttrs;
 
   inherit
     (lib.babel.nvim)
@@ -20,46 +19,15 @@
       version = src.revision;
     });
   builtNpins = mkNpins npins;
-
-  # Make sure we use the pinned nixpkgs instance for wrapNeovimUnstable,
-  # otherwise it could have an incompatible signature when applying this overlay.
-  # pkgs-wrapNeovim = inputs.nixpkgs.legacyPackages.${pkgs.system};
-  # This is the helper function that builds the Neovim derivation.
-  # mkNeovim = pkgs.callPackage ./mkNeovim.nix {inherit pkgs-wrapNeovim;};
-  # A plugin can either be a package or an attrset, such as
-  # { plugin = <plugin>; # the package, e.g. pkgs.vimPlugins.nvim-cmp
-  #   config = <config>; # String; a config that will be loaded with the plugin
-  #   # Boolean; Whether to automatically load the plugin as a 'start' plugin,
-  #   # or as an 'opt' plugin, that can be loaded with `:packadd!`
-  #   optional = <true|false>; # Default: false
-  #   ...
-  # }
-  lazy-plugins = with pkgs.vimPlugins;
+in
+  with pkgs.vimPlugins;
     [
       lackluster-nvim # Colour scheme
       mini-extra # Extra utilties for the mini-* plugins
       mini-icons # Icons provider
       mini-pick # Picker menu
+      smart-splits-nvim # Unified split management binding with tmux
+      vim-tmux-navigator # Unified navigation binding with tmux
     ]
     ++ builtNpins
-    ++ mapPlugins pkgs inputs "plugin-lazy";
-
-  plugins =
-    map (
-      x:
-        if isAttrs x
-        then
-          x
-          // {
-            optional = true;
-          }
-        else {
-          plugin = x;
-          optional = true;
-        }
-    )
-    lazy-plugins
-    # bleeding-edge plugins from flake inputs
-    ++ mapPlugins pkgs inputs "plugin:";
-in
-  plugins
+    ++ mapPlugins pkgs inputs "plugin-lazy"

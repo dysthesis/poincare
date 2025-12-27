@@ -24,6 +24,10 @@
     pname = "${name}-cfg";
     src = self;
     compileOnlyDirs = ["fnl/lib"];
+    extraDirs = [
+      "after"
+      "lsp"
+    ];
   };
 in
   pkgs.callPackage ./wrapper.nix {

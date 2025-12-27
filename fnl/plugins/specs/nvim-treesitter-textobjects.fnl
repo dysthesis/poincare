@@ -1,3 +1,4 @@
 (require-macros :plugins.helpers)
 
-(use "nvim-treesitter-textobjects")
+(use "nvim-treesitter-textobjects"
+     :lazy true)
