@@ -1,40 +1,31 @@
 (local helpers (require :plugins.helpers))
-
+(local schedule (require :lib.schedule))
 (local M {})
 
-(fn M.spec-paths []
-  (var paths (vim.api.nvim_get_runtime_file 
-               "lua/plugins/specs/*.lua" 
-               true))
-  (when (= 0 (# paths))
-    (set paths (vim.api.nvim_get_runtime_file 
-                 "fnl/plugins/specs/*.fnl" 
-                 true)))
-  (table.sort paths)
-  paths)
+;; Hardcoded spec module lists to avoid runtimepath scans.
+(local early-modules
+  ["plugins.specs.nvim-treesitter"
+   "plugins.specs.nvim-treesitter-textobjects"])
 
-(fn M.path->module [path]
-  (let [rel (or (string.match path ".*/fnl/(.*)%.fnl$")
-                (string.match path ".*/lua/(.*)%.lua$"))]
-    (if rel
-        (string.gsub rel "/" ".")
-        nil)))
+(local late-modules
+  ["plugins.specs.lackluster"
+   "plugins.specs.mini-extra"
+   "plugins.specs.mini-icons"
+   "plugins.specs.mini-pick"
+   "plugins.specs.smart-splits"
+   "plugins.specs.vim-tmux-navigator"])
 
-(fn M.spec-modules [paths]
-  (local mods [])
-  (local seen {})
-  (each [_ path (ipairs paths)]
-    (let [mod (M.path->module path)]
-      (when (and mod (not (. seen mod)))
-        (tset seen mod true)
-        (table.insert mods mod))))
-  mods)
+(fn M.setup-modules [modules]
+  (when (and modules (> (# modules) 0))
+    (helpers.setup modules)))
 
-(fn M.compile []
-  (->> (M.spec-paths)
-       (M.spec-modules)
-       (helpers.setup)))
+;; Register minimal specs early so BufReadPost triggers are captured.
+(M.setup-modules early-modules)
 
-(M.compile)
+;; Defer the bulk of plugin spec registration until after startup.
+(schedule.on "VimEnter"
+  {:once true
+   :desc "Register deferred plugin specs"}
+  (fn [] (M.setup-modules late-modules)))
 
 M

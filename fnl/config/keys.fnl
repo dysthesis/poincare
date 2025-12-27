@@ -5,9 +5,6 @@
 
 (local api vim.api)
 
-(g! :mapleader " ")
-(g! :maplocalleader " ")
-
 (fn kmap [mode lhs rhs ?opts]
   (vim.keymap.set mode lhs rhs (or ?opts {})))
 

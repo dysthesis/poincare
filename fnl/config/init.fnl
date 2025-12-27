@@ -1,11 +1,13 @@
-(local api vim.api)
+(local schedule (require :lib.schedule))
 
 (require :config.behaviour)
-(require :config.keys)
-(require :config.statusline)
 (require :config.ui)
 
-(api.nvim_create_autocmd ["BufReadPre" "BufNewFile"]
-  {:desc "Load LSP config on first file read"
-   :once true
-   :callback (fn [] (require :config.lsp))})
+(schedule.require-on "User"
+  ["config.keys" "config.statusline"]
+  {:pattern "DeferredUIEnter"
+   :desc "Load keymaps and statusline after UI enter"})
+
+(schedule.require-on ["BufReadPre" "BufNewFile"]
+  "config.lsp"
+  {:desc "Load LSP config on first file read"})

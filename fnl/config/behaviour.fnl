@@ -9,6 +9,8 @@
 
 ;; Set to true if you have a Nerd Font installed and selected in the terminal.
 (g! :have_nerd_font true)
+(g! :mapleader " ")
+(g! :maplocalleader " ")
 
 (set! :compatible false)
 (set! :colorcolumn "80")
