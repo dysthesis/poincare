@@ -6,29 +6,6 @@
 (local api vim.api)
 (local vfn vim.fn)
 
-(var prof nil)
-(local profile-mode (os.getenv "NVIM_PROFILE"))
-(local profile-ok false)
-
-;; Default to no-ops unless profiling is explicitly enabled.
-(var prof-start (fn [_] nil))
-(var prof-end (fn [_] nil))
-
-(when profile-mode
-  (set profile-ok
-       (pcall
-         (fn []
-           (set prof (require :profile)))))
-  (when (and profile-ok prof)
-    (set prof-start
-         (fn [label]
-           (when (prof.is_recording)
-             (prof.log_start label))))
-    (set prof-end
-         (fn [label]
-           (when (prof.is_recording)
-             (prof.log_end label))))))
-
 (var mini-icons nil)
 
 (fn ensure-mini-icons []
@@ -37,8 +14,6 @@
     (when (= (type global-icons) :table)
       (set mini-icons global-icons)))
   mini-icons)
-
-(prof-start "config.statusline.load")
 
 (local statusline-augroup (api.nvim_create_augroup "native_statusline" {:clear true}))
 
@@ -73,14 +48,11 @@
     (let [[group opts] spec]
       (api.nvim_set_hl 0 group (with-bg opts)))))
 
-(prof-start "statusline.autocmds")
 (api.nvim_create_autocmd "ColorScheme"
   {:group statusline-augroup
    :callback setup-highlights})
 
-(prof-start "statusline.setup-highlights")
 (setup-highlights)
-(prof-end "statusline.setup-highlights")
 
 (fn hl [group s]
   ;; NOTE: this is a statusline string, so we keep raw % characters.
@@ -317,9 +289,7 @@
 (set _G.StatusLine StatusLine)
 
 ;; global default
-(prof-start "statusline.set-option")
 (set vim.opt.statusline "%!v:lua.StatusLine.active()")
-(prof-end "statusline.set-option")
 
 ;; filetypes/windows which should always use the inactive line
 (api.nvim_create_autocmd ["WinEnter" "BufEnter" "FileType"]
@@ -331,6 +301,3 @@
 
 ;; If you prefer requiring this as a normal module, you may also:
 ;; (return StatusLine)
-
-(prof-end "statusline.autocmds")
-(prof-end "config.statusline.load")

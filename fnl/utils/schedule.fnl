@@ -37,7 +37,7 @@
     (when (> (# mods) 0)
       (local opts (or ?opts {}))
       (when (= nil (. opts :once))
-        (tset opts :once true))
+        (set opts.once true))
       (M.on events opts (fn [] (M.require-all mods))))))
 
 M

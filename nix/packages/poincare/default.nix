@@ -12,15 +12,6 @@
   startPlugins = with pkgs.vimPlugins; [
     lz-n
     lzn-auto-require
-    (pkgs.vimUtils.buildVimPlugin {
-      name = "profile.nvim";
-      src = pkgs.fetchFromGitHub {
-        owner = "stevearc";
-        repo = "profile.nvim";
-        rev = "30433d7513f0d14665c1cfcea501c90f8a63e003";
-        sha256 = "sha256-2Mk6VbC+K/WhTWF+yHyDhQKJhTi2rpo8VJsnO7ofHXs=";
-      };
-    })
   ];
   extraPackages = with pkgs; [
     ripgrep
