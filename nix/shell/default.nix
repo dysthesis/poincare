@@ -1,6 +1,7 @@
 pkgs: poincare: let
   fennelProject = pkgs.writeText "flsproject.fnl" ''
     {:fennel-path "${poincare.configDir}/?.fnl;${poincare.configDir}/?/init.fnl;./?.fnl;./?/init.fnl;fnl/?.fnl;fnl/?/init.fnl"
+     :macro-path "${poincare.configDir}/?.fnl;${poincare.configDir}/?/init-macros.fnl;${poincare.configDir}/?/init.fnl;./?.fnl;./?/init-macros.fnl;./?/init.fnl;fnl/?.fnl;fnl/?/init-macros.fnl;fnl/?/init.fnl"
      :extra-globals "vim vim.api vim.fn vim.loop fennel.sym?"}
   '';
 in

@@ -37,6 +37,7 @@
   lazy-plugins = with pkgs.vimPlugins;
     [
       lackluster-nvim # Colour scheme
+      mini-icons # Icons provider
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy";
