@@ -1,19 +1,12 @@
 # Poincare
 
-This is a (WIP) Neovim flake that
+This is my personal Neovim flake. The configuration is written in Fennel, and
+compiled into Lua during the Nix build process. Hence, there is no need for 
+plugins which provide runtime support for Fennel.
 
-- can be used as a regular Neovim configuration (by placing this in `~/.config/nvim/`),
-- snappy, and
-- is minimal, but not to a fault.
+- `fnl/lib/` providess nice abstractions for configuring Neovim. Basically all
+  of it has been taken from [hibiscus-nvim]. Since Fennel is translated into
+  Lua at runtime, we must vendor it ourselves instead of pulling it as a plugin.
+  It also provides us with the flexibility of modifying it if we need to.
 
-Here, _minimal_ is defined as a rough measure of the amount of feature provided per line of code.
-
-Speed takes precedence over minimalism.
-
-## As a regular configuration
-
-When Nix is not used, [savq/paq-nvim](https://github.com/savq/paq-nvim) is used to automatically install plugins. It is extremely minimal, and does nothing else other than installing plugins.
-
-# Note to self
-
-- `smart-splits.nvim` apparently adds ~20ms to startup time. See if I can replicate the functionality with less overhead.
+[hibiscus-nvim]: https://github.com/udayvir-singh/hibiscus.nvim
