@@ -9,7 +9,8 @@
 
 ;; All other specs are registered after VimEnter to minimise startup overhead.
 (local late-modules
-  ["plugins.specs.mini-extra"
+  ["plugins.specs.blink-cmp"
+   "plugins.specs.mini-extra"
    "plugins.specs.mini-icons"
    "plugins.specs.mini-pick"
    "plugins.specs.nvim-treesitter"

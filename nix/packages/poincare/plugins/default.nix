@@ -28,6 +28,7 @@ in
       mini-pick # Picker menu
       smart-splits-nvim # Unified split management binding with tmux
       vim-tmux-navigator # Unified navigation binding with tmux
+      blink-cmp # Fast completion
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy"
