@@ -1,6 +1,7 @@
 (require-macros :plugins.helpers)
 
 (use "nvim-treesitter"
+  :event ["BufReadPost" "BufNewFile"]
   :after
   (fn []
     (set vim.g.skip_ts_context_comment_string_module true)
@@ -100,8 +101,4 @@
        :nsp_interop
        {:enable true
         :peek_definition_code {"df" "@function.outer"
-                               "dF" "@class.outer"}}}})
-
-    (vim.filetype.add
-      {:pattern {".*/hypr/.*%.conf" "hyprlang"}
-       :extension {:sage "python"}})))
+                               "dF" "@class.outer"}}}})))

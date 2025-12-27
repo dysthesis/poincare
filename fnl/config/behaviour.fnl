@@ -48,6 +48,11 @@
 (try-append opt.completeopt "popup")
 (try-append opt.completeopt "fuzzy")
 
+;; Filetype extensions and patterns that should be available before plugins load.
+(vim.filetype.add
+  {:pattern {".*/hypr/.*%.conf" "hyprlang"}
+   :extension {:sage "python"}})
+
 (let [nvim-010? (= 1 (vfn.has "nvim-0.10"))]
   (set! :foldcolumn (if nvim-010? "1" 1))
   (if nvim-010?

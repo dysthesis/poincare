@@ -1,6 +1,7 @@
 (require-macros :plugins.helpers)
 
 (use "mini.icons"
+     :event "DeferredUIEnter"
      :after
      (fn []
        (local mini-icons (require :mini.icons))
