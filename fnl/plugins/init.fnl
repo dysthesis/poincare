@@ -13,6 +13,7 @@
   ["plugins.specs.blink-cmp"
    "plugins.specs.oil"
    "plugins.specs.inc-rename"
+   "plugins.specs.harpoon"
    "plugins.specs.rustaceanvim"
    "plugins.specs.mini-extra"
    "plugins.specs.mini-icons"

@@ -38,6 +38,7 @@ in
       inc-rename-nvim # LSP symbol renaming
       oil-nvim # Edit directories as text buffers
       rustaceanvim # Rust support
+      harpoon2 # Quick bookmarks
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy"

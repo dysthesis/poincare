@@ -12,6 +12,7 @@
   startPlugins = with pkgs.vimPlugins; [
     lz-n
     lzn-auto-require
+    plenary-nvim
   ];
   extraPackages = with pkgs; [
     ripgrep
