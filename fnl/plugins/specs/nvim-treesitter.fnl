@@ -8,7 +8,8 @@
     (when (not vim.g.poincare_ts_grammars_loaded)
       (set vim.g.poincare_ts_grammars_loaded true)
       (each [_ packpath (ipairs (vim.split vim.o.packpath "," {:plain true}))]
-        (local pattern (.. packpath "/pack/*/opt/vimplugin-treesitter-grammar-*"))
+        (local pattern (.. packpath 
+                           "/pack/*/opt/vimplugin-treesitter-grammar-*"))
         (each [_ path (ipairs (vim.fn.glob pattern false true))]
           (local plugin (vim.fn.fnamemodify path ":t"))
           (vim.cmd.packadd plugin)))))

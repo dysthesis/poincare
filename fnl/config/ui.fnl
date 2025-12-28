@@ -20,6 +20,7 @@
 (set! :list true)
 (set! :listchars {:tab "» " :trail "·" :nbsp "␣"})
 (set! :inccommand "split")
+(set! :cmdwinheight 20)
 (set! :cursorline true)
 (set! :scrolloff 10)
 

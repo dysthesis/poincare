@@ -31,6 +31,7 @@ in
       blink-cmp # Fast completion
       ultimate-autopair-nvim # Smarter autopairs that recognises more patterns
       conform-nvim # Asynchronous, automatic formatting
+      inc-rename-nvim # LSP symbol renaming
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy"
