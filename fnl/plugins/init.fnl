@@ -14,6 +14,7 @@
    "plugins.specs.inc-rename"
    "plugins.specs.mini-extra"
    "plugins.specs.mini-icons"
+   "plugins.specs.mini-clue"
    "plugins.specs.mini-pick"
    "plugins.specs.mini-ai"
    "plugins.specs.mini-indentscope"

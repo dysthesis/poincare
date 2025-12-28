@@ -27,6 +27,7 @@ in
       mini-icons # Icons provider
       mini-pick # Picker menu
       mini-ai # More (a)round/(i)nside motions
+      mini-clue # Cheatsheet for keybindings
       mini-indentscope # Visualise indentations
       smart-splits-nvim # Unified split management binding with tmux
       vim-tmux-navigator # Unified navigation binding with tmux
