@@ -1,7 +1,5 @@
 (require-macros :plugins.helpers)
 
-(local km (require :utils.keymap))
-
 (fn inc-rename []
   (let [cmd (.. ":IncRename " (vim.fn.expand "<cword>"))]
     (vim.api.nvim_feedkeys
