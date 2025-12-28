@@ -36,6 +36,7 @@ in
       conform-nvim # Asynchronous, automatic formatting
       inc-rename-nvim # LSP symbol renaming
       oil-nvim # Edit directories as text buffers
+      rustaceanvim # Rust support
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy"

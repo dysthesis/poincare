@@ -12,6 +12,7 @@
   ["plugins.specs.blink-cmp"
    "plugins.specs.oil"
    "plugins.specs.inc-rename"
+   "plugins.specs.rustaceanvim"
    "plugins.specs.mini-extra"
    "plugins.specs.mini-icons"
    "plugins.specs.mini-clue"

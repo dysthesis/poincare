@@ -1,5 +1,6 @@
 (local schedule (require :utils.schedule))
 
+(require :config.codelldb)
 (require :config.behaviour)
 (require :config.ui)
 

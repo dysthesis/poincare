@@ -53,6 +53,9 @@
            :keys "z"}])
        (local clues
          [;; Enhance this by adding descriptions for <leader> mapping groups
+          {:mode "n"
+           :keys "<leader>d"
+           :desc "Diagnostics and debug"}
           ((. gen-clues :builtin_completion))
           ((. gen-clues :g))
           ((. gen-clues :marks))

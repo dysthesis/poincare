@@ -18,6 +18,8 @@
   configDir ? null,
   # Extra packages to make available to Neovim
   extraPackages ? [],
+  # Extra arguments for wrapProgram, e.g. environment variables
+  extraWrapperArgs ? [],
   meta ? {},
 }: let
   inherit
@@ -97,7 +99,8 @@
       ++ withPackpath packpath
       ++ withConfigDir configDir
       ++ withAppname name
-      ++ withExtraPackages extraPackages;
+      ++ withExtraPackages extraPackages
+      ++ extraWrapperArgs;
   in
     # sh
     ''
