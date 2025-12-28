@@ -1,16 +1,16 @@
 (require-macros :plugins.helpers)
 
-(local km (require :utils.keymap))
+(local lazy-call (. (require :utils.keymap) :lazy-call))
 
-(local pick-files (km.lazy-call :mini.pick [:builtin :files]))
-(local pick-grep (km.lazy-call :mini.pick [:builtin :grep_live]))
-(local pick-lines (km.lazy-call :mini.pick [:registry :buffer_lines_current]))
-(local pick-diagnostics (km.lazy-call :mini.extra [:pickers :diagnostic]))
-(local pick-explorer (km.lazy-call :mini.extra [:pickers :explorer]))
-(local pick-git-commits (km.lazy-call :mini.extra [:pickers :git_commits]))
-(local pick-git-branches (km.lazy-call :mini.extra [:pickers :git_branches]))
-(local pick-treesitter (km.lazy-call :mini.extra [:pickers :treesitter]))
-(local pick-lsp (km.lazy-call :mini.extra [:pickers :lsp]))
+(local pick-files (lazy-call :mini.pick [:builtin :files]))
+(local pick-grep (lazy-call :mini.pick [:builtin :grep_live]))
+(local pick-lines (lazy-call :mini.pick [:registry :buffer_lines_current]))
+(local pick-diagnostics (lazy-call :mini.extra [:pickers :diagnostic]))
+(local pick-explorer (lazy-call :mini.extra [:pickers :explorer]))
+(local pick-git-commits (lazy-call :mini.extra [:pickers :git_commits]))
+(local pick-git-branches (lazy-call :mini.extra [:pickers :git_branches]))
+(local pick-treesitter (lazy-call :mini.extra [:pickers :treesitter]))
+(local pick-lsp (lazy-call :mini.extra [:pickers :lsp]))
 
 (use "mini.pick"
    :cmd "Pick"

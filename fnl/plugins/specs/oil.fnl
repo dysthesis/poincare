@@ -1,7 +1,8 @@
 (require-macros :plugins.helpers)
 
-(local km (require :utils.keymap))
-(local oil-open (km.lazy-call :oil :open))
+(local lazy-call (. (require :utils.keymap) :lazy-call))
+
+(local oil-open (lazy-call :oil :open))
 
 (use "oil.nvim"
      :cmd "Oil"

@@ -92,7 +92,7 @@ in
 
         mkdir -p "$(dirname "$outFile")"
         tmp="$(mktemp "''${outFile}.XXXXXX")"
-        fennel --compile "$inFile" > "$tmp"
+        fennel --compile --globals "*" "$inFile" > "$tmp"
         mv -f "$tmp" "$outFile"
       done < <(find "$src" -type f -name '*.fnl' ${findExclude} -print0)
 

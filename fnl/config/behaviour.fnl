@@ -123,15 +123,16 @@
 
 (schedule.group "general"
   [{:events "BufReadPost"
-    :opts {:desc "Restore last cursor position in file"}
-    :callback
-    (fn []
-      (let [pos (vfn.line "'\"")
-            last (vfn.line "$")]
-        (when (and (> pos 0) (<= pos last))
-          (vfn.setpos "." (vfn.getpos "'\"")))))}
+   :opts {:desc "Restore last cursor position in file"}
+   :callback
+   (fn []
+     (let [pos (vfn.line "'\"")
+           last (vfn.line "$")]
+       (when (and (> pos 0) (<= pos last))
+         (vfn.setpos "." (vfn.getpos "'\"")))))}
    {:events ["VimResized"]
-    :opts {:desc "Resize all splits if vim was resized"}
+    :opts {:desc "Resize all splits if vim was resized"
+           :schedule true}
     :callback (fn [] (vim.cmd.tabdo "wincmd ="))}])
 
 (local ignore-filetypes ["gitcommit" "gitrebase" "svg" "hgcommit"])

@@ -6,12 +6,15 @@
           merged (vim.tbl_extend "force" (or ?defaults {}) (or opts {}))]
       (vim.keymap.set mode lhs rhs merged))))
 
-(fn M.lazy-call [mod path]
-  (let [path (if (= (type path) :table) path (if path [path] []))]
-    (fn [...]
-      (var f (require mod))
-      (each [_ p (ipairs path)]
-        (set f (. f p)))
-      (f ...))))
+(fn M.lazy-call [mod ?path]
+  (local path-list
+    (if (= (type ?path) :table)
+        ?path
+        (if ?path [?path] [])))
+  (fn [...]
+    (var target (require mod))
+    (each [_ part (ipairs path-list)]
+      (set target (. target part)))
+    (target ...)))
 
 M

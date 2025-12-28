@@ -5,7 +5,8 @@
 ;; Hardcoded spec module lists to avoid runtimepath scans.
 ;; Register the colourscheme early to reduce visible switching.
 (local early-modules
-  ["plugins.specs.lackluster"])
+  ["plugins.specs.lackluster"
+   "plugins.specs.smart-splits"])
 
 ;; All other specs are registered after VimEnter to minimise startup overhead.
 (local late-modules
@@ -22,7 +23,6 @@
    "plugins.specs.mini-indentscope"
    "plugins.specs.nvim-treesitter"
    "plugins.specs.nvim-treesitter-textobjects"
-   "plugins.specs.smart-splits"
    "plugins.specs.ultimate-autopair"
    "plugins.specs.vim-tmux-navigator"])
 
