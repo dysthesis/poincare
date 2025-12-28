@@ -29,6 +29,7 @@ in
       mini-ai # More (a)round/(i)nside motions
       mini-clue # Cheatsheet for keybindings
       mini-indentscope # Visualise indentations
+      mini-surround # Motions to manipulate surrounding delimiters
       smart-splits-nvim # Unified split management binding with tmux
       vim-tmux-navigator # Unified navigation binding with tmux
       blink-cmp # Fast completion

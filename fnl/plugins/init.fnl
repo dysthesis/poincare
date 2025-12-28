@@ -18,6 +18,7 @@
    "plugins.specs.mini-clue"
    "plugins.specs.mini-pick"
    "plugins.specs.mini-ai"
+   "plugins.specs.mini-surround"
    "plugins.specs.mini-indentscope"
    "plugins.specs.nvim-treesitter"
    "plugins.specs.nvim-treesitter-textobjects"

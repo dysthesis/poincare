@@ -34,7 +34,9 @@
     ];
     forAllSystems = lib.babel.forAllSystems {inherit systems;};
 
-    treefmt = forAllSystems (pkgs: treefmt-nix.lib.evalModule pkgs ./nix/formatters);
+    treefmt =
+      forAllSystems
+      (pkgs: treefmt-nix.lib.evalModule pkgs ./nix/formatters);
   in
     # Budget flake-parts
     mapAttrs (_: forAllSystems) rec {
