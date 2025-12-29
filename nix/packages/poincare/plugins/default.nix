@@ -37,10 +37,14 @@ in
       conform-nvim # Asynchronous, automatic formatting
       inc-rename-nvim # LSP symbol renaming
       oil-nvim # Edit directories as text buffers
-      rustaceanvim # Rust support
       harpoon2 # Quick bookmarks
       zen-mode-nvim # More focused view
       twilight-nvim # Dim text for zen-mode-nvim
+      gitsigns-nvim # Display git deltas on editor
+
+      # Language support
+      rustaceanvim # Rust support
+      lean-nvim # Lean theorem prover
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy"

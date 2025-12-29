@@ -27,6 +27,8 @@
    "plugins.specs.ultimate-autopair"
    "plugins.specs.zen-mode"
    "plugins.specs.twilight"
+   "plugins.specs.lean"
+   "plugins.specs.gitsigns"
    "plugins.specs.vim-tmux-navigator"])
 
 (fn M.setup-modules [modules]
