@@ -25,6 +25,8 @@
    "plugins.specs.nvim-treesitter"
    "plugins.specs.nvim-treesitter-textobjects"
    "plugins.specs.ultimate-autopair"
+   "plugins.specs.zen-mode"
+   "plugins.specs.twilight"
    "plugins.specs.vim-tmux-navigator"])
 
 (fn M.setup-modules [modules]

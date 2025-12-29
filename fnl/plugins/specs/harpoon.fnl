@@ -1,6 +1,5 @@
 (require-macros :plugins.helpers)
 
-
 (fn harpoon-list []
   (: (require :harpoon) :list))
 

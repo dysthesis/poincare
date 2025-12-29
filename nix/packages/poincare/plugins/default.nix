@@ -39,6 +39,8 @@ in
       oil-nvim # Edit directories as text buffers
       rustaceanvim # Rust support
       harpoon2 # Quick bookmarks
+      zen-mode-nvim # More focused view
+      twilight-nvim # Dim text for zen-mode-nvim
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy"
