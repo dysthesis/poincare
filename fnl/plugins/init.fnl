@@ -29,6 +29,7 @@
    "plugins.specs.twilight"
    "plugins.specs.lean"
    "plugins.specs.gitsigns"
+   "plugins.specs.nvim-lint"
    "plugins.specs.vim-tmux-navigator"])
 
 (fn M.setup-modules [modules]

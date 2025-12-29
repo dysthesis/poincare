@@ -41,6 +41,7 @@ in
       zen-mode-nvim # More focused view
       twilight-nvim # Dim text for zen-mode-nvim
       gitsigns-nvim # Display git deltas on editor
+      nvim-lint # Lint diagnostics
 
       # Language support
       rustaceanvim # Rust support
