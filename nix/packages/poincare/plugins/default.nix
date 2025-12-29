@@ -42,6 +42,7 @@ in
       twilight-nvim # Dim text for zen-mode-nvim
       gitsigns-nvim # Display git deltas on editor
       nvim-lint # Lint diagnostics
+      flash-nvim # Quick jumps
 
       # Language support
       rustaceanvim # Rust support
