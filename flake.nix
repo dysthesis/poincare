@@ -34,11 +34,19 @@
     ];
     forAllSystems = lib.babel.forAllSystems {inherit systems;};
 
-    treefmt = forAllSystems (pkgs: treefmt-nix.lib.evalModule pkgs ./nix/formatters);
+    treefmt =
+      forAllSystems
+      (pkgs: treefmt-nix.lib.evalModule pkgs ./nix/formatters);
   in
     # Budget flake-parts
-    mapAttrs (_: forAllSystems) {
-      devShells = pkgs: {default = import ./nix/shell pkgs;};
+    mapAttrs (_: forAllSystems) rec {
+      devShells = pkgs: {
+        default =
+          import
+          ./nix/shell
+          pkgs
+          (packages pkgs).poincare;
+      };
       # for `nix fmt`
       formatter = pkgs: treefmt.${pkgs.system}.config.build.wrapper;
       # for `nix flake check`

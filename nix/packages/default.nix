@@ -4,10 +4,9 @@
   lib,
   inputs,
   ...
-}:
-rec {
+}: rec {
   default = poincare;
-  poincare = pkgs.callPackage ./poincare.nix {
+  poincare = pkgs.callPackage ./poincare {
     inherit
       pkgs
       inputs
