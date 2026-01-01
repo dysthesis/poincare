@@ -1,7 +1,7 @@
 (require-macros :plugins.helpers)
 
 (use "nvim-treesitter"
-  :event "DeferredUIEnter"
+  :lazy false
   :load
   (fn [name]
     (vim.cmd.packadd name)
