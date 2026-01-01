@@ -19,7 +19,7 @@
 
     ((. (require :lz.n) :trigger_load) "nvim-treesitter-textobjects")
 
-    ((. (require :nvim-treesitter) :setup)
+    ((. (require :nvim-treesitter.configs) :setup)
      {:highlight {:enable true
                   :disable ["latex"]}
       :incremental_selection
