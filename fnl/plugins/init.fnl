@@ -6,6 +6,8 @@
 ;; Register the colourscheme early to reduce visible switching.
 (local early-modules
   ["plugins.specs.lackluster"
+   "plugins.specs.nvim-treesitter"
+   "plugins.specs.nvim-treesitter-textobjects"
    "plugins.specs.smart-splits"])
 
 ;; All other specs are registered after VimEnter to minimise startup overhead.
@@ -22,8 +24,6 @@
    "plugins.specs.mini-ai"
    "plugins.specs.mini-surround"
    "plugins.specs.mini-indentscope"
-   "plugins.specs.nvim-treesitter"
-   "plugins.specs.nvim-treesitter-textobjects"
    "plugins.specs.ultimate-autopair"
    "plugins.specs.zen-mode"
    "plugins.specs.twilight"
