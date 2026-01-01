@@ -20,8 +20,7 @@
     ((. (require :lz.n) :trigger_load) "nvim-treesitter-textobjects")
 
     ((. (require :nvim-treesitter.configs) :setup)
-     {:highlight {:enable true
-                  :disable ["latex"]}
+     {:highlight {:enable true}
       :incremental_selection
       {:enable true
        :keymaps {:init_selection "<cr>"
