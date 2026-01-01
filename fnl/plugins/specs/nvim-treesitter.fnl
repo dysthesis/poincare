@@ -19,7 +19,7 @@
 
     ((. (require :lz.n) :trigger_load) "nvim-treesitter-textobjects")
 
-    ((. (require :nvim-treesitter.configs) :setup)
+    ((. (require :nvim-treesitter) :setup)
      {:highlight {:enable true}
       :incremental_selection
       {:enable true
