@@ -17,3 +17,7 @@
 (schedule.require-on ["BufReadPre" "BufNewFile"]
   "config.lsp"
   {:desc "Load LSP config on first file read"})
+
+(schedule.require-on ["BufReadPre" "BufNewFile"]
+  "config.complexity"
+  {:desc "Load complexity hints on first file read"})

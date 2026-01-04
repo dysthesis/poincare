@@ -77,7 +77,7 @@
    :on_init
    (fn [client init-result]
      (when (?. init-result :offsetEncoding)
-       (tset client :offset_encoding (?. init-result :offsetEncoding))))
+       (set client.offset_encoding (?. init-result "offsetEncoding"))))
    :on_attach
    (fn [client bufnr]
      (api.nvim_buf_create_user_command
