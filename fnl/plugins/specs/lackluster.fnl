@@ -11,7 +11,7 @@
                                           :menu      :none
                                           :popup     :none}})
 
-    (vim.cmd.colorscheme :lackluster-night)
+    (lackluster.load {:theme "minimal"})
     (vim.api.nvim_set_hl 0
                          :Folded
                          {:bg "#191919"})))

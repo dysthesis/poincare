@@ -39,16 +39,23 @@
 (var seq 0)
 (local pending {})
 
+(fn normalize-buf [bufnr]
+  (if (or (not bufnr) (= bufnr 0))
+      (api.nvim_get_current_buf)
+      bufnr))
+
 (fn clear-marks [bufnr]
-  (when (api.nvim_buf_is_valid bufnr)
-    (api.nvim_buf_clear_namespace bufnr ns-id 0 -1)))
+  (local buf (normalize-buf bufnr))
+  (when (api.nvim_buf_is_valid buf)
+    (api.nvim_buf_clear_namespace buf ns-id 0 -1)))
 
 (fn buf-eligible? [bufnr]
-  (and (api.nvim_buf_is_valid bufnr)
-       (= (api.nvim_get_option_value "buftype" {:buf bufnr}) "")
-       (= (api.nvim_get_option_value "modifiable" {:buf bufnr}) true)
-       (not= (api.nvim_get_option_value "filetype" {:buf bufnr}) "")
-       (<= (api.nvim_buf_line_count bufnr) opts.max_lines)))
+  (let [buf (normalize-buf bufnr)]
+    (and (api.nvim_buf_is_valid buf)
+         (= (api.nvim_get_option_value "buftype" {:buf buf}) "")
+         (= (api.nvim_get_option_value "modifiable" {:buf buf}) true)
+         (not= (api.nvim_get_option_value "filetype" {:buf buf}) "")
+         (<= (api.nvim_buf_line_count buf) opts.max_lines))))
 
 (fn get-lang [bufnr]
   (local ft (api.nvim_get_option_value "filetype" {:buf bufnr}))
@@ -56,6 +63,13 @@
       nil
       (let [(ok lang) (pcall vim.treesitter.language.get_lang ft)]
         (if (and ok lang) lang ft))))
+
+(fn ensure-parser [bufnr]
+  (local lang (get-lang bufnr))
+  (when lang
+    (let [(ok _) (pcall vim.treesitter.get_parser bufnr lang)]
+      (when (not ok)
+        (pcall vim.treesitter.start bufnr lang)))))
 
 (fn get-query [lang]
   (let [(ok q) (pcall vim.treesitter.query.get lang "complexity")]
@@ -98,27 +112,28 @@
       (.. opts.prefix count)))
 
 (fn update-buffer [bufnr]
-  (if (or (not opts.enabled) (not (buf-eligible? bufnr)))
-      (clear-marks bufnr)
-      (let [lang (get-lang bufnr)]
+  (local buf (normalize-buf bufnr))
+  (if (or (not opts.enabled) (not (buf-eligible? buf)))
+      (clear-marks buf)
+      (let [lang (get-lang buf)]
         (if (not lang)
-            (clear-marks bufnr)
-            (let [(ok parser) (pcall vim.treesitter.get_parser bufnr lang)]
+            (clear-marks buf)
+            (let [(ok parser) (pcall vim.treesitter.get_parser buf lang)]
               (if (not ok)
-                  (clear-marks bufnr)
+                  (clear-marks buf)
                   (let [trees (parser:parse)
                         tree (. trees 1)]
                     (if (not tree)
-                        (clear-marks bufnr)
+                        (clear-marks buf)
                         (let [root (tree:root)
                               (query kind) (get-query lang)]
                           (if (not query)
-                              (clear-marks bufnr)
+                              (clear-marks buf)
                               (let [captures (. query :captures)
                                     functions {}]
 
                                 ;; Collect function-like nodes first.
-                                (each [id node _ (query:iter_captures root bufnr 0 -1)]
+                                (each [id node _ (query:iter_captures root buf 0 -1)]
                                   (let [cap (. captures id)]
                                     (when (function-capture? cap kind)
                                       (let [key (node-key node)]
@@ -126,10 +141,10 @@
 
                                 (let [has-functions (not= (next functions) nil)]
                                   (when (not has-functions)
-                                    (clear-marks bufnr))
+                                    (clear-marks buf))
                                   (when has-functions
                                     ;; Accumulate decision nodes into the nearest function ancestor.
-                                    (each [id node _ (query:iter_captures root bufnr 0 -1)]
+                                    (each [id node _ (query:iter_captures root buf 0 -1)]
                                       (let [cap (. captures id)]
                                         (when (decision-capture? cap kind)
                                           (var cur node)
@@ -144,7 +159,7 @@
                                             (set info.count (+ info.count 1)))))))
 
                                     ;; Render hints.
-                                    (clear-marks bufnr)
+                                    (clear-marks buf)
                                     (each [_ info (pairs functions)]
                                       (let [count (. info :count)]
                                         (when (>= count opts.min)
@@ -153,7 +168,7 @@
                                                 text (format-text count)
                                                 hl-group (pick-hl-group count)]
                                             (api.nvim_buf_set_extmark
-                                              bufnr
+                                              buf
                                               ns-id
                                               sr
                                               0
@@ -164,18 +179,21 @@
 )
 
 (fn schedule-update [bufnr]
+  (local buf (normalize-buf bufnr))
+  (ensure-parser buf)
   (set seq (+ seq 1))
   (local token seq)
-  (tset pending bufnr token)
+  (tset pending buf token)
   (vim.defer_fn
     (fn []
-      (when (= (. pending bufnr) token)
-        (tset pending bufnr nil)
-        (update-buffer bufnr)))
+      (when (= (. pending buf) token)
+        (tset pending buf nil)
+        (update-buffer buf)))
     opts.debounce_ms))
 
 (schedule.group "complexity_hints"
-  [{:events ["BufEnter" "BufWritePost" "InsertLeave" "TextChanged" "TextChangedI"]
+  [{:events ["BufEnter" "BufReadPost" "BufNewFile" "FileType"
+             "BufWritePost" "InsertLeave" "TextChanged" "TextChangedI"]
     :opts {:desc "Update cyclomatic complexity hints"}
     :callback (fn [ev] (schedule-update ev.buf))}]
   {:clear true})
