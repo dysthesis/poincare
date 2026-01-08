@@ -1,18 +1,5 @@
 {
   "pins": {
-    "lackluster.nvim": {
-      "type": "Git",
-      "repository": {
-        "type": "GitHub",
-        "owner": "dysthesis",
-        "repo": "lackluster.nvim"
-      },
-      "branch": "main",
-      "submodules": false,
-      "revision": "2d60173f283fa7c71ff575bd8090f3e55a1af524",
-      "url": "https://github.com/dysthesis/lackluster.nvim/archive/2d60173f283fa7c71ff575bd8090f3e55a1af524.tar.gz",
-      "hash": "0vsa21b0pj7xh0wrlyzcblvl9ghwv22nb7r9a6kayjagxhslg3q0"
-    },
     "nvim-treesitter-textobjects": {
       "type": "Git",
       "repository": {
