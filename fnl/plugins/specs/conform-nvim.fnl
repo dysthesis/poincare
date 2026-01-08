@@ -17,26 +17,23 @@
             (table.insert acc formatter))))
       acc)
 
-    ;; Define the formatters to use for each language
     (local formatter-spec
-           {:lua [["stylua"]]
-            :markdown [["markdownlint"]]
-            :nix [["alejandra"]]
-            :c [["clang-format"]]
-            :rust [["rustfmt"]]
-            :go [["go/fmt" "gofmt"]]
-            :ocaml [["ocamlformat"]]})
+      {:lua [["stylua"]]
+      :markdown [["markdownlint"]]
+      :nix [["alejandra"]]
+      :c [["clang-format"]]
+      :rust [["rustfmt"]]
+      :go [["gofmt"]]
+      :ocaml [["ocamlformat"]]})
 
     (fn available-formaters-by-ft [spec]
       "Filter out spec by whether the actual formatter binaries are found"
       (let [out {}]
-        ;; Split the key and value of the spec
         (each [ft entries (pairs spec)]
-          ;; Filter out the value by available formatters
           (let [formatters (formatters-if-available entries)]
-            ;; Only add them if there are any in the first place
             (when (> (# formatters) 0)
-              (tset out ft formatters))))))
+              (tset out ft formatters))))
+        out))
 
     ;; Disable "format_on_save" LSP fallback for filetypes that do not have a
     ;; well standardised coding style. Add filetypes to disable, or remove
