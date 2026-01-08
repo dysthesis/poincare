@@ -1,7 +1,7 @@
 (require-macros :plugins.helpers)
 
 (use "conform.nvim"
-  :event "BufWritePre"
+  :event ["BufWritePre" "BufNewFile"]
   :after
   (fn []
     (local conform (require :conform))

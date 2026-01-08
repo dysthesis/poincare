@@ -14,6 +14,7 @@
 (local late-modules
   ["plugins.specs.blink-cmp"
    "plugins.specs.oil"
+   "plugins.specs.conform"
    "plugins.specs.inc-rename"
    "plugins.specs.harpoon"
    "plugins.specs.rustaceanvim"
