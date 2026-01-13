@@ -15,6 +15,7 @@
   ["plugins.specs.friendly-snippets"
    "plugins.specs.luasnip"
    "plugins.specs.blink-cmp"
+   "plugins.specs.todo-comments"
    "plugins.specs.oil"
    "plugins.specs.conform"
    "plugins.specs.inc-rename"

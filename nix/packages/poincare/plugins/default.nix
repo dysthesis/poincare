@@ -45,6 +45,7 @@ in
       gitsigns-nvim # Display git deltas on editor
       nvim-lint # Lint diagnostics
       flash-nvim # Quick jumps
+      todo-comments-nvim # Highlight and navigate TOOD comments
 
       # Language support
       rustaceanvim # Rust support
