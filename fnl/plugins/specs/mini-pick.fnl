@@ -38,6 +38,9 @@
 
    :after
    (fn []
+     ;; Load icons early so pick menus render with glyphs even if DeferredUIEnter hasn't fired.
+     (require :mini.icons)
+
      (local api vim.api)
      (local MiniPick (require :mini.pick))
      (local MiniExtra (require :mini.extra))
