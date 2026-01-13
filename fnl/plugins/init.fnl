@@ -12,7 +12,9 @@
 
 ;; All other specs are registered after VimEnter to minimise startup overhead.
 (local late-modules
-  ["plugins.specs.blink-cmp"
+  ["plugins.specs.friendly-snippets"
+   "plugins.specs.luasnip"
+   "plugins.specs.blink-cmp"
    "plugins.specs.oil"
    "plugins.specs.conform"
    "plugins.specs.inc-rename"

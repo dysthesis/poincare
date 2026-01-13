@@ -40,6 +40,7 @@
                                    :highlight kind-icon-highlight}}}}}
       :fuzzy {:implementation "rust"}
       :appearance {:use_nvim_cmp_as_default false}
+      :snippets {:preset "luasnip"}
       :signature {:enabled true}
       :cmdline {:completion {:ghost_text {:enabled false}}}
       :sources {:default default-sources}})))
