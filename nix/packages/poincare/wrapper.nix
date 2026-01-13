@@ -33,7 +33,6 @@
   # Pull all the dependencies of each plugin in the list
   foldPlugins = builtins.foldl' (
     acc: next:
-      builtins.trace "${next} depends on ${toString next.dependencies or []}"
       acc
       ++ [next]
       ++ (foldPlugins (next.dependencies or []))

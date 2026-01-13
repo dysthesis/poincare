@@ -4,6 +4,32 @@
   :event "InsertEnter"
   :after
   (fn []
+    ;; Ensure LuaSnip is available before blink.cmp asks for the snippet preset.
+    (pcall vim.cmd "packadd luasnip")
+    (local pack
+      (or (. table :pack)
+          (fn [...]
+            (local t [...])
+            (set t.n (select "#" ...))
+            t)))
+    (let [lzn-res (pack (pcall require :lzn-auto-require))]
+      (local ok-lzn (. lzn-res 1))
+      (local lzn (. lzn-res 2))
+      (when ok-lzn ((. lzn :disable)))
+
+      (local pcall-res (pack (pcall require :luasnip)))
+      (var ok (. pcall-res 1))
+      (var ls (. pcall-res 2))
+      (when (and ok (= (type ls) :function))
+        ;; Call loader placeholder to obtain the real module and cache it.
+        (local pcall-res2 (pack (pcall ls)))
+        (set ok (. pcall-res2 1))
+        (set ls (. pcall-res2 2)))
+      (when (and ok (= (type ls) :table))
+        (set (. package.loaded :luasnip) ls))
+
+      (when ok-lzn ((. lzn :enable))))
+
     (local cmp (require :blink.cmp))
     (local mini-icons (require :mini.icons))
     (local comment-nodes ["comment" "line_comment" "block_comment"])

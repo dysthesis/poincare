@@ -33,7 +33,7 @@ in
       smart-splits-nvim # Unified split management binding with tmux
       vim-tmux-navigator # Unified navigation binding with tmux
       blink-cmp # Fast completion
-      LuaSnip # Snippet engine
+      luasnip # Snippet engine
       friendly-snippets # Community snippet collection
       ultimate-autopair-nvim # Smarter autopairs that recognises more patterns
       conform-nvim # Asynchronous, automatic formatting
