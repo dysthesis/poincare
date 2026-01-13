@@ -5,7 +5,7 @@
 ;; Hardcoded spec module lists to avoid runtimepath scans.
 ;; Register the colourscheme early to reduce visible switching.
 (local early-modules
-  ["plugins.specs.lackluster"
+  ["plugins.specs.minimal"
    "plugins.specs.nvim-treesitter"
    "plugins.specs.nvim-treesitter-textobjects"
    "plugins.specs.smart-splits"])
