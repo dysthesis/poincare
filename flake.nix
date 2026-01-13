@@ -8,21 +8,21 @@
     };
 
     # Personal library
-    babel = {
-      url = "github:dysthesis/babel";
+    nixpressions = {
+      url = "github:dysthesis/nixpressions";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
   outputs = inputs @ {
     self,
-    babel,
+    nixpressions,
     nixpkgs,
     treefmt-nix,
     ...
   }: let
     inherit (builtins) mapAttrs;
-    inherit (babel) mkLib;
+    inherit (nixpressions) mkLib;
     lib = mkLib nixpkgs;
 
     # Systems to support
