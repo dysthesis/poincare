@@ -3,6 +3,7 @@
 (require :config.codelldb)
 (require :config.behaviour)
 (require :config.ui)
+(require :config.treesitter-rust-override)
 
 (schedule.require-on "UIEnter"
   "config.statusline"
