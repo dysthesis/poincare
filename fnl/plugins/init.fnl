@@ -21,6 +21,7 @@
    "plugins.specs.inc-rename"
    "plugins.specs.harpoon"
    "plugins.specs.rustaceanvim"
+   "plugins.specs.rustowl"
    "plugins.specs.mini-extra"
    "plugins.specs.mini-icons"
    "plugins.specs.mini-clue"

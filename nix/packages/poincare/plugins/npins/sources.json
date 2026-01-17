@@ -25,6 +25,22 @@
       "revision": "baa6b4ec28c8be5e4a96f9b1b6ae9db85ec422f8",
       "url": "https://github.com/nvim-treesitter/nvim-treesitter-textobjects/archive/baa6b4ec28c8be5e4a96f9b1b6ae9db85ec422f8.tar.gz",
       "hash": "0mzj10dj4spbl7iv6yr47bl8hsd4j82qjicbiw0plaa89dlxkfci"
+    },
+    "rustowl": {
+      "type": "GitRelease",
+      "repository": {
+        "type": "GitHub",
+        "owner": "cordx56",
+        "repo": "rustowl"
+      },
+      "pre_releases": false,
+      "version_upper_bound": null,
+      "release_prefix": null,
+      "submodules": false,
+      "version": "v0.3.4",
+      "revision": "aaf7d15cc55ff6f48c577cdd6352d51fbc031aea",
+      "url": "https://api.github.com/repos/cordx56/rustowl/tarball/v0.3.4",
+      "hash": "1vrg92wcg7chd26j3xjmglwynhfnb6cxh2j0sgpn74wr70nra9x4"
     }
   },
   "version": 5
