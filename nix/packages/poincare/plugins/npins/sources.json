@@ -9,9 +9,9 @@
       },
       "branch": "main",
       "submodules": false,
-      "revision": "3590d91ec33e286eae4c7015d6c89c4f355028e3",
-      "url": "https://github.com/dysthesis/minimal.nvim/archive/3590d91ec33e286eae4c7015d6c89c4f355028e3.tar.gz",
-      "hash": "0dag8h6bkdj5wzcyh896xf57xvz1xpjy7i19ikkw50m6qhb6llq2"
+      "revision": "95351c55e418dfa1f278247a01230c1bfbe29c15",
+      "url": "https://github.com/dysthesis/minimal.nvim/archive/95351c55e418dfa1f278247a01230c1bfbe29c15.tar.gz",
+      "hash": "0njg1an88vc179whq8lr8jjakjchlh5f5jimf90df7xk9k7j14cd"
     },
     "nvim-treesitter-textobjects": {
       "type": "Git",
