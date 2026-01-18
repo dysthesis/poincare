@@ -1,18 +1,5 @@
 {
   description = "A flake of chaos.";
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs";
-    treefmt-nix = {
-      url = "github:numtide/treefmt-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # Personal library
-    nixpressions = {
-      url = "github:dysthesis/nixpressions";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-  };
 
   outputs = inputs @ {
     self,
@@ -63,4 +50,23 @@
             ;
         };
     };
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs";
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    rustowl = {
+      url = "github:nix-community/rustowl-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Personal library
+    nixpressions = {
+      url = "github:dysthesis/nixpressions";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
 }

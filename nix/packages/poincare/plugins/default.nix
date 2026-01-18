@@ -46,6 +46,7 @@ in
       nvim-lint # Lint diagnostics
       flash-nvim # Quick jumps
       todo-comments-nvim # Highlight and navigate TOOD comments
+      inputs.rustowl.packages.${pkgs.system}.rustowl-nvim
 
       # Language support
       rustaceanvim # Rust support
