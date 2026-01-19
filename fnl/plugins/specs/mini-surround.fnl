@@ -1,13 +1,12 @@
 (require-macros :plugins.helpers)
 
 (local surround-opts
-  ;; Use `ys` (à la tpope/vim-surround) to avoid clashing with Flash's `S`
-  ;; Treesitter jump while keeping familiar `ds`/`cs` motions.
-  {:mappings {:add "ys"
-              :delete "ds"
-              :replace "cs"
-              :find "gs"
-              :find_left "gS"}})
+  ;; Use `g`-prefixed mappings to avoid `y` ambiguity and keep Flash on `s/S`.
+  {:mappings {:add "ga"
+              :delete "gd"
+              :replace "gc"
+              :find "gf"
+              :find_left "gF"}})
 
 (use "mini.surround"
      :event "BufReadPost"
