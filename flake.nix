@@ -64,7 +64,7 @@
     };
 
     tachyon = {
-      url = "path:/home/demiurge/Documents/Projects/tachyon";
+      url = "github:dysthesis/tachyon";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

@@ -326,14 +326,17 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1768899488,
-        "narHash": "sha256-pIEoOg/StRYKzPtJpq5ERwu4Sn60FKP3WS0v/eSmMWs=",
-        "path": "/home/demiurge/Documents/Projects/tachyon",
-        "type": "path"
+        "lastModified": 1768948813,
+        "narHash": "sha256-iatvtL+vryCSSdUbYnAIbSZijgZNTcWW276a9uQuNV8=",
+        "owner": "dysthesis",
+        "repo": "tachyon",
+        "rev": "8ec0ddd3725c456c1f309f3175c82bb1c6c306f0",
+        "type": "github"
       },
       "original": {
-        "path": "/home/demiurge/Documents/Projects/tachyon",
-        "type": "path"
+        "owner": "dysthesis",
+        "repo": "tachyon",
+        "type": "github"
       }
     },
     "treefmt": {

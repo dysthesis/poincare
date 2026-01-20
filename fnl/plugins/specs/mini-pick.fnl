@@ -34,10 +34,17 @@
       "Find [I]mplementation")
     (keymap "<leader>T" pick-treesitter "Find [T]reesitter nodes")]
 
+   :load
+   (fn [name]
+     (vim.cmd.packadd :tachyon)
+     (vim.cmd.packadd name))
+
    :after
    (fn []
-     ;; Load icons early so pick menus render with glyphs even if DeferredUIEnter hasn't fired.
+     ;; Load icons early so pick menus render with glyphs even if 
+     ;; DeferredUIEnter hasn't fired.
      (require :mini.icons)
+     (vim.cmd.packadd :tachyon)
 
      (local api vim.api)
      (local MiniPick (require :mini.pick))
@@ -90,10 +97,18 @@
          (local local-opts {:scope "current"})
          ((. MiniExtra :pickers :buf_lines) local-opts
            {:source {:show show-cur-buf-lines}})))
+ 
+     (fn tachyon-match [stritems inds query_tbl opts]
+       (local tachyon (require :tachyon))
+       (local engine (tachyon.new stritems {:match_paths true
+                                            :literal false}))
+       (local q (table.concat query_tbl ""))
+       (local limit (or (and opts opts.limit) nil))
+       (engine:match inds q limit))
 
      ;; Regular MiniPick setup.
      ((. MiniPick :setup)
-      {:options {:use_cache true}
+      {:source {:match tachyon-match}
        :mappings {:move_down "<C-j>"
                   :move_up "<C-k>"}
        :window {:prompt_prefix "   "
