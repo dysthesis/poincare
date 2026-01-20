@@ -63,6 +63,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    tachyon = {
+      url = "path:/home/demiurge/Documents/Projects/tachyon";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Personal library
     nixpressions = {
       url = "github:dysthesis/nixpressions";

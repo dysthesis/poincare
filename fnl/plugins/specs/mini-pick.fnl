@@ -1,7 +1,5 @@
 (require-macros :plugins.helpers)
-
 (local lazy-call (. (require :utils.keymap) :lazy-call))
-
 (local pick-files (lazy-call :mini.pick [:builtin :files]))
 (local pick-grep (lazy-call :mini.pick [:builtin :grep_live]))
 (local pick-lines (lazy-call :mini.pick [:registry :buffer_lines_current]))

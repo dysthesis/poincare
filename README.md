@@ -1,7 +1,7 @@
 # Poincare
 
 This is my personal Neovim flake. The configuration is written in Fennel, and
-compiled into Lua during the Nix build process. Hence, there is no need for 
+compiled into Lua during the Nix build process. Hence, there is no need for
 plugins which provide runtime support for Fennel.
 
 - `fnl/lib/` providess nice abstractions for configuring Neovim. Basically all

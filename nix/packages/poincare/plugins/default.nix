@@ -46,11 +46,12 @@ in
       nvim-lint # Lint diagnostics
       flash-nvim # Quick jumps
       todo-comments-nvim # Highlight and navigate TOOD comments
-      inputs.rustowl.packages.${pkgs.system}.rustowl-nvim
+      inputs.tachyon.packages.${pkgs.system}.default # Custom fuzzy matcher
 
       # Language support
       rustaceanvim # Rust support
       lean-nvim # Lean theorem prover
+      inputs.rustowl.packages.${pkgs.system}.rustowl-nvim # Rust lifetimes
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy"
