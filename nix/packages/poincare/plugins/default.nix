@@ -47,6 +47,7 @@ in
       flash-nvim # Quick jumps
       todo-comments-nvim # Highlight and navigate TOOD comments
       inputs.tachyon.packages.${pkgs.system}.default # Custom fuzzy matcher
+      zk-nvim # Note-taking
 
       # Language support
       rustaceanvim # Rust support
