@@ -62,8 +62,7 @@
       (prune-empty
         {:zig (linters-if-available [["zlint"]])
          :rust (linters-if-available [["clippy" "cargo"]])
-         :nix (linters-if-available [["deadnix" "statix"]])
-         :markdown (linters-if-available [["vale"]])}))
+         :nix (linters-if-available [["deadnix" "statix"]])}))
 
     (set lint.linters_by_ft linters-by-ft)
 
