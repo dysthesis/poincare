@@ -30,15 +30,11 @@
     else "liblldb.so";
   liblldbPath = "${codelldbExt}/share/vscode/extensions/vadimcn.vscode-lldb/lldb/lib/${liblldbName}";
 
-  buildFennel = pkgs.callPackage ./fennel.nix {};
-  configDir = buildFennel {
-    pname = "${name}-cfg";
-    src = self;
-    compileOnlyDirs = ["fnl/lib"];
-    extraDirs = [
-      "after"
-    ];
-  };
+  configDir =
+    pkgs.runCommand "${name}-cfg" {} ''
+      mkdir -p "$out"
+      cp ${./init.lua} "$out/init.lua"
+    '';
 in
   pkgs.callPackage ./wrapper.nix {
     inherit
