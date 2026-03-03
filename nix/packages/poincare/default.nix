@@ -1,5 +1,4 @@
 {
-  self,
   inputs,
   pkgs,
   lib,
@@ -11,8 +10,6 @@
   startPlugins = with pkgs.vimPlugins; [
     lz-n
     lzn-auto-require
-    plenary-nvim
-    nvim-treesitter.withAllGrammars
   ];
 
   extraPackages = with pkgs; [
@@ -30,11 +27,38 @@
     else "liblldb.so";
   liblldbPath = "${codelldbExt}/share/vscode/extensions/vadimcn.vscode-lldb/lldb/lib/${liblldbName}";
 
-  configDir =
-    pkgs.runCommand "${name}-cfg" {} ''
-      mkdir -p "$out"
-      cp ${./init.lua} "$out/init.lua"
-    '';
+  configDir = pkgs.runCommand "${name}-cfg" {} ''
+    mkdir -p "$out"
+    cp ${../../..}/init.lua "$out/init.lua"
+
+    # Copy common Neovim runtime directories when present in the repo root.
+    for d in \
+      after \
+      autoload \
+      colors \
+      compiler \
+      doc \
+      ftdetect \
+      ftplugin \
+      indent \
+      keymap \
+      lua \
+      pack \
+      plugin \
+      queries \
+      rplugin \
+      spell \
+      syntax \
+      syntax_checkers \
+      tutor \
+      snippets \
+    ; do
+      src="${../../..}/$d"
+      if [ -d "$src" ]; then
+        cp -r "$src" "$out/"
+      fi
+    done
+  '';
 in
   pkgs.callPackage ./wrapper.nix {
     inherit
