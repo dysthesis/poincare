@@ -2,6 +2,7 @@
   inputs,
   pkgs,
   lib,
+  self,
   ...
 }: let
   name = "poincare";
@@ -77,6 +78,10 @@ in
       "LIBLLDB_PATH"
       liblldbPath
     ];
+
+    extraPassthru = {
+      checks = self.checks.${pkgs.system};
+    };
 
     meta.mainProgram = "nvim";
   }

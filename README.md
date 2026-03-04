@@ -1,6 +1,6 @@
 # Poincare
 
-This is my personal Neovim configuration that has the twin goals of being 
+This is my personal Neovim configuration that has the twin goals of being
 
 - as minimal as possible, but not more, and
 - as fast as possible.
@@ -11,12 +11,19 @@ least amount of code possible. Any less, and it is not minimal -- it is simply
 insufficient.
 
 In general, the goal of minimality is robustness, stability, and reliability.
-I understand the Lua layer to be, while extremely useful to extend the 
+I understand the Lua layer to be, while extremely useful to extend the
 capabilities of Neovim, necessarily more brittle than the C core itself.
 
 Of course, I don't think, at the moment, that there is such a thing as being
 "too fast". Therefore, we aim to make it as fast as possible without sacrificing
 functionality or minimality.
+
+## Development
+
+- Enter shell: `nix develop`
+- Format: `nix fmt`
+- Lint: `selene .` and `luacheck .` (also run via `nix flake check`)
+- Full validation: `nix flake check --print-build-logs`
 
 ## Use of plugins
 

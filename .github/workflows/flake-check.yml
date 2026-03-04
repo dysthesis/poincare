@@ -1,0 +1,27 @@
+name: Nix Flake Check
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  flake-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v11
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@v5
+
+      - name: Run flake checks
+        run: nix flake check --print-build-logs

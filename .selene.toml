@@ -1,0 +1,6 @@
+std = "lua51+neovim"
+exclude = [
+  "nix/**",
+  ".direnv/**",
+  "result/**"
+]

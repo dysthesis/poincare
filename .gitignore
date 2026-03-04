@@ -1,4 +1,6 @@
 .direnv/
 .luarc.json
 **result
+.selene/
+.luacov*
 flsproject.fnl
