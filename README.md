@@ -41,6 +41,14 @@ Text, by itself, forms structure, and while (Neo)vim inherently provides ample
 primitives to work with text structures, given its text-as-objects paradigm, we
 can (and should!) improve on that.
 
+#### Lines
+
+One of the most basic structures of text is lines. (Neo)vim provides motions as
+navigation primitives to move around with respect to it. However, to be able to
+determine the most efficient motions to navigate to a given target line, it helps
+to know the exact offset of it relative to the current cursor's position. Hence,
+relative line numbering is always enabled.
+
 #### Syntax awareness
 
 I think tree-sitter integration is a must.
