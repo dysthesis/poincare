@@ -18,6 +18,24 @@ Of course, I don't think, at the moment, that there is such a thing as being
 "too fast". Therefore, we aim to make it as fast as possible without sacrificing
 functionality or minimality.
 
+## Use of plugins
+
+I think that a plugin should be used if a given functional requirement cannot
+be solved in a simple manner that requires only a modest amount of code, for
+some definition of modest. I think that there exist a threshold such that, if
+the addition of a sufficiently large amount of Lua code cannot be avoided,
+relying on plugins would be preferable, as it would provide community support
+and maintenance.
+
+A custom solution is considered _modest_, and thus preferable to a plugin, if
+
+- it is _stateless_,
+- it relies strictly on standard Neo(vim) API, _and_
+- it is under 100 lines of code.
+
+If any of the above criterion is not fulfilled, then a plugin should be used
+(unless, of course, one does not exist!).
+
 ## Requirements
 
 In order to evaluate minimality, we would necessarily require a specification of
