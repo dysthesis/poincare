@@ -21,14 +21,12 @@
   ];
 
   codelldbExt = pkgs.vscode-extensions.vadimcn.vscode-lldb;
-  codelldbPath = 
-    "${codelldbExt}/share/vscode/extensions/vadimcn.vscode-lldb/adapter/codelldb";
+  codelldbPath = "${codelldbExt}/share/vscode/extensions/vadimcn.vscode-lldb/adapter/codelldb";
   liblldbName =
     if pkgs.stdenv.hostPlatform.isDarwin
     then "liblldb.dylib"
     else "liblldb.so";
-  liblldbPath = 
-    "${codelldbExt}/share/vscode/extensions/vadimcn.vscode-lldb/lldb/lib/${liblldbName}";
+  liblldbPath = "${codelldbExt}/share/vscode/extensions/vadimcn.vscode-lldb/lldb/lib/${liblldbName}";
 
   configDir = pkgs.runCommand "${name}-cfg" {} ''
     mkdir -p "$out"

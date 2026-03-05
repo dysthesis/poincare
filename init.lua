@@ -26,7 +26,26 @@ vim.wo.relativenumber = true
 opt.colorcolumn = '80'
 
 --- Statusline
-cmd([[set statusline=%f%m%=%y\ 0x%B\ %l:%c\ %p%%]])
+
+cmd([[hi StatusMode gui=bold cterm=bold]])
+_G.mode_abbr = function()
+  return ({
+    n = 'NOR',
+    no = 'NOR',
+    i = 'INS',
+    ic = 'INS',
+    v = 'VIS',
+    V = 'VIS',
+    ['\22'] = 'VIS',
+    R = 'REP',
+    c = 'CMD',
+    t = 'TER',
+  })[vim.api.nvim_get_mode().mode] or vim.api.nvim_get_mode().mode:upper()
+end
+opt.statusline = table.concat({
+  '%#StatusMode#%{v:lua.mode_abbr()}%* %t',
+  '%=%y 0x%B %l:%c %p%%',
+}, ' ')
 
 -- Navigation
 -- Command-line completion UI
@@ -45,3 +64,8 @@ vim.api.nvim_create_autocmd('CmdlineChanged', {
 -- Behaviour
 --- Clipboard
 opt.clipboard = 'unnamedplus'
+
+opt.laststatus = 3
+opt.termguicolors = true
+opt.winborder = "rounded"
+opt.inccommand = "split"
