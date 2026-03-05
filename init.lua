@@ -26,9 +26,8 @@ vim.wo.relativenumber = true
 opt.colorcolumn = '80'
 
 --- Statusline
-
 cmd([[hi StatusMode gui=bold cterm=bold]])
-_G.mode_abbr = function()
+vim.mode_abbr = function()
   return ({
     n = 'NOR',
     no = 'NOR',
@@ -43,15 +42,15 @@ _G.mode_abbr = function()
   })[vim.api.nvim_get_mode().mode] or vim.api.nvim_get_mode().mode:upper()
 end
 opt.statusline = table.concat({
-  '%#StatusMode#%{v:lua.mode_abbr()}%* %t',
+  '%#StatusMode#%{v:lua.vim.mode_abbr()}%* %t',
   '%=%y 0x%B %l:%c %p%%',
 }, ' ')
 
--- Navigation
 -- Command-line completion UI
-vim.opt.wildmenu = true
-vim.opt.wildmode = { 'noselect:lastused', 'full' }
-vim.opt.wildoptions = { 'pum', 'fuzzy' }
+opt.wildmenu = true
+opt.wildmode = 'longest:full,full' -- command-line completion behaviour
+opt.wildoptions = 'pum,fuzzy' -- show popup menu with fuzzy matching
+opt.completeopt = 'menu,menuone,popup,fuzzy' -- modern completion menu
 
 -- Incrementally refresh wildmenu as you type on :, /, ?
 vim.api.nvim_create_autocmd('CmdlineChanged', {
@@ -67,5 +66,7 @@ opt.clipboard = 'unnamedplus'
 
 opt.laststatus = 3
 opt.termguicolors = true
-opt.winborder = "rounded"
-opt.inccommand = "split"
+opt.winborder = 'rounded'
+opt.inccommand = 'split'
+opt.cursorline = true -- enable cursor line
+vim.g.netrw_banner = 0
