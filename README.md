@@ -11,7 +11,7 @@ made.
 ## Minimality
 
 Minimality is achieved with respect to functionality: a configuration is minimal
-if it achieves the required functionality with the least amount of code possible. 
+if it achieves the required functionality with the least amount of code possible.
 Any less, and it is not minimal -- it is simply insufficient.
 
 In general, the goal of minimality is robustness, stability, and reliability.
@@ -115,7 +115,10 @@ adjust it accordingly (though it is plenty minimal enough, anyways!).
 ## References
 
 - [yobibyte - why I got rid of all my neovim plugins]
+- [How to get human rights in Neovim without plugins (2025 edition)]
 
-[Language Server Protocol]: https://microsoft.github.io/language-server-protocol/overviews/lsp/overview/
-[tonsky's take on syntax highlighting]: https://tonsky.me/blog/syntax-highlighting/
+[how to get human rights in neovim without plugins (2025 edition)]: https://boltless.me/posts/neovim-config-without-plugins-2025/
 [lackluster.nvim]: https://github.com/slugbyte/lackluster.nvim
+[language server protocol]: https://microsoft.github.io/language-server-protocol/overviews/lsp/overview/
+[tonsky's take on syntax highlighting]: https://tonsky.me/blog/syntax-highlighting/
+[yobibyte - why i got rid of all my neovim plugins]: https://yobibyte.github.io/vim.html

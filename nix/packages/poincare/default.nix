@@ -69,6 +69,8 @@ in
       configDir
       startPlugins
       ;
+    neovim-unwrapped =
+      inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
 
     extraWrapperArgs = [
       "--set"
