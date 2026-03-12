@@ -10,15 +10,8 @@ local opt = vim.o
 
 -- Appearance
 --- Set theme
+vim.g.minimal_transparent = true
 cmd.colorscheme('minimal')
-
---- Make background transparent
-cmd([[
-  highlight Normal guibg=none
-  highlight NonText guibg=none
-  highlight Normal ctermbg=none
-  highlight NonText ctermbg=none
-]])
 
 --- Set relative line number
 vim.wo.relativenumber = true
@@ -332,7 +325,6 @@ require('lz.n').load {
           end,
         },
       }
-
       vim.ui.select = MiniPick.ui_select
     end,
   },
