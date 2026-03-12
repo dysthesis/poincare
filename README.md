@@ -130,9 +130,9 @@ adjust it accordingly (though it is plenty minimal enough, anyways!).
 
 [a]: https://yobibyte.github.io/vim.html
 [few]: https://blog.erikwastaken.dev/posts/2023-05-06-a-case-for-neovim-without-plugins.html
-[posts]: https://wickstrom.tech/2024-08-12-a-flexible-minimalist-neovim.html
 [how to get human rights in neovim without plugins (2025 edition)]: https://boltless.me/posts/neovim-config-without-plugins-2025/
 [lackluster.nvim]: https://github.com/slugbyte/lackluster.nvim
 [language server protocol]: https://microsoft.github.io/language-server-protocol/overviews/lsp/overview/
+[posts]: https://wickstrom.tech/2024-08-12-a-flexible-minimalist-neovim.html
 [tonsky's take on syntax highlighting]: https://tonsky.me/blog/syntax-highlighting/
 [yobibyte - why i got rid of all my neovim plugins]: https://yobibyte.github.io/vim.html
