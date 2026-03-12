@@ -44,6 +44,7 @@
       indent \
       keymap \
       lua \
+      lsp \
       pack \
       plugin \
       queries \
@@ -79,6 +80,9 @@ in
       "--set"
       "LIBLLDB_PATH"
       liblldbPath
+      "--set"
+      "XDG_STATE_HOME"
+      "/tmp/poincare-state"
     ];
 
     extraPassthru = {
