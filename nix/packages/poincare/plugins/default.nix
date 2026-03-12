@@ -29,7 +29,6 @@
 in
   with pkgs.vimPlugins;
     [
-      blink-cmp
       plenary-nvim
       (nvim-treesitter.withPlugins (p:
         with p; [
@@ -40,6 +39,9 @@ in
           c
           nix
         ]))
+      mini-pick
+      mini-extra
+      mini-indentscope
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy"

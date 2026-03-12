@@ -190,28 +190,28 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end, opts)
 
     -- Jump to the definition
-    vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>', opts)
+    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
 
     -- Format current file
     vim.keymap.set({ 'n', 'x' }, 'gq', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
 
     -- Displays a function's signature information
-    vim.keymap.set('i', '<C-s>', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
+    vim.keymap.set('i', '<C-s>', vim.lsp.buf.signature_help, opts)
 
     -- Jump to declaration
-    vim.keymap.set('n', '<leader>cd', '<cmd>lua vim.lsp.buf.declaration()<cr>', opts)
+    vim.keymap.set('n', '<leader>cd', vim.lsp.buf.declaration, opts)
 
     -- Lists all the implementations for the symbol under the cursor
-    vim.keymap.set('n', '<leader>ci', '<cmd>lua vim.lsp.buf.implementation()<cr>', opts)
+    vim.keymap.set('n', '<leader>ci', vim.lsp.buf.implementation, opts)
 
     -- Jumps to the definition of the type symbol
-    vim.keymap.set('n', '<leader>ct', '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
+    vim.keymap.set('n', '<leader>ct', vim.lsp.buf.type_definition, opts)
 
     -- Lists all the references
-    vim.keymap.set('n', '<leader>cR', '<cmd>lua vim.lsp.buf.references()<cr>', opts)
+    vim.keymap.set('n', '<leader>cR', vim.lsp.buf.references, opts)
 
     -- Selects a code action available at the current cursor position
-    vim.keymap.set('n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
+    vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
     -- Check if rustaceanvim is the client
     if client and client.name == 'rust-analyzer' then
       -- Set up custom keybindings for rustaceanvim
@@ -228,3 +228,112 @@ vim.api.nvim_create_autocmd('FileType', {
     pcall(vim.treesitter.start, event.buf)
   end,
 })
+
+-- Plugins
+--- Picker
+require('lz.n').load {
+  { 'mini.extra' },
+  {
+    'mini.pick',
+    cmd = 'Pick',
+    keys = {
+      {
+        '<leader>f',
+        function()
+          require('mini.pick').builtin.files()
+        end,
+        desc = 'Find [F]iles',
+      },
+      {
+        '<leader>/',
+        function()
+          require('mini.pick').builtin.grep_live()
+        end,
+        desc = 'Find [G]rep',
+      },
+      {
+        '<leader>d',
+        function()
+          require('mini.extra').pickers.diagnostic()
+        end,
+        desc = 'Find [D]iagnostics',
+      },
+      {
+        '<leader>e',
+        function()
+          require('mini.extra').pickers.explorer()
+        end,
+        desc = 'Find [D]iagnostics',
+      },
+      {
+        '<leader>g',
+        function()
+          require('mini.extra').pickers.git_hunks()
+        end,
+        desc = 'Find [D]iagnostics',
+      },
+      {
+        '<leader>s',
+        function()
+          require('mini.extra').pickers.lsp { scope = 'document_symbol' }
+        end,
+        desc = 'Find [S]ymbols',
+      },
+      {
+        '<leader>S',
+        function()
+          require('mini.extra').pickers.lsp { scope = 'workspace_symbol' }
+        end,
+        desc = 'Find Workspace [S]ymbols',
+      },
+      {
+        '<leader>r',
+        function()
+          require('mini.extra').pickers.lsp { scope = 'references' }
+        end,
+        desc = 'Find [R]eferences',
+      },
+      {
+        '<leader>i',
+        function()
+          require('mini.extra').pickers.lsp { scope = 'implementation' }
+        end,
+        desc = 'Find [I]mplementation',
+      },
+      {
+        '<leader>T',
+        function()
+          require('mini.extra').pickers.treesitter()
+        end,
+        desc = 'Find [T]reesitter nodes',
+      },
+    },
+    after = function()
+      local MiniPick = require('mini.pick')
+      MiniPick.setup {
+        mappings = {
+          move_down = '<C-j>',
+          move_up = '<C-k>',
+        },
+        window = {
+          prompt_prefix = '   ',
+          config = function()
+            -- centered on screen
+            local height = math.floor(0.618 * vim.o.lines)
+            local width = math.floor(0.618 * vim.o.columns)
+            return {
+              anchor = 'NW',
+              border = 'rounded',
+              height = height,
+              width = width,
+              row = math.floor(0.5 * (vim.o.lines - height)),
+              col = math.floor(0.5 * (vim.o.columns - width)),
+            }
+          end,
+        },
+      }
+
+      vim.ui.select = MiniPick.ui_select
+    end,
+  },
+}
