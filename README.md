@@ -8,6 +8,17 @@ This is my personal Neovim configuration that has the twin goals of being
 This document is to be updated with justifications for each feature addition
 made.
 
+I've been reading [a] [few] [posts] about having a minimal configuration for
+Neovim. While each of them made good cases on keeping your configuration minimal,
+I don't believe they provide the complete picture. These configurations and
+plugins provides do provide some functionality, at the cost of complexity and
+perhaps some maintenance burden. It is therefore a trade-off, and whether it is
+worth making depends on the intended functionality. In other words,
+
+> "Everything should be made as simple as possible, but not simpler."
+>
+> — Albert Einstein
+
 ## Minimality
 
 Minimality is achieved with respect to functionality: a configuration is minimal
@@ -117,6 +128,9 @@ adjust it accordingly (though it is plenty minimal enough, anyways!).
 - [yobibyte - why I got rid of all my neovim plugins]
 - [How to get human rights in Neovim without plugins (2025 edition)]
 
+[a]: https://yobibyte.github.io/vim.html
+[few]: https://blog.erikwastaken.dev/posts/2023-05-06-a-case-for-neovim-without-plugins.html
+[posts]: https://wickstrom.tech/2024-08-12-a-flexible-minimalist-neovim.html
 [how to get human rights in neovim without plugins (2025 edition)]: https://boltless.me/posts/neovim-config-without-plugins-2025/
 [lackluster.nvim]: https://github.com/slugbyte/lackluster.nvim
 [language server protocol]: https://microsoft.github.io/language-server-protocol/overviews/lsp/overview/
