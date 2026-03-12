@@ -43,7 +43,7 @@
         luaSrc = pkgs.lib.cleanSourceWith {
           src = self;
           filter = path: _type: let
-            base = builtins.baseNameOf path;
+            base = baseNameOf path;
           in
             !(base
               == ".git"
