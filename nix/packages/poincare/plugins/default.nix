@@ -42,8 +42,12 @@ in
 
       mini-pick
       mini-extra # For LSP-based pickers
-      mini-indentscope
+      mini-surround
+
       smart-splits-nvim
+      ultimate-autopair-nvim
+      conform-nvim
+      nvim-lint
 
       # Debugging
       nvim-nio

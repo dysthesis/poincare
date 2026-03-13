@@ -82,7 +82,7 @@
         ]);
       in {
         formatting = treefmt.${pkgs.system}.config.build.check self;
-        selene = mkCheckIfAvailable "selene" pkgs.selene "${self}/.selene.toml";
+        selene = mkCheckIfAvailable "selene" pkgs.selene "${self}/selene.toml";
         luacheck = mkCheckIfAvailable "luacheck" luacheckDrv "${self}/.luacheckrc";
       };
       packages = pkgs:

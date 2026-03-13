@@ -1,6 +1,3 @@
--- selene: allow(mixed_table)
--- Plugin specs intentionally mix list items (plugin names) and keyed options (cmd/keys/etc.)
--- because lz.n and similar loaders expect that shape; suppress the false-positive warning.
 pcall(function()
   vim.loader.enable()
 end)
@@ -11,9 +8,11 @@ vim.cmd.packadd('cfilter') -- Allows filtering the quickfix list with :cfdo
 local cmd = vim.cmd
 local opt = vim.o
 
+opt.compatible = false
 -- Appearance
 --- Set theme
 vim.g.minimal_transparent = true
+vim.g.have_nerd_font = false
 cmd.colorscheme('minimal')
 
 --- Set relative line number
@@ -71,16 +70,64 @@ vim.api.nvim_create_autocmd('CmdlineChanged', {
 
 -- Behaviour
 opt.smartcase = true
+opt.ignorecase = true
+opt.smartindent = true
+opt.shiftround = true
+opt.softtabstop = 2
+-- I make this typo way too much
+vim.cmd('cnoreabbrev W! w!')
+vim.cmd('cnoreabbrev Q! q!')
+vim.cmd('cnoreabbrev Qall! qall!')
+vim.cmd('cnoreabbrev Wq wq')
+vim.cmd('cnoreabbrev Wa wa')
+vim.cmd('cnoreabbrev wQ wq')
+vim.cmd('cnoreabbrev WQ wq')
+vim.cmd('cnoreabbrev W w')
+vim.cmd('cnoreabbrev Q q')
+-- Persist view
+local augroup = vim.api.nvim_create_augroup
+local autocmd = vim.api.nvim_create_autocmd
+local view_group = augroup('auto_view', { clear = true })
+autocmd({ 'BufWinLeave', 'BufWritePost', 'WinLeave' }, {
+  desc = 'Save view with mkview for real files',
+  group = view_group,
+  callback = function(args)
+    if vim.b[args.buf].view_activated then
+      vim.cmd.mkview { mods = { emsg_silent = true } }
+    end
+  end,
+})
+autocmd('BufWinEnter', {
+  desc = 'Try to load file view if available and enable view saving for real files',
+  group = view_group,
+  callback = function(args)
+    if not vim.b[args.buf].view_activated then
+      local filetype = vim.api.nvim_get_option_value('filetype', { buf = args.buf })
+      local buftype = vim.api.nvim_get_option_value('buftype', { buf = args.buf })
+      local ignore_filetypes = { 'gitcommit', 'gitrebase', 'svg', 'hgcommit' }
+      if buftype == '' and filetype and filetype ~= '' and not vim.tbl_contains(ignore_filetypes, filetype) then
+        vim.b[args.buf].view_activated = true
+        vim.cmd.loadview { mods = { emsg_silent = true } }
+      end
+    end
+  end,
+})
+opt.tabstop = 2
+opt.shiftwidth = 2
 --- Leader keys
 vim.g.mapleader = vim.keycode('<space>')
 vim.g.maplocalleader = vim.keycode('<cr>')
 --- Clipboard
-opt.clipboard = 'unnamedplus'
+vim.schedule(function()
+  opt.clipboard = 'unnamedplus'
+end)
 
 opt.laststatus = 3
 opt.termguicolors = true
 opt.winborder = 'rounded'
 opt.inccommand = 'split'
+opt.splitright = true
+opt.splitbelow = true
 opt.cursorline = true -- enable cursor line
 vim.g.netrw_banner = 0
 
@@ -586,6 +633,7 @@ require('lz.n').load {
 
       -- Textobjects configuration + keymaps
       require('nvim-treesitter-textobjects').setup {
+        highlight = { enable = true },
         select = {
           lookahead = true,
           selection_modes = {
@@ -680,6 +728,114 @@ require('lz.n').load {
       vim.keymap.set({ 'n', 'x', 'o' }, '[p', function()
         move.goto_previous_end('@parameter.outer', 'textobjects')
       end, { desc = 'TS prev parameter end' })
+    end,
+  },
+  {
+    'mini.surround',
+    event = 'BufReadPost',
+    after = function()
+      require('mini.surround').setup {}
+    end,
+  },
+  {
+    'ultimate-autopair.nvim',
+    event = { 'InsertEnter', 'CmdlineEnter' },
+    after = function()
+      require('ultimate-autopair').setup {}
+    end,
+  },
+  {
+    'conform.nvim',
+    event = 'BufWritePre',
+    after = function()
+      require('conform').setup {
+        notify_on_error = false,
+        format_on_save = function(bufnr)
+          -- Disable "format_on_save lsp_fallback" for languages that don't
+          -- have a well standardized coding style. You can add additional
+          -- languages here or re-enable it for the disabled ones.
+          local disable_filetypes = {}
+          return {
+            timeout_ms = 500,
+            lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
+          }
+        end,
+        format_after_save = {
+          async = true,
+        },
+        formatters_by_ft = {
+          lua = { 'stylua' },
+          markdown = { 'markdownlint' },
+          nix = { 'alejandra' },
+          c = { 'clang-format' },
+          rust = { 'rustfmt' },
+          go = { 'go/fmt' },
+        },
+      }
+    end,
+  },
+  {
+    'nvim-lint',
+    event = { 'BufReadPre', 'BufNewFile' },
+    after = function()
+      local lint = require('lint')
+      lint.linters.zlint = {
+        cmd = 'zlint',
+        stdin = false,
+        append_fname = false,
+        args = { '-f', 'gh' },
+        stream = 'both',
+        ignore_exitcode = true,
+        parser = function(output, bufnr)
+          local items = {}
+          -- get buffer by file name
+          for line in vim.gsplit(output, '\n') do
+            local level, file, row, col, message = line:match('::(%w+)%sfile=([^,]+),line=(%d+),col=(%d+),title=(.*)')
+            local severity = nil
+            -- map linter levels to diagnostic levels
+            -- zlint levels: error, warning, off
+            if level == 'error' then
+              severity = vim.diagnostic.severity.ERROR
+            elseif level == 'warning' then
+              severity = vim.diagnostic.severity.WARN
+            end
+
+            if file and severity then
+              local l_bufnr = vim.fn.bufnr(file)
+              if l_bufnr > -1 and l_bufnr == bufnr then
+                table.insert(items, {
+                  lnum = tonumber(row) - 1,
+                  col = tonumber(col) - 1,
+                  message = message,
+                  source = 'zlint',
+                  bufnr = bufnr,
+                  severity = severity,
+                })
+              end
+            end
+          end
+
+          return items
+        end,
+      }
+      lint.linters_by_ft = {
+        zig = { 'zlint' },
+        rust = { 'clippy' },
+        nix = { 'statix' },
+        lua = { 'selene' },
+      }
+      local lint_augroup = vim.api.nvim_create_augroup('lint', { clear = true })
+      vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
+        group = lint_augroup,
+        callback = function()
+          -- Only run the linter in buffers that you can modify in order to
+          -- avoid superfluous noise, notably within the handy LSP pop-ups that
+          -- describe the hovered symbol using Markdown.
+          if vim.opt_local.modifiable:get() then
+            lint.try_lint()
+          end
+        end,
+      })
     end,
   },
 }
