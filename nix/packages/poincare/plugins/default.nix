@@ -29,7 +29,6 @@
 in
   with pkgs.vimPlugins;
     [
-      plenary-nvim
       (nvim-treesitter.withPlugins (p:
         with p; [
           markdown
@@ -39,9 +38,17 @@ in
           c
           nix
         ]))
+
       mini-pick
-      mini-extra
+      mini-extra # For LSP-based pickers
       mini-indentscope
+      smart-splits-nvim
+
+      # Debugging
+      nvim-nio
+      nvim-dap
+      nvim-dap-ui
+      nvim-dap-virtual-text
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy"

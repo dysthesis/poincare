@@ -328,4 +328,233 @@ require('lz.n').load {
       vim.ui.select = MiniPick.ui_select
     end,
   },
+  {
+    'smart-splits.nvim',
+    keys = {
+      {
+        '<A-h>',
+        function()
+          require('smart-splits').resize_left()
+        end,
+        desc = 'Resize left',
+      },
+      {
+        '<A-j>',
+        function()
+          require('smart-splits').resize_down()
+        end,
+        desc = 'Resize down',
+      },
+      {
+        '<A-k>',
+        function()
+          require('smart-splits').resize_up()
+        end,
+        desc = 'Resize up',
+      },
+      {
+        '<A-l>',
+        function()
+          require('smart-splits').resize_right()
+        end,
+        desc = 'Resize right',
+      },
+      {
+        '<C-h>',
+        function()
+          require('smart-splits').move_cursor_left()
+        end,
+        desc = 'Move cursor left',
+      },
+      {
+        '<C-j>',
+        function()
+          require('smart-splits').move_cursor_down()
+        end,
+        desc = 'Move cursor down',
+      },
+      {
+        '<C-k>',
+        function()
+          require('smart-splits').move_cursor_up()
+        end,
+        desc = 'Move cursor up',
+      },
+      {
+        '<C-l>',
+        function()
+          require('smart-splits').move_cursor_right()
+        end,
+        desc = 'Move cursor right',
+      },
+      {
+        '<C-\\>',
+        function()
+          require('smart-splits').move_cursor_previous()
+        end,
+        desc = 'Move cursor to previous split',
+      },
+    },
+    after = function()
+      require('smart-splits').setup {}
+    end,
+  },
+  { 'nvim-nio' },
+  {
+    'nvim-dap',
+    keys = {
+      {
+        '<leader>Db',
+        function()
+          require('dap').toggle_breakpoint()
+        end,
+        desc = 'Toggle Breakpoint',
+      },
+
+      {
+        '<leader>Dc',
+        function()
+          require('dap').continue()
+        end,
+        desc = 'Continue',
+      },
+      {
+        '<leader>Ds',
+        function()
+          require('dap').step_over()
+        end,
+        desc = 'Step over',
+      },
+      {
+        '<leader>DS',
+        function()
+          require('dap').step_into()
+        end,
+        desc = 'Step into',
+      },
+      {
+        '<leader>Dr',
+        function()
+          require('dap').repl.open()
+        end,
+        desc = 'Open DAP repl',
+      },
+      {
+        '<leader>DC',
+        function()
+          require('dap').run_to_cursor()
+        end,
+        desc = 'Run to Cursor',
+      },
+
+      {
+        '<leader>DT',
+        function()
+          require('dap').terminate()
+        end,
+        desc = 'Terminate',
+      },
+    },
+    load = function(name)
+      vim.cmd.packadd(name)
+      vim.cmd.packadd('nvim-dap-ui')
+      vim.cmd.packadd('nvim-dap-virtual-text')
+    end,
+    after = function()
+      vim.fn.sign_define('DapBreakpoint', { text = ' ', texthl = 'DapBreakpoint', linehl = '', numhl = '' })
+      vim.fn.sign_define(
+        'DapBreakpointCondition',
+        { text = ' ', texthl = 'DapBreakpointCondition', linehl = '', numhl = '' }
+      )
+      vim.fn.sign_define('DapLogPoint', { text = ' ', texthl = 'DapLogPoint', linehl = '', numhl = '' })
+      local dap = require('dap')
+
+      dap.adapters.codelldb = {
+        type = 'server',
+        port = '${port}',
+        executable = {
+          -- Change this to your path!
+          command = vim.env.CODELLDB_PATH,
+          args = { '--port', '${port}' },
+        },
+      }
+
+      dap.configurations.rust = {
+        {
+          name = 'Launch',
+          type = 'lldb',
+          request = 'launch',
+          program = function()
+            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+          end,
+          cwd = '${workspaceFolder}',
+          stopOnEntry = false,
+          args = {},
+
+          -- 💀
+          -- if you change `runInTerminal` to true, you might need to change the yama/ptrace_scope setting:
+          --
+          --    echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
+          --
+          -- Otherwise you might get the following error:
+          --
+          --    Error on launch: Failed to attach to the target process
+          --
+          -- But you should be aware of the implications:
+          -- https://www.kernel.org/doc/html/latest/admin-guide/LSM/Yama.html
+          -- runInTerminal = false,
+        },
+      }
+      dap.configurations.c = dap.configurations.rust
+      dap.configurations.cpp = dap.configurations.rust
+
+      -- Configure nvim-dap-ui to open with nvim-dap
+      local dapui = require('dapui')
+      dapui.setup {}
+      dap.listeners.before.attach.dapui_config = function()
+        dapui.open()
+      end
+      dap.listeners.before.launch.dapui_config = function()
+        dapui.open()
+      end
+      dap.listeners.before.event_terminated.dapui_config = function()
+        dapui.close()
+      end
+      dap.listeners.before.event_exited.dapui_config = function()
+        dapui.close()
+      end
+
+      require('nvim-dap-virtual-text').setup {}
+    end,
+  },
+  {
+    'nvim-dap-ui',
+    keys = {
+      {
+        '<leader>Do',
+        function()
+          require('dapui').open()
+        end,
+        desc = '[D]ebug [O]pen',
+      },
+      {
+        '<leader>Dc',
+        function()
+          require('dapui').close()
+        end,
+        desc = '[D]ebug [C]lose',
+      },
+      {
+        '<leader>Dt',
+        function()
+          require('dapui').toggle()
+        end,
+        desc = '[D]ebug [T]oggle UI',
+      },
+    },
+    after = function()
+      require('dapui').setup()
+    end,
+  },
+  { 'nvim-dap-virtual-text' },
 }
