@@ -181,6 +181,7 @@ vim.lsp.config('*', {
 local lsps = {
   'lua-language-server',
   'nixd',
+  'rust-analyzer',
 }
 
 for _, lsp in ipairs(lsps) do
