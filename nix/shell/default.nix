@@ -1,24 +1,27 @@
-pkgs: poincare: let
-  fennelProject = pkgs.writeText "flsproject.fnl" ''
-    {:fennel-path "${poincare.configDir}/?.fnl;${poincare.configDir}/?/init.fnl;./?.fnl;./?/init.fnl;fnl/?.fnl;fnl/?/init.fnl"
-     :macro-path "${poincare.configDir}/?.fnl;${poincare.configDir}/?/init-macros.fnl;${poincare.configDir}/?/init.fnl;./?.fnl;./?/init-macros.fnl;./?/init.fnl;fnl/?.fnl;fnl/?/init-macros.fnl;fnl/?/init.fnl"
-     :extra-globals "vim vim.api vim.fn vim.loop fennel.sym?"}
-  '';
+pkgs: _poincare: let
+  inherit (pkgs.lib) attrByPath findFirst;
+
+  luacheck = findFirst (x: x != null) null (map (p: attrByPath p null pkgs) [
+    ["luacheck"]
+    ["luaPackages" "luacheck"]
+    ["lua54Packages" "luacheck"]
+    ["lua53Packages" "luacheck"]
+    ["lua52Packages" "luacheck"]
+    ["lua51Packages" "luacheck"]
+  ]);
 in
   pkgs.mkShell {
     name = "Poincare";
-    packages = with pkgs; [
-      nixd
-      alejandra
-      statix
-      deadnix
-      lua-language-server
-      stylua
-      npins
-      fennel-ls
-      luaPackages.fennel
-    ];
-    shellHook = ''
-      ln -sf ${fennelProject} flsproject.fnl
-    '';
+    packages = with pkgs;
+      [
+        nixd
+        alejandra
+        statix
+        deadnix
+        lua-language-server
+        stylua
+        selene
+        npins
+      ]
+      ++ pkgs.lib.optionals (luacheck != null) [luacheck];
   }

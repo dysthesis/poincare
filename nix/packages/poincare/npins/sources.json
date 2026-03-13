@@ -1,0 +1,18 @@
+{
+  "pins": {
+    "minimal.nvim": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "dysthesis",
+        "repo": "minimal.nvim"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "07f099a3b06f28c351147e78ab91480c8af17ef5",
+      "url": "https://github.com/dysthesis/minimal.nvim/archive/07f099a3b06f28c351147e78ab91480c8af17ef5.tar.gz",
+      "hash": "sha256-yTbicUOWIJFmNJ1gAdzSLZAlD81K/tb0o11oEApQ8us="
+    }
+  },
+  "version": 7
+}

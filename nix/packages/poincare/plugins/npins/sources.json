@@ -9,9 +9,9 @@
       },
       "branch": "main",
       "submodules": false,
-      "revision": "07f099a3b06f28c351147e78ab91480c8af17ef5",
-      "url": "https://github.com/dysthesis/minimal.nvim/archive/07f099a3b06f28c351147e78ab91480c8af17ef5.tar.gz",
-      "hash": "1szja0510s2xlgsddzjarl7jb41dsbf02q4x6ik9284n8dqy4dn9"
+      "revision": "49bbf757f7d4b50b32a8db221448bbf235cc6988",
+      "url": "https://github.com/dysthesis/minimal.nvim/archive/49bbf757f7d4b50b32a8db221448bbf235cc6988.tar.gz",
+      "hash": "sha256-SYHcX3bbYLrMLAnLUfg8XJqIPzQmn8UjsRhLHCjnmxc="
     },
     "nvim-treesitter-textobjects": {
       "type": "Git",
@@ -22,26 +22,10 @@
       },
       "branch": "main",
       "submodules": false,
-      "revision": "4d55f63252e04c5212daed958e4e940915ff16ce",
-      "url": "https://github.com/nvim-treesitter/nvim-treesitter-textobjects/archive/4d55f63252e04c5212daed958e4e940915ff16ce.tar.gz",
-      "hash": "1d7mqa5m9g3ckkrnmck7whwc99pry9khfksbrjwanlj9sc2a1fxq"
-    },
-    "rustowl": {
-      "type": "GitRelease",
-      "repository": {
-        "type": "GitHub",
-        "owner": "cordx56",
-        "repo": "rustowl"
-      },
-      "pre_releases": false,
-      "version_upper_bound": null,
-      "release_prefix": null,
-      "submodules": false,
-      "version": "v0.3.4",
-      "revision": "aaf7d15cc55ff6f48c577cdd6352d51fbc031aea",
-      "url": "https://api.github.com/repos/cordx56/rustowl/tarball/v0.3.4",
-      "hash": "1vrg92wcg7chd26j3xjmglwynhfnb6cxh2j0sgpn74wr70nra9x4"
+      "revision": "4e91b5d0394329a229725b021a8ea217099826ef",
+      "url": "https://github.com/nvim-treesitter/nvim-treesitter-textobjects/archive/4e91b5d0394329a229725b021a8ea217099826ef.tar.gz",
+      "hash": "sha256-n+GX7w+W3D3xj2+3Zr+89E7RUqBgWU14BlQrGXztoH0="
     }
   },
-  "version": 5
+  "version": 7
 }

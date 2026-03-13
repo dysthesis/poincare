@@ -20,6 +20,8 @@
   extraPackages ? [],
   # Extra arguments for wrapProgram, e.g. environment variables
   extraWrapperArgs ? [],
+  # Additional passthru attributes to expose on the wrapper derivation
+  extraPassthru ? {},
   meta ? {},
 }: let
   inherit
@@ -113,7 +115,9 @@ in
     nativeBuildInputs = [makeWrapper];
     postBuild = mkBuild name init packpath configDir;
 
-    passthru = {
-      inherit packpath configDir;
-    };
+    passthru =
+      {
+        inherit packpath configDir;
+      }
+      // extraPassthru;
   }

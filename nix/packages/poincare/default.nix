@@ -1,8 +1,8 @@
 {
-  self,
   inputs,
   pkgs,
   lib,
+  self,
   ...
 }: let
   name = "poincare";
@@ -11,8 +11,6 @@
   startPlugins = with pkgs.vimPlugins; [
     lz-n
     lzn-auto-require
-    plenary-nvim
-    nvim-treesitter.withAllGrammars
   ];
 
   extraPackages = with pkgs; [
@@ -30,15 +28,39 @@
     else "liblldb.so";
   liblldbPath = "${codelldbExt}/share/vscode/extensions/vadimcn.vscode-lldb/lldb/lib/${liblldbName}";
 
-  buildFennel = pkgs.callPackage ./fennel.nix {};
-  configDir = buildFennel {
-    pname = "${name}-cfg";
-    src = self;
-    compileOnlyDirs = ["fnl/lib"];
-    extraDirs = [
-      "after"
-    ];
-  };
+  configDir = pkgs.runCommand "${name}-cfg" {} ''
+    mkdir -p "$out"
+    cp ${../../..}/init.lua "$out/init.lua"
+
+    # Copy common Neovim runtime directories when present in the repo root.
+    for d in \
+      after \
+      autoload \
+      colors \
+      compiler \
+      doc \
+      ftdetect \
+      ftplugin \
+      indent \
+      keymap \
+      lua \
+      lsp \
+      pack \
+      plugin \
+      queries \
+      rplugin \
+      spell \
+      syntax \
+      syntax_checkers \
+      tutor \
+      snippets \
+    ; do
+      src="${../../..}/$d"
+      if [ -d "$src" ]; then
+        cp -r "$src" "$out/"
+      fi
+    done
+  '';
 in
   pkgs.callPackage ./wrapper.nix {
     inherit
@@ -48,6 +70,8 @@ in
       configDir
       startPlugins
       ;
+    neovim-unwrapped =
+      inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
 
     extraWrapperArgs = [
       "--set"
@@ -56,7 +80,14 @@ in
       "--set"
       "LIBLLDB_PATH"
       liblldbPath
+      "--set"
+      "XDG_STATE_HOME"
+      "/tmp/poincare-state"
     ];
+
+    extraPassthru = {
+      checks = self.checks.${pkgs.system};
+    };
 
     meta.mainProgram = "nvim";
   }
