@@ -14,6 +14,7 @@ opt.compatible = false
 vim.g.minimal_transparent = true
 vim.g.have_nerd_font = false
 cmd.colorscheme('minimal')
+opt.conceallevel = 2
 
 --- Set relative line number
 vim.wo.relativenumber = true
