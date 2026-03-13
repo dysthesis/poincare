@@ -37,6 +37,7 @@ in
           zig
           c
           nix
+          lua
         ]))
 
       mini-pick

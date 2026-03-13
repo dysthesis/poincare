@@ -115,6 +115,11 @@ background, on every save, with its results being displayed in inline hints
 and an optional toggleable pane, such that we get as immediate of a feedback
 as possible.
 
+### Formatting
+
+Technically, formatting without plugins [is possible], but not without a
+nontrivial amount of code. Therefore, we rely on plugins instead.
+
 ## On reading
 
 Reading code is just as important as writing it, but I currently do not see any
@@ -131,6 +136,7 @@ adjust it accordingly (though it is plenty minimal enough, anyways!).
 [a]: https://yobibyte.github.io/vim.html
 [few]: https://blog.erikwastaken.dev/posts/2023-05-06-a-case-for-neovim-without-plugins.html
 [how to get human rights in neovim without plugins (2025 edition)]: https://boltless.me/posts/neovim-config-without-plugins-2025/
+[is possible]: https://github.com/neovim/neovim/discussions/35602
 [lackluster.nvim]: https://github.com/slugbyte/lackluster.nvim
 [language server protocol]: https://microsoft.github.io/language-server-protocol/overviews/lsp/overview/
 [posts]: https://wickstrom.tech/2024-08-12-a-flexible-minimalist-neovim.html

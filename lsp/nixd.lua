@@ -5,7 +5,7 @@ end
 
 local hostname = file:read('*a') or ''
 file:close()
-local hostname = string.gsub(hostname, '\n$', '')
+hostname = string.gsub(hostname, '\n$', '')
 
 return {
   cmd = { 'nixd' },
