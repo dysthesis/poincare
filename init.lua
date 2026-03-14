@@ -606,8 +606,33 @@ require('lz.n').load {
     'nvim-treesitter',
     lazy = false,
     load = function(name)
-      vim.cmd.packadd('nvim-treesitter-textobjects')
-      vim.cmd.packadd(name)
+      local function packadd_if_opt(pkg)
+        local paths = vim.fn.globpath(vim.o.packpath, 'pack/*/opt/' .. pkg, true, true)
+        if #paths > 0 then
+          pcall(vim.cmd.packadd, pkg)
+        end
+      end
+
+      packadd_if_opt('nvim-treesitter-textobjects')
+
+      -- Ensure parsers/queries shipped as optional plugins are on runtimepath
+      -- before the core nvim-treesitter plugin is loaded.
+      local function packadd_ts_assets()
+        local patterns = {
+          'pack/*/opt/nvim-treesitter-grammar-*',
+          'pack/*/opt/vimplugin-nvim-treesitter-queries-*',
+        }
+
+        for _, pattern in ipairs(patterns) do
+          local paths = vim.fn.globpath(vim.o.packpath, pattern, true, true)
+          for _, path in ipairs(paths) do
+            local name = vim.fn.fnamemodify(path, ':t')
+            pcall(vim.cmd.packadd, name)
+          end
+        end
+      end
+
+      packadd_ts_assets()
     end,
     after = function()
       -- New nvim-treesitter rewrite no longer exposes `configs`; use the

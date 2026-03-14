@@ -29,17 +29,6 @@
 in
   with pkgs.vimPlugins;
     [
-      (nvim-treesitter.withPlugins (p:
-        with p; [
-          markdown
-          rust
-          go
-          zig
-          c
-          nix
-          lua
-        ]))
-
       mini-pick
       mini-extra # For LSP-based pickers
       mini-surround

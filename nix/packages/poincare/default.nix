@@ -11,6 +11,16 @@
   startPlugins = with pkgs.vimPlugins; [
     lz-n
     lzn-auto-require
+    (nvim-treesitter.withPlugins (p:
+      with p; [
+        markdown
+        rust
+        go
+        zig
+        c
+        nix
+        lua
+      ]))
   ];
 
   extraPackages = with pkgs; [
