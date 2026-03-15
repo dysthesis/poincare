@@ -500,11 +500,14 @@ require('lz.n').load {
         desc = 'Terminate',
       },
     },
+
     load = function(name)
+      vim.cmd.packadd('nvim-nio')
       vim.cmd.packadd(name)
       vim.cmd.packadd('nvim-dap-ui')
       vim.cmd.packadd('nvim-dap-virtual-text')
     end,
+
     after = function()
       vim.fn.sign_define('DapBreakpoint', { text = ' ', texthl = 'DapBreakpoint', linehl = '', numhl = '' })
       vim.fn.sign_define(
@@ -518,7 +521,6 @@ require('lz.n').load {
         type = 'server',
         port = '${port}',
         executable = {
-          -- Change this to your path!
           command = vim.env.CODELLDB_PATH,
           args = { '--port', '${port}' },
         },
@@ -527,7 +529,7 @@ require('lz.n').load {
       dap.configurations.rust = {
         {
           name = 'Launch',
-          type = 'lldb',
+          type = 'codelldb',
           request = 'launch',
           program = function()
             return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
@@ -554,19 +556,23 @@ require('lz.n').load {
       dap.configurations.cpp = dap.configurations.rust
 
       -- Configure nvim-dap-ui to open with nvim-dap
-      local dapui = require('dapui')
-      dapui.setup {}
-      dap.listeners.before.attach.dapui_config = function()
-        dapui.open()
-      end
-      dap.listeners.before.launch.dapui_config = function()
-        dapui.open()
-      end
-      dap.listeners.before.event_terminated.dapui_config = function()
-        dapui.close()
-      end
-      dap.listeners.before.event_exited.dapui_config = function()
-        dapui.close()
+      local ok, dapui = pcall(require, 'dapui')
+      if ok then
+        dapui.setup {}
+        dap.listeners.before.attach.dapui_config = function()
+          dapui.open()
+        end
+        dap.listeners.before.launch.dapui_config = function()
+          dapui.open()
+        end
+        dap.listeners.before.event_terminated.dapui_config = function()
+          dapui.close()
+        end
+        dap.listeners.before.event_exited.dapui_config = function()
+          dapui.close()
+        end
+      else
+        vim.notify('nvim-dap-ui failed to load: ' .. tostring(dapui), vim.log.levels.ERROR)
       end
 
       require('nvim-dap-virtual-text').setup {}
@@ -574,6 +580,12 @@ require('lz.n').load {
   },
   {
     'nvim-dap-ui',
+    load = function(name)
+      -- Ensure core DAP (and its deps) are available before the UI attaches.
+      vim.cmd.packadd('nvim-nio')
+      vim.cmd.packadd('nvim-dap')
+      vim.cmd.packadd(name)
+    end,
     keys = {
       {
         '<leader>Do',
