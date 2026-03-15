@@ -19,6 +19,17 @@ worth making depends on the intended functionality. In other words,
 >
 > — Albert Einstein
 
+## Usage
+
+This is a Nix flake packaging my Neovim configuration -- thus, one may run it
+using Nix by runing `nix run`.
+
+### Development
+
+The development toolchain is installed using Nix shells. To enter the 
+development shell, either run `nix develop`, or, if one uses Direnv, permit it
+to load the environment by running `direnv allow`.
+
 ## Minimality
 
 Minimality is achieved with respect to functionality: a configuration is minimal
@@ -84,8 +95,24 @@ inclusion of nvim-textobject
 
 ### Delimiter manipulation
 
-**TODO.** See if an in-house solution for this can be made. Otherwise, perhaps
-we use vim-surround.
+Delimiter manipulation can be further decomposed into two components: that is,
+
+- auto-pairing, and
+- adding, removing, or changing surrounding delimiters.
+
+While a naïve auto-pairing solution -- simply inserting a closing delimiter . The solution is to implement asynchrony, which, again, renders
+it nontrivial. We therefore use 
+after the cursor whenever an opening delimiter is typed in -- having it handle
+edge cases would cause the complexity of such a module to explode; an example of
+this would be to have it not insert the closing delimiter if an un-opened one is
+found. That is, it's not difficult to implement a dumb auto-pair, but it's
+considerably more difficult to make a smart one. Hence, I opted to use a plugin
+for this. I selected [ultimate-autopair.nvim] as it seems to work exactly as I
+would imagine it to. Admittedly, though, I haven't tried [nvim-autopairs].
+
+Adding, removing, or changing surrounding delimiters is even more difficult
+outright, and I think [mini.surround] does an excellent job with an acceptable
+size of code.
 
 ## On development iteration
 
@@ -107,6 +134,17 @@ with the advent of the [Language Server Protocol]. While some have claimed to
 have flaky experiences with them, I have had no such experience so far, so I
 will continue using them. Maybe I've just been using well-made LSP servers.
 
+#### Linting and formatting
+
+Similar to what I have found with auto-pairing setup, while naïve 
+implementations of formatting (and to a lesser extent, linting, as it involves
+interacting with the diagnostic and virtual text APIs) is trivial to implement
+(hook some function that runs the appropriate formatter and linter, say, on 
+save), such an implementation causes Neovim to stutter (much like Emacs, Neovim
+is single-threaded as well; it just gets away with it more due to its smaller
+and leaner size). The solution is to implement asynchrony, which, again, renders
+it nontrivial. We therefore use [nvim-lint] and [conform.nvim].
+
 ### Dynamic analysis
 
 I would guess that the cost to complexity might be worth it for testing
@@ -114,6 +152,16 @@ integration if we can make it such that tests are run asynchronously, in the
 background, on every save, with its results being displayed in inline hints
 and an optional toggleable pane, such that we get as immediate of a feedback
 as possible.
+
+#### Debugging integration
+
+I like to have my debugger with me at all times, and even moreso to have it
+in my editor, allowing it to show the values of variables during execution as
+virtual text. It is much nicer to use than debug printing, though also a bit 
+more of a pain in the ass to set up (though you only have to do it once!). I do
+not imagine implementing support for DAP (an entire protocol!) to consist of a
+trivial amount of code (though I'm open to be proven wrong), and thus I defer
+again to plugins ([nvim-dap], [nvim-dap-ui], [nvim-dap-virtual-text]).
 
 ### Formatting
 
@@ -127,6 +175,11 @@ way of "optimising" it beyond syntax highlighting to create emphasis. I agree
 with [tonsky's take on syntax highlighting], though the exact colours used in
 Alabaster isn't exactly to my taste, so I might fork [lackluster.nvim] and
 adjust it accordingly (though it is plenty minimal enough, anyways!).
+
+## Miscellaneous notes
+
+The `nixd` LSP server is configured to find host-dependent options by assuming
+that the NixOS configuration is packaged under the same name as the hostname.
 
 ## References
 
@@ -142,3 +195,11 @@ adjust it accordingly (though it is plenty minimal enough, anyways!).
 [posts]: https://wickstrom.tech/2024-08-12-a-flexible-minimalist-neovim.html
 [tonsky's take on syntax highlighting]: https://tonsky.me/blog/syntax-highlighting/
 [yobibyte - why i got rid of all my neovim plugins]: https://yobibyte.github.io/vim.html
+[nvim-autopairs]: https://github.com/windwp/nvim-autopairs
+[ultimate-autopair.nvim]: https://github.com/altermo/ultimate-autopair.nvim
+[nvim-dap]: https://github.com/mfussenegger/nvim-dap
+[nvim-dap-ui]: https://github.com/theHamsta/nvim-dap-virtual-text
+[nvim-dap-virtual-text]: https://github.com/theHamsta/nvim-dap-virtual-text
+[mini.surround]: https://github.com/nvim-mini/mini.surround
+[nvim-lint]: https://github.com/mfussenegger/nvim-lint
+[conform.nvim]: https://github.com/stevearc/conform.nvim
