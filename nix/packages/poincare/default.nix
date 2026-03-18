@@ -20,6 +20,8 @@
         c
         nix
         lua
+				just
+				python
       ]))
   ];
 
