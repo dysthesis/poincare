@@ -180,13 +180,25 @@ vim.lsp.config('*', {
 
 local lsps = {
   'lua-language-server',
-  'nixd',
   'rust-analyzer',
 }
 
-for _, lsp in ipairs(lsps) do
+local function enable_lsp(lsp)
   if vim.fn.executable(lsp) == 1 then
     vim.lsp.enable(lsp)
+    return true
+  end
+
+  return false
+end
+
+for _, lsp in ipairs(lsps) do
+  enable_lsp(lsp)
+end
+
+for _, lsp in ipairs { 'nil', 'nixd' } do
+  if enable_lsp(lsp) then
+    break
   end
 end
 

@@ -1,3 +1,4 @@
+---@type vim.lsp.Config
 local file = io.popen('hostname')
 if file == nil then
   return
@@ -10,7 +11,7 @@ hostname = string.gsub(hostname, '\n$', '')
 return {
   cmd = { 'nixd' },
   filetypes = { 'nix' },
-  root_markers = { 'flake.nix', 'git' },
+  root_markers = { 'flake.nix', '.git' },
   settings = {
     nixd = {
       nixpkgs = {
