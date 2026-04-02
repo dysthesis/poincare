@@ -899,6 +899,10 @@ require('lz.n').load {
   {
     'blink.cmp',
     event = 'InsertEnter',
+    load = function(name)
+      vim.cmd.packadd('mini.icons')
+      vim.cmd.packadd(name)
+    end,
     after = function()
       local cmp = require('blink.cmp')
       cmp.setup {
