@@ -20,8 +20,8 @@
         c
         nix
         lua
-				just
-				python
+        just
+        python
       ]))
   ];
 
@@ -82,8 +82,9 @@ in
       configDir
       startPlugins
       ;
-    neovim-unwrapped =
-      inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
+
+    inherit (pkgs) neovim-unwrapped;
+    # inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
 
     extraWrapperArgs = [
       "--set"

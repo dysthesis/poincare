@@ -14,7 +14,7 @@ in
     name = "Poincare";
     packages = with pkgs;
       [
-        nixd
+        nil
         alejandra
         statix
         deadnix

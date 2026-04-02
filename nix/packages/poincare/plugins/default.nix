@@ -43,6 +43,8 @@ in
       nvim-dap
       nvim-dap-ui
       nvim-dap-virtual-text
+
+      lean-nvim
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy"
