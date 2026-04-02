@@ -32,6 +32,9 @@ in
       mini-pick
       mini-extra # For LSP-based pickers
       mini-surround
+      mini-icons
+      blink-cmp
+      blink-compat
 
       smart-splits-nvim
       ultimate-autopair-nvim

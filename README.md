@@ -93,6 +93,35 @@ Vim motions, which allows the manipulation of text as "objects". These can be
 further refined with syntax comprehension, which is the justification for the
 inclusion of nvim-textobject
 
+### Completion menu
+
+Neovim has a decent enough built-in completion menu -- if not for the minor
+inconvenience of its sorting algorithm, which I have found to suggest irrelevant
+results before relevant ones. For example, when typing `Decidable` in
+
+```lean
+inductive NodeKind
+  | note
+  | task
+  | event
+  | account
+  | transaction
+  | posting
+  deriving Decidable, Repr
+```
+
+
+the suggestions
+
+- `Array.instDecidableEmpEq`,
+- `Array.instDecidableEmpEqImpl`,
+- ...
+
+...and 29 other such entries were suggested before `Decidable` or `DecidableEq`.
+
+Hence, I have decided to use `blink.cmp`, additionally giving me a bonus of
+completion speed. One day I will revisit the use of the native completion menus.
+
 ### Delimiter manipulation
 
 Delimiter manipulation can be further decomposed into two components: that is,
