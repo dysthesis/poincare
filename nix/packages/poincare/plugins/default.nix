@@ -45,6 +45,7 @@ in
       nvim-dap-virtual-text
 
       lean-nvim
+      plenary-nvim
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy"
