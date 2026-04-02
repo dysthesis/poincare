@@ -214,17 +214,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end
 
     local opts = { buffer = bufnr }
-    if client:supports_method('textDocument/completion') then
-      -- trigger autocompletion on EVERY keypress. May be slow!
-      local chars = {}
-      for i = 32, 126 do
-        table.insert(chars, string.char(i))
-      end
-      client.server_capabilities.completionProvider.triggerCharacters = chars
-
-      vim.lsp.completion.enable(true, client.id, event.buf, { autotrigger = true })
-    end
-
     -- Auto-format ("lint") on save.
     -- Usually not needed if server supports "textDocument/willSaveWaitUntil".
     if
