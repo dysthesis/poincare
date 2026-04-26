@@ -36,6 +36,7 @@
       # for `nix flake check`
       checks = pkgs: let
         inherit (pkgs.lib) attrByPath findFirst optionalString;
+        inherit (packages pkgs) poincare;
 
         luaSrc = pkgs.lib.cleanSourceWith {
           src = self;
@@ -72,6 +73,48 @@
               echo "${name} unavailable on ${pkgs.stdenv.hostPlatform.system}" > "$out"
             '';
 
+        runtime = pkgs.runCommand "check-poincare-runtime" {nativeBuildInputs = [pkgs.coreutils];} ''
+          set -eu
+
+          mkdir -p "$TMPDIR/home"
+          cat > "$TMPDIR/runtime-check.lua" <<'LUA'
+          local function fail(message)
+            error(message, 0)
+          end
+
+          local function expect_executable(name)
+            if vim.fn.executable(name) ~= 1 then
+              fail(name .. ' is not executable')
+            end
+          end
+
+          expect_executable('rg')
+          expect_executable('fd')
+          expect_executable('tree-sitter')
+
+          if vim.fn.executable(vim.env.CODELLDB_PATH or "") ~= 1 then
+            fail('CODELLDB_PATH is not executable')
+          end
+
+          local dap_continue = vim.fn.maparg(' Dc', 'n', false, true)
+          if dap_continue.desc ~= 'Continue' then
+            fail('<leader>Dc should remain DAP continue, got ' .. vim.inspect(dap_continue.desc))
+          end
+
+          local dap_close = vim.fn.maparg(' Dx', 'n', false, true)
+          if dap_close.desc ~= '[D]ebug Close UI' then
+            fail('<leader>Dx should close DAP UI, got ' .. vim.inspect(dap_close.desc))
+          end
+          LUA
+
+          env -i \
+            HOME="$TMPDIR/home" \
+            PATH="${pkgs.coreutils}/bin" \
+            ${poincare}/bin/nvim --headless "+luafile $TMPDIR/runtime-check.lua" +qa
+
+          touch "$out"
+        '';
+
         luacheckDrv = findFirst (x: x != null) null (map (p: attrByPath p null pkgs) [
           ["luacheck"]
           ["luaPackages" "luacheck"]
@@ -84,6 +127,7 @@
         formatting = treefmt.${pkgs.system}.config.build.check self;
         selene = mkCheckIfAvailable "selene" pkgs.selene "${self}/selene.toml";
         luacheck = mkCheckIfAvailable "luacheck" luacheckDrv "${self}/.luacheckrc";
+        inherit runtime;
       };
       packages = pkgs:
         import ./nix/packages {

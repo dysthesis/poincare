@@ -603,11 +603,11 @@ require('lz.n').load {
         desc = '[D]ebug [O]pen',
       },
       {
-        '<leader>Dc',
+        '<leader>Dx',
         function()
           require('dapui').close()
         end,
-        desc = '[D]ebug [C]lose',
+        desc = '[D]ebug Close UI',
       },
       {
         '<leader>Dt',
