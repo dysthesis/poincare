@@ -22,19 +22,6 @@ vim.wo.relativenumber = true
 --- Set colour column
 opt.colorcolumn = '80'
 
--- Avoid upcoming deprecation in vim.lsp.diagnostic.get_namespace by normalizing
--- boolean pull_id values to the string/nil forms expected in Neovim 0.14.
-do
-  local lsp_diagnostic = vim.lsp.diagnostic
-  local original = lsp_diagnostic.get_namespace
-  lsp_diagnostic.get_namespace = function(client_id, pull_id)
-    if type(pull_id) == 'boolean' then
-      pull_id = pull_id and 'nil' or nil
-    end
-    return original(client_id, pull_id)
-  end
-end
-
 --- Statusline
 cmd([[hi StatusMode gui=bold cterm=bold]])
 vim.mode_abbr = function()
