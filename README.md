@@ -22,11 +22,17 @@ worth making depends on the intended functionality. In other words,
 ## Usage
 
 This is a Nix flake packaging my Neovim configuration -- thus, one may run it
-using Nix by runing `nix run`.
+using Nix by running `nix run`.
+
+The packaged editor only includes editor-intrinsic tools, such as file search,
+text search, Tree-sitter support, and the debugger adapter. Project-specific
+tools, including language servers, formatters, linters, compilers, and build
+tools, are expected to come from the active project environment, usually a Nix
+development shell.
 
 ### Development
 
-The development toolchain is installed using Nix shells. To enter the 
+The development toolchain is installed using Nix shells. To enter the
 development shell, either run `nix develop`, or, if one uses Direnv, permit it
 to load the environment by running `direnv allow`.
 
@@ -110,7 +116,6 @@ inductive NodeKind
   deriving Decidable, Repr
 ```
 
-
 the suggestions
 
 - `Array.instDecidableEmpEq`,
@@ -130,7 +135,7 @@ Delimiter manipulation can be further decomposed into two components: that is,
 - adding, removing, or changing surrounding delimiters.
 
 While a naïve auto-pairing solution -- simply inserting a closing delimiter . The solution is to implement asynchrony, which, again, renders
-it nontrivial. We therefore use 
+it nontrivial. We therefore use
 after the cursor whenever an opening delimiter is typed in -- having it handle
 edge cases would cause the complexity of such a module to explode; an example of
 this would be to have it not insert the closing delimiter if an un-opened one is
@@ -165,10 +170,10 @@ will continue using them. Maybe I've just been using well-made LSP servers.
 
 #### Linting and formatting
 
-Similar to what I have found with auto-pairing setup, while naïve 
+Similar to what I have found with auto-pairing setup, while naïve
 implementations of formatting (and to a lesser extent, linting, as it involves
 interacting with the diagnostic and virtual text APIs) is trivial to implement
-(hook some function that runs the appropriate formatter and linter, say, on 
+(hook some function that runs the appropriate formatter and linter, say, on
 save), such an implementation causes Neovim to stutter (much like Emacs, Neovim
 is single-threaded as well; it just gets away with it more due to its smaller
 and leaner size). The solution is to implement asynchrony, which, again, renders
@@ -186,7 +191,7 @@ as possible.
 
 I like to have my debugger with me at all times, and even moreso to have it
 in my editor, allowing it to show the values of variables during execution as
-virtual text. It is much nicer to use than debug printing, though also a bit 
+virtual text. It is much nicer to use than debug printing, though also a bit
 more of a pain in the ass to set up (though you only have to do it once!). I do
 not imagine implementing support for DAP (an entire protocol!) to consist of a
 trivial amount of code (though I'm open to be proven wrong), and thus I defer
@@ -216,19 +221,19 @@ that the NixOS configuration is packaged under the same name as the hostname.
 - [How to get human rights in Neovim without plugins (2025 edition)]
 
 [a]: https://yobibyte.github.io/vim.html
+[conform.nvim]: https://github.com/stevearc/conform.nvim
 [few]: https://blog.erikwastaken.dev/posts/2023-05-06-a-case-for-neovim-without-plugins.html
 [how to get human rights in neovim without plugins (2025 edition)]: https://boltless.me/posts/neovim-config-without-plugins-2025/
 [is possible]: https://github.com/neovim/neovim/discussions/35602
 [lackluster.nvim]: https://github.com/slugbyte/lackluster.nvim
 [language server protocol]: https://microsoft.github.io/language-server-protocol/overviews/lsp/overview/
-[posts]: https://wickstrom.tech/2024-08-12-a-flexible-minimalist-neovim.html
-[tonsky's take on syntax highlighting]: https://tonsky.me/blog/syntax-highlighting/
-[yobibyte - why i got rid of all my neovim plugins]: https://yobibyte.github.io/vim.html
+[mini.surround]: https://github.com/nvim-mini/mini.surround
 [nvim-autopairs]: https://github.com/windwp/nvim-autopairs
-[ultimate-autopair.nvim]: https://github.com/altermo/ultimate-autopair.nvim
 [nvim-dap]: https://github.com/mfussenegger/nvim-dap
 [nvim-dap-ui]: https://github.com/theHamsta/nvim-dap-virtual-text
 [nvim-dap-virtual-text]: https://github.com/theHamsta/nvim-dap-virtual-text
-[mini.surround]: https://github.com/nvim-mini/mini.surround
 [nvim-lint]: https://github.com/mfussenegger/nvim-lint
-[conform.nvim]: https://github.com/stevearc/conform.nvim
+[posts]: https://wickstrom.tech/2024-08-12-a-flexible-minimalist-neovim.html
+[tonsky's take on syntax highlighting]: https://tonsky.me/blog/syntax-highlighting/
+[ultimate-autopair.nvim]: https://github.com/altermo/ultimate-autopair.nvim
+[yobibyte - why i got rid of all my neovim plugins]: https://yobibyte.github.io/vim.html

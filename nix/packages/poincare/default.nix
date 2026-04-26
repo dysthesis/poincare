@@ -92,9 +92,6 @@ in
       "--set"
       "LIBLLDB_PATH"
       liblldbPath
-      "--set"
-      "XDG_STATE_HOME"
-      "/tmp/poincare-state"
     ];
 
     extraPassthru = {
