@@ -54,9 +54,10 @@ return {
           mode = 'prefix',
         },
 
-        implicitDrops = {
-          enable = true,
-        },
+        -- This is a bit noisy
+        -- implicitDrops = {
+        --   enable = true,
+        -- },
 
         lifetimeElisionHints = {
           enable = 'always', -- "never"
