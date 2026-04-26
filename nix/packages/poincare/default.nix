@@ -84,7 +84,6 @@ in
       ;
 
     inherit (pkgs) neovim-unwrapped;
-    # inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
 
     extraWrapperArgs = [
       "--set"

@@ -147,21 +147,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    rustowl = {
-      url = "github:nix-community/rustowl-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    tachyon = {
-      url = "github:dysthesis/tachyon";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    neovim-nightly-overlay = {
-      url = "github:nix-community/neovim-nightly-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # Personal library
     nixpressions = {
       url = "github:dysthesis/nixpressions";
