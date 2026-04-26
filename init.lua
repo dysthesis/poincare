@@ -509,7 +509,7 @@ require('lz.n').load {
       },
     },
 
-    load = function(name)
+    load = function()
       vim.cmd.packadd('nvim-nio')
       vim.cmd.packadd(name)
       vim.cmd.packadd('nvim-dap-ui')
@@ -646,8 +646,8 @@ require('lz.n').load {
         for _, pattern in ipairs(patterns) do
           local paths = vim.fn.globpath(vim.o.packpath, pattern, true, true)
           for _, path in ipairs(paths) do
-            local name = vim.fn.fnamemodify(path, ':t')
-            pcall(vim.cmd.packadd, name)
+            local plugin_name = vim.fn.fnamemodify(path, ':t')
+            pcall(vim.cmd.packadd, plugin_name)
           end
         end
       end

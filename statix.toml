@@ -1,0 +1,6 @@
+disabled = []
+ignore = [
+  ".direnv",
+  "nix/packages/poincare/plugins/npins"
+]
+nix_version = "2.4"
