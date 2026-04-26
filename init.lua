@@ -258,6 +258,13 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
     -- Selects a code action available at the current cursor position
     vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
+
+    -- Toggle inlay hints such as rust-analyzer's implicit `drop(...)` markers.
+    if vim.lsp.inlay_hint then
+      vim.keymap.set('n', '<leader>ch', function()
+        vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = bufnr }, { bufnr = bufnr })
+      end, vim.tbl_extend('force', opts, { desc = 'Toggle inlay hints' }))
+    end
   end,
 })
 

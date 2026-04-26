@@ -3,21 +3,25 @@ return {
   filetypes = { 'rust' },
   cmd = { 'rust-analyzer' },
   settings = {
-    cargo = { features = 'all' },
+    ['rust-analyzer'] = {
+      cargo = { features = 'all' },
 
-    assist = {
-      importEnforceGranularity = true,
-      importPrefix = 'crate',
-    },
+      check = {
+        command = 'clippy',
+        features = 'all',
+      },
 
-    checkOnSave = {
-      enable = true,
-      command = 'clippy',
-      features = 'all',
-    },
+      checkOnSave = true,
 
-    inlayHints = {
-      chainingHints = {
+      imports = {
+        granularity = {
+          enforce = true,
+          group = 'crate',
+        },
+        prefix = 'crate',
+      },
+
+      inlayHints = {
         bindingModeHints = {
           enable = true,
         },
@@ -69,9 +73,7 @@ return {
           enable = true,
         },
 
-        renderColons = {
-          enable = true,
-        },
+        renderColons = true,
 
         typeHints = {
           enable = true,
@@ -79,10 +81,10 @@ return {
           hideNamedConstructor = false,
         },
       },
-    },
 
-    lens = {
-      enable = true,
+      lens = {
+        enable = true,
+      },
     },
   },
 }
