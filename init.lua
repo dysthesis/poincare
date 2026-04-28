@@ -496,7 +496,7 @@ require('lz.n').load {
       },
     },
 
-    load = function()
+    load = function(name)
       vim.cmd.packadd('nvim-nio')
       vim.cmd.packadd(name)
       vim.cmd.packadd('nvim-dap-ui')
@@ -612,7 +612,7 @@ require('lz.n').load {
   {
     'nvim-treesitter',
     lazy = false,
-    load = function(name)
+    load = function()
       local function packadd_if_opt(pkg)
         local paths = vim.fn.globpath(vim.o.packpath, 'pack/*/opt/' .. pkg, true, true)
         if #paths > 0 then

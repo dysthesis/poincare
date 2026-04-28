@@ -95,7 +95,7 @@ in
     ];
 
     extraPassthru = {
-      checks = self.checks.${pkgs.system};
+      checks = self.checks.${pkgs.stdenv.hostPlatform.system};
     };
 
     meta.mainProgram = "nvim";

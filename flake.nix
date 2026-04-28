@@ -32,7 +32,7 @@
       };
 
       # for `nix fmt`
-      formatter = pkgs: treefmt.${pkgs.system}.config.build.wrapper;
+      formatter = pkgs: treefmt.${pkgs.stdenv.hostPlatform.system}.config.build.wrapper;
       # for `nix flake check`
       checks = pkgs: let
         inherit (pkgs.lib) attrByPath findFirst optionalString;
@@ -124,7 +124,7 @@
           ["lua51Packages" "luacheck"]
         ]);
       in {
-        formatting = treefmt.${pkgs.system}.config.build.check self;
+        formatting = treefmt.${pkgs.stdenv.hostPlatform.system}.config.build.check self;
         selene = mkCheckIfAvailable "selene" pkgs.selene "${self}/selene.toml";
         luacheck = mkCheckIfAvailable "luacheck" luacheckDrv "${self}/.luacheckrc";
         inherit runtime;
