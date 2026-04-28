@@ -49,6 +49,7 @@ in
 
       lean-nvim
       plenary-nvim
+      gitsigns-nvim
     ]
     ++ builtNpins
     ++ mapPlugins pkgs inputs "plugin-lazy"
