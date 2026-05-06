@@ -246,6 +246,9 @@ vim.api.nvim_create_autocmd('LspAttach', {
     -- Selects a code action available at the current cursor position
     vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
 
+    -- Rename the symbol under the cursor
+    vim.keymap.set('n', '<leader>cr', vim.lsp.buf.rename, opts)
+
     -- Toggle inlay hints such as rust-analyzer's implicit `drop(...)` markers.
     if vim.lsp.inlay_hint then
       vim.keymap.set('n', '<leader>ch', function()
