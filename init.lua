@@ -168,6 +168,8 @@ vim.lsp.config('*', {
 local lsps = {
   'lua-language-server',
   'rust-analyzer',
+  'clangd',
+  'nil',
 }
 
 local function enable_lsp(lsp)
@@ -888,6 +890,26 @@ require('lz.n').load {
     end,
     after = function()
       local cmp = require('blink.cmp')
+      local function has_clangd(bufnr)
+        return #vim.lsp.get_clients { bufnr = bufnr, name = 'clangd' } > 0
+      end
+
+      local function clangd_score(a, b)
+        -- blink copies clangd's extension score to lsp_score, then uses
+        -- score for fuzzy ranking; clangd recommends multiplying them.
+        if a.lsp_score == nil or b.lsp_score == nil or a.score == nil or b.score == nil then
+          return nil
+        end
+
+        local a_score = a.lsp_score * a.score
+        local b_score = b.lsp_score * b.score
+        if a_score == b_score then
+          return nil
+        end
+
+        return a_score > b_score
+      end
+
       cmp.setup {
         completion = {
           accept = {
@@ -924,6 +946,13 @@ require('lz.n').load {
 
         fuzzy = {
           implementation = 'rust',
+          sorts = function()
+            if has_clangd(0) then
+              return { clangd_score, 'score', 'sort_text' }
+            end
+
+            return { 'score', 'sort_text' }
+          end,
         },
         appearance = { use_nvim_cmp_as_default = false },
         cmdline = { completion = { ghost_text = { enabled = false } } },
@@ -978,6 +1007,56 @@ require('lz.n').load {
           map('n', '<leader>hp', gs.preview_hunk, opts('Preview Hunk'))
           map('n', '<leader>b', gs.blame_line, opts('Blame Line'))
         end,
+      }
+    end,
+  },
+  {
+    'clangd_extension.nvim',
+    ft = { 'c', 'h', 'cpp', 'hpp' },
+    keys = {
+      {
+        '<leader>ch',
+        '<cmd>ClangdSwitchSourceHeader<cr>',
+        desc = 'Switch between Source/[H]eader',
+      },
+      {
+        '<leader>ct',
+        '<cmd>ClangdAST<cr>',
+        desc = { 'View Abstract Syntax [T]ree' },
+      },
+    },
+    after = function()
+      require('clangd_extensions').setup {
+        ast = {
+          role_icons = {
+            type = '',
+            declaration = '',
+            expression = '',
+            specifier = '',
+            statement = '',
+            ['template argument'] = '',
+          },
+
+          kind_icons = {
+            Compound = '',
+            Recovery = '',
+            TranslationUnit = '',
+            PackExpansion = '',
+            TemplateTypeParm = '',
+            TemplateTemplateParm = '',
+            TemplateParamObject = '',
+          },
+
+          highlights = {
+            detail = 'Comment',
+          },
+        },
+        memory_usage = {
+          border = 'none',
+        },
+        symbol_info = {
+          border = 'none',
+        },
       }
     end,
   },

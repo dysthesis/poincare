@@ -22,6 +22,7 @@ in
         stylua
         selene
         npins
+        defuddle-cli
       ]
       ++ pkgs.lib.optionals (luacheck != null) [luacheck];
   }
