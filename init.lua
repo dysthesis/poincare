@@ -268,11 +268,11 @@ vim.api.nvim_create_autocmd('LspAttach', {
 })
 
 -- Tree-sitter
--- vim.api.nvim_create_autocmd('FileType', {
---   callback = function(event)
---     pcall(vim.treesitter.start, event.buf)
---   end,
--- })
+vim.api.nvim_create_autocmd('FileType', {
+  callback = function(event)
+    pcall(vim.treesitter.start, event.buf)
+  end,
+})
 
 -- Plugins
 --- Picker
