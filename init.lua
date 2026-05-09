@@ -62,16 +62,23 @@ opt.ignorecase = true
 opt.smartindent = true
 opt.shiftround = true
 opt.softtabstop = 2
--- I make this typo way too much
-vim.cmd('cnoreabbrev W! w!')
-vim.cmd('cnoreabbrev Q! q!')
-vim.cmd('cnoreabbrev Qall! qall!')
-vim.cmd('cnoreabbrev Wq wq')
-vim.cmd('cnoreabbrev Wa wa')
-vim.cmd('cnoreabbrev wQ wq')
-vim.cmd('cnoreabbrev WQ wq')
-vim.cmd('cnoreabbrev W w')
-vim.cmd('cnoreabbrev Q q')
+
+-- I make these typo way too much
+local typos = {
+  ['W!'] = 'w!',
+  ['Q!'] = 'q!',
+  ['Qall!'] = 'qall!',
+  ['Wq'] = 'wq',
+  ['Wa'] = 'wa',
+  ['wQ'] = 'wq',
+  ['WQ'] = 'wq',
+  ['W'] = 'w',
+  ['Q'] = 'q',
+}
+for from, to in pairs(typos) do
+  vim.api.nvim_command('cnoreabbrev ' .. from .. ' ' .. to)
+end
+
 -- Persist view
 local augroup = vim.api.nvim_create_augroup
 local autocmd = vim.api.nvim_create_autocmd
@@ -1011,7 +1018,7 @@ require('lz.n').load {
     end,
   },
   {
-    'clangd_extension.nvim',
+    'clangd_extensions.nvim',
     ft = { 'c', 'h', 'cpp', 'hpp' },
     keys = {
       {
