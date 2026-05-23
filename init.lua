@@ -178,6 +178,7 @@ local lsps = {
   'clangd',
   'nil',
   'basedpyright',
+  'ty',
 }
 
 local function enable_lsp(lsp)
@@ -807,6 +808,7 @@ require('lz.n').load {
           c = { 'clang-format' },
           rust = { 'rustfmt' },
           go = { 'go/fmt' },
+          python = { 'black' },
         },
       }
     end,
