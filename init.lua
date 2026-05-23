@@ -177,6 +177,7 @@ local lsps = {
   'rust-analyzer',
   'clangd',
   'nil',
+  'basedpyright',
 }
 
 local function enable_lsp(lsp)
