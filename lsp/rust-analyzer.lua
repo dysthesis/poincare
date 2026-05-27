@@ -5,6 +5,7 @@ return {
   settings = {
     ['rust-analyzer'] = {
       cargo = { features = 'all' },
+      rustc = { source = 'discover' },
 
       check = {
         command = 'clippy',
