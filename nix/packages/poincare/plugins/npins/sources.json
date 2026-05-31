@@ -9,9 +9,9 @@
       },
       "branch": "main",
       "submodules": false,
-      "revision": "49bbf757f7d4b50b32a8db221448bbf235cc6988",
-      "url": "https://github.com/dysthesis/minimal.nvim/archive/49bbf757f7d4b50b32a8db221448bbf235cc6988.tar.gz",
-      "hash": "sha256-SYHcX3bbYLrMLAnLUfg8XJqIPzQmn8UjsRhLHCjnmxc="
+      "revision": "11254fc0c105c5742867057f812ff93918450980",
+      "url": "https://github.com/dysthesis/minimal.nvim/archive/11254fc0c105c5742867057f812ff93918450980.tar.gz",
+      "hash": "sha256-e1iQDMTN/pgHPl3gK5NN2xfSFrQLwVXbChepXZkUcN4="
     },
     "nvim-treesitter-textobjects": {
       "type": "Git",
@@ -22,9 +22,9 @@
       },
       "branch": "main",
       "submodules": false,
-      "revision": "4e91b5d0394329a229725b021a8ea217099826ef",
-      "url": "https://github.com/nvim-treesitter/nvim-treesitter-textobjects/archive/4e91b5d0394329a229725b021a8ea217099826ef.tar.gz",
-      "hash": "sha256-n+GX7w+W3D3xj2+3Zr+89E7RUqBgWU14BlQrGXztoH0="
+      "revision": "851e865342e5a4cb1ae23d31caf6e991e1c99f1e",
+      "url": "https://github.com/nvim-treesitter/nvim-treesitter-textobjects/archive/851e865342e5a4cb1ae23d31caf6e991e1c99f1e.tar.gz",
+      "hash": "sha256-fOpRElIwvsFWm4AwETx7fpC3RtdH2BpCfX4YHVitqw0="
     }
   },
   "version": 7
