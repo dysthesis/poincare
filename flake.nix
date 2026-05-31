@@ -92,6 +92,32 @@
           expect_executable('fd')
           expect_executable('tree-sitter')
 
+          vim.cmd.packadd('lean.nvim')
+          if #vim.api.nvim_get_runtime_file('queries/lean/highlights.scm', true) == 0 then
+            fail('Lean treesitter queries are not on runtimepath')
+          end
+          if #vim.api.nvim_get_runtime_file('queries/lean/indents.scm', true) == 0 then
+            fail('Lean treesitter parser queries are not on runtimepath')
+          end
+          local query_files = vim.treesitter.query.get_files('lean', 'highlights')
+          if not query_files[1] or not query_files[1]:find('nvim%-treesitter%-lean', 1) then
+            fail('Lean treesitter parser queries do not take precedence: ' .. vim.inspect(query_files))
+          end
+          local queries_ok, query_err = pcall(vim.treesitter.query.get, 'lean', 'highlights')
+          if not queries_ok then
+            fail('Lean treesitter highlight queries failed: ' .. tostring(query_err))
+          end
+          if #vim.api.nvim_get_runtime_file('parser/lean.*', true) == 0 then
+            fail('Lean treesitter parser is not on runtimepath')
+          end
+
+          vim.cmd.enew()
+          vim.bo.filetype = 'lean'
+          local ok, err = pcall(vim.treesitter.start, 0, 'lean')
+          if not ok then
+            fail('Lean treesitter parser failed: ' .. tostring(err))
+          end
+
           if vim.fn.executable(vim.env.CODELLDB_PATH or "") ~= 1 then
             fail('CODELLDB_PATH is not executable')
           end

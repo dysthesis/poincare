@@ -8,6 +8,22 @@
   name = "poincare";
   optPlugins =
     import ./plugins {inherit pkgs inputs lib;};
+  leanTreeSitterGrammar = pkgs.tree-sitter.builtGrammars.tree-sitter-lean.overrideAttrs (_: {
+    version = "0.2.0-unstable-2026-05-30";
+    src = pkgs.fetchFromGitHub {
+      owner = "Julian";
+      repo = "tree-sitter-lean";
+      rev = "1941d160719daabc7d9854539d59e5911ac3b152";
+      hash = "sha256-UE+i/qnnRzulS9RDpevqvyoPTBZXVuwcLkFoWV2z8BM=";
+    };
+  });
+  leanTreeSitterRuntime = pkgs.runCommand "nvim-treesitter-lean" {} ''
+    mkdir -p "$out/parser" "$out/queries/lean"
+    ln -s ${leanTreeSitterGrammar}/parser "$out/parser/lean.so"
+    for query in ${leanTreeSitterGrammar}/queries/*.scm; do
+      ln -s "$query" "$out/queries/lean/$(basename "$query")"
+    done
+  '';
   startPlugins = with pkgs.vimPlugins; [
     lz-n
     lzn-auto-require
@@ -23,6 +39,7 @@
         just
         python
       ]))
+    leanTreeSitterRuntime
   ];
 
   extraPackages = with pkgs; [
