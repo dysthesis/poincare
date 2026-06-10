@@ -133,10 +133,20 @@
           end
           LUA
 
+          # A +luafile error prints to stderr but Neovim continues to +qa and
+          # exits 0, so the check must gate on stderr, not the exit code.
+          rc=0
           env -i \
             HOME="$TMPDIR/home" \
             PATH="${pkgs.coreutils}/bin" \
-            ${poincare}/bin/nvim --headless "+luafile $TMPDIR/runtime-check.lua" +qa
+            ${poincare}/bin/nvim --headless "+luafile $TMPDIR/runtime-check.lua" +qa \
+            2>"$TMPDIR/stderr.log" || rc=$?
+
+          if [ "$rc" -ne 0 ] || [ -s "$TMPDIR/stderr.log" ]; then
+            echo "runtime check failed (exit $rc):" >&2
+            cat "$TMPDIR/stderr.log" >&2
+            exit 1
+          fi
 
           touch "$out"
         '';
@@ -202,6 +212,36 @@
           touch "$out"
         '';
 
+        # Behavioural suite (tests/): a mini.test parent inside the wrapped
+        # binary drives child Neovim processes booted with the same store
+        # paths. lua-language-server is on PATH for the live-attach test;
+        # everything else is intentionally absent (README policy).
+        tests =
+          pkgs.runCommand "check-poincare-tests" {
+            nativeBuildInputs = [pkgs.coreutils pkgs.lua-language-server];
+          } ''
+            set -eu
+
+            mkdir -p "$TMPDIR/home" "$TMPDIR/xdg"/{config,data,state,cache,run}
+            chmod 700 "$TMPDIR/xdg/run"
+
+            cd ${luaSrc}
+            env -i \
+              HOME="$TMPDIR/home" \
+              TMPDIR="$TMPDIR" \
+              LANG=C.UTF-8 \
+              PATH="${pkgs.lib.makeBinPath [pkgs.coreutils pkgs.lua-language-server]}" \
+              XDG_CONFIG_HOME="$TMPDIR/xdg/config" \
+              XDG_DATA_HOME="$TMPDIR/xdg/data" \
+              XDG_STATE_HOME="$TMPDIR/xdg/state" \
+              XDG_CACHE_HOME="$TMPDIR/xdg/cache" \
+              XDG_RUNTIME_DIR="$TMPDIR/xdg/run" \
+              POINCARE_NVIM="${poincare}/bin/nvim" \
+              timeout 600 ${poincare}/bin/nvim --headless "+luafile tests/minit.lua"
+
+            touch "$out"
+          '';
+
         luacheckDrv = findFirst (x: x != null) null (map (p: attrByPath p null pkgs) [
           ["luacheck"]
           ["luaPackages" "luacheck"]
@@ -214,7 +254,7 @@
         formatting = treefmt.${pkgs.stdenv.hostPlatform.system}.config.build.check self;
         selene = mkCheckIfAvailable "selene" pkgs.selene "${self}/selene.toml";
         luacheck = mkCheckIfAvailable "luacheck" luacheckDrv "${self}/.luacheckrc";
-        inherit runtime boot-purity checkhealth;
+        inherit runtime boot-purity checkhealth tests;
       };
       packages = pkgs:
         import ./nix/packages {
