@@ -682,7 +682,8 @@ require('lz.n').load {
           end,
         },
         appearance = { use_nvim_cmp_as_default = false },
-        cmdline = { completion = { ghost_text = { enabled = false } } },
+        -- default auto_show is cmdwin-only; show while typing on : / ?
+        cmdline = { completion = { menu = { auto_show = true }, ghost_text = { enabled = false } } },
 
         signature = { enabled = true },
         -- Pick sources depending on file type and/or tree-sitter node
