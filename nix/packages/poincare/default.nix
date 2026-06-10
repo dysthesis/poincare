@@ -42,7 +42,6 @@
     ripgrep
     fd
     uutils-coreutils-noprefix
-    tree-sitter
   ];
 
   # Interpolate files individually so the whole repo isn't a build input;

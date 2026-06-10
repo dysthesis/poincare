@@ -89,7 +89,6 @@
 
           expect_executable('rg')
           expect_executable('fd')
-          expect_executable('tree-sitter')
 
           vim.cmd.packadd('lean.nvim')
           if #vim.api.nvim_get_runtime_file('queries/lean/highlights.scm', true) == 0 then
@@ -172,6 +171,8 @@
         # no blank lines — an empty pattern would match everything):
         #   - tar/curl: external tools intentionally absent from the closure
         #     (README policy: runtime tools come from the environment).
+        #   - tree-sitter-cli: only compiles grammars; Nix ships them
+        #     precompiled, so the CLI is intentionally absent.
         #   - "is not in runtimepath": nvim-treesitter's download/install dir
         #     ($XDG_DATA_HOME/poincare/site) — unused; parsers ship via Nix.
         #   - locale: hermetic env has no locale archive on some platforms
@@ -179,6 +180,7 @@
         checkhealthAllowlist = pkgs.writeText "checkhealth-allowlist" ''
           tar not found
           curl not found
+          tree-sitter-cli not found
           is not in runtimepath
           Locale does not support UTF-8
         '';
