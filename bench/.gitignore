@@ -1,0 +1,5 @@
+results/
+files/big.*
+files/small.*
+files/justfile
+files/lua-project/
