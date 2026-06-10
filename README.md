@@ -25,10 +25,10 @@ This is a Nix flake packaging my Neovim configuration -- thus, one may run it
 using Nix by running `nix run`.
 
 The packaged editor only includes editor-intrinsic tools, such as file search,
-text search, Tree-sitter support, and the debugger adapter. Project-specific
-tools, including language servers, formatters, linters, compilers, and build
-tools, are expected to come from the active project environment, usually a Nix
-development shell.
+text search, and Tree-sitter support. Project-specific tools, including
+language servers, formatters, linters, compilers, build tools, and the debug
+adapter (`codelldb`), are expected to come from the active project
+environment, usually a Nix development shell.
 
 ### Development
 

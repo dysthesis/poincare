@@ -325,14 +325,26 @@ require('lz.n').load {
       vim.fn.sign_define('DapLogPoint', { text = ' ', texthl = 'DapLogPoint', linehl = '', numhl = '' })
       local dap = require('dap')
 
-      dap.adapters.codelldb = {
-        type = 'server',
-        port = '${port}',
-        executable = {
-          command = vim.env.CODELLDB_PATH,
-          args = { '--port', '${port}' },
-        },
-      }
+      -- Function adapter: codelldb comes from the project env (README
+      -- policy), so resolve and validate it at session start, not at boot.
+      dap.adapters.codelldb = function(cb)
+        local command = vim.env.CODELLDB_PATH or 'codelldb'
+        if vim.fn.executable(command) ~= 1 then
+          vim.notify(
+            'codelldb not found. Add it to the project env, e.g.\n'
+              .. '  nix shell "nixpkgs#vscode-extensions.vadimcn.vscode-lldb.adapter"\n'
+              .. 'or point $CODELLDB_PATH at the binary\n'
+              .. '  (${vscode-lldb}/share/vscode/extensions/vadimcn.vscode-lldb/adapter/codelldb).',
+            vim.log.levels.ERROR
+          )
+          return
+        end
+        cb {
+          type = 'server',
+          port = '${port}',
+          executable = { command = command, args = { '--port', '${port}' } },
+        }
+      end
 
       dap.configurations.rust = {
         {

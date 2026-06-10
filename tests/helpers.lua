@@ -13,8 +13,8 @@ H.fixtures_dir = H.tests_dir .. '/fixtures'
 -- Binary under test. checks.tests and tests/run.sh point POINCARE_NVIM at
 -- the wrapper; v:progpath may resolve to the unwrapped binary, which still
 -- works because the child arguments below reconstruct the wrapper flags and
--- the wrapper environment (PATH, NVIM_APPNAME, CODELLDB_PATH) is inherited
--- from the parent process.
+-- the wrapper environment (PATH, NVIM_APPNAME) is inherited from the parent
+-- process.
 H.nvim_bin = vim.env.POINCARE_NVIM or vim.v.progpath
 
 -- The parent booted with `-u <configDir>/init.lua` ($MYVIMRC stays unset

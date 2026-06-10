@@ -52,8 +52,18 @@ T['dap signs are defined'] = function()
   end
 end
 
-T['CODELLDB_PATH is executable'] = function()
-  eq(child.lua_get([[vim.fn.executable(vim.env.CODELLDB_PATH or '') == 1]]), true)
+T['missing codelldb notifies instead of erroring'] = function()
+  child.type_keys(' Db')
+  H.wait_until(child, [[package.loaded['dap'] ~= nil]])
+  -- Force the missing-binary path regardless of the host env.
+  child.lua([[
+    vim.env.CODELLDB_PATH = '/nonexistent/codelldb'
+    _G.__notified, _G.__cb_called = nil, false
+    vim.notify = function(msg) _G.__notified = msg end
+    require('dap').adapters.codelldb(function() _G.__cb_called = true end)
+  ]])
+  eq(child.lua_get('_G.__cb_called'), false)
+  eq(child.lua_get([[type(_G.__notified) == 'string' and _G.__notified:find('codelldb') ~= nil]]), true)
 end
 
 T['dap-first then dapui does not re-run setup'] = function()

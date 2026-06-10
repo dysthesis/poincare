@@ -117,10 +117,6 @@
             fail('Lean treesitter parser failed: ' .. tostring(err))
           end
 
-          if vim.fn.executable(vim.env.CODELLDB_PATH or "") ~= 1 then
-            fail('CODELLDB_PATH is not executable')
-          end
-
           local dap_continue = vim.fn.maparg(' Dc', 'n', false, true)
           if dap_continue.desc ~= 'Continue' then
             fail('<leader>Dc should remain DAP continue, got ' .. vim.inspect(dap_continue.desc))

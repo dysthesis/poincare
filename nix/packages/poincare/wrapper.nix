@@ -9,7 +9,7 @@
   optPlugins,
   configDir,
   extraPackages,
-  extraWrapperArgs,
+  extraWrapperArgs ? [],
   extraPassthru,
   meta,
 }: let
