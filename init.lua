@@ -1,18 +1,14 @@
-pcall(function()
-  vim.loader.enable()
-end)
+pcall(vim.loader.enable)
 
 vim.cmd.filetype('plugin', 'indent', 'on')
-vim.cmd.packadd('cfilter') -- Allows filtering the quickfix list with :cfdo
+vim.cmd.packadd('cfilter') -- :Cfilter and :Lfilter
 
 local cmd = vim.cmd
 local opt = vim.o
 
-opt.compatible = false
 -- Appearance
 --- Set theme
 vim.g.minimal_transparent = true
-vim.g.have_nerd_font = false
 -- minimal.nvim lives in pack/*/opt; :colorscheme would find it there anyway,
 -- but only packadd puts its after/queries/* on the runtimepath. Deliberately
 -- eager: deferring the colourscheme causes a flash of unstyled UI.
@@ -28,24 +24,23 @@ opt.colorcolumn = '80'
 
 --- Statusline
 cmd([[hi StatusMode gui=bold cterm=bold]])
+local mode_abbr = {
+  n = 'NOR',
+  no = 'NOR',
+  i = 'INS',
+  ic = 'INS',
+  v = 'VIS',
+  V = 'VIS',
+  ['\22'] = 'VIS',
+  R = 'REP',
+  c = 'CMD',
+  t = 'TER',
+}
 vim.mode_abbr = function()
-  return ({
-    n = 'NOR',
-    no = 'NOR',
-    i = 'INS',
-    ic = 'INS',
-    v = 'VIS',
-    V = 'VIS',
-    ['\22'] = 'VIS',
-    R = 'REP',
-    c = 'CMD',
-    t = 'TER',
-  })[vim.api.nvim_get_mode().mode] or vim.api.nvim_get_mode().mode:upper()
+  local mode = vim.api.nvim_get_mode().mode
+  return mode_abbr[mode] or mode:upper()
 end
-opt.statusline = table.concat({
-  '%#StatusMode#%{v:lua.vim.mode_abbr()}%* %t',
-  '%=%y 0x%B %l:%c %p%%',
-}, ' ')
+opt.statusline = '%#StatusMode#%{v:lua.vim.mode_abbr()}%* %t %=%y 0x%B %l:%c %p%%'
 
 -- Command-line completion UI
 opt.wildmenu = true
@@ -103,8 +98,14 @@ autocmd('BufWinEnter', {
     if not vim.b[args.buf].view_activated then
       local filetype = vim.api.nvim_get_option_value('filetype', { buf = args.buf })
       local buftype = vim.api.nvim_get_option_value('buftype', { buf = args.buf })
-      local ignore_filetypes = { 'gitcommit', 'gitrebase', 'svg', 'hgcommit' }
-      if buftype == '' and filetype and filetype ~= '' and not vim.tbl_contains(ignore_filetypes, filetype) then
+      if
+        buftype == ''
+        and filetype ~= ''
+        and filetype ~= 'gitcommit'
+        and filetype ~= 'gitrebase'
+        and filetype ~= 'svg'
+        and filetype ~= 'hgcommit'
+      then
         vim.b[args.buf].view_activated = true
         vim.cmd.loadview { mods = { emsg_silent = true } }
       end
@@ -114,8 +115,8 @@ autocmd('BufWinEnter', {
 opt.tabstop = 2
 opt.shiftwidth = 2
 --- Leader keys
-vim.g.mapleader = vim.keycode('<space>')
-vim.g.maplocalleader = vim.keycode('<cr>')
+vim.g.mapleader = ' '
+vim.g.maplocalleader = '\r'
 --- Clipboard
 vim.schedule(function()
   opt.clipboard = 'unnamedplus'
@@ -135,8 +136,7 @@ vim.diagnostic.config {
   virtual_text = {
     format = function(diagnostic)
       -- diagnostic.source is a name string, not a client id.
-      local prefix = diagnostic.source and (diagnostic.source .. ': ') or ''
-      return prefix .. diagnostic.message
+      return (diagnostic.source and (diagnostic.source .. ': ') or '') .. diagnostic.message
     end,
   },
 
@@ -189,88 +189,43 @@ local function enable_lsp(lsp)
   local bin = cfg and type(cfg.cmd) == 'table' and cfg.cmd[1] or lsp
   if vim.fn.executable(bin) == 1 then
     vim.lsp.enable(lsp)
-    return true
   end
-
-  return false
 end
 
 for _, lsp in ipairs(lsps) do
   enable_lsp(lsp)
 end
 
-for _, lsp in ipairs { 'nil', 'nixd' } do
-  if enable_lsp(lsp) then
-    break
-  end
+if not vim.lsp.is_enabled('nil') then
+  enable_lsp('nixd')
 end
 
 vim.api.nvim_create_autocmd('LspAttach', {
   desc = 'LSP actions',
   callback = function(event)
     local bufnr = event.buf
-    local client = assert(vim.lsp.get_client_by_id(event.data.client_id))
-
-    -- Enable inlay hint
-    if vim.lsp.inlay_hint then
-      vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-    end
+    vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
 
     local opts = { buffer = bufnr }
-    -- Auto-format ("lint") on save.
-    -- Usually not needed if server supports "textDocument/willSaveWaitUntil".
-    if
-      not client:supports_method('textDocument/willSaveWaitUntil')
-      and client:supports_method('textDocument/formatting')
-    then
-      vim.api.nvim_create_autocmd('BufWritePre', {
-        group = vim.api.nvim_create_augroup('my.lsp', { clear = false }),
-        buffer = event.buf,
-        callback = function()
-          -- TODO: Formatting function
-          -- vim.lsp.buf.format { bufnr = event.buf, id = client.id, timeout_ms = 1000 }
-        end,
-      })
-    end
 
-    -- Display documentation of the symbol under the cursor
     vim.keymap.set('n', 'K', function()
       vim.lsp.buf.hover { focusable = true }
     end, opts)
 
-    -- Jump to the definition
     vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-
-    -- Format current file
     vim.keymap.set({ 'n', 'x' }, 'gq', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
-
-    -- Displays a function's signature information
     vim.keymap.set('i', '<C-s>', vim.lsp.buf.signature_help, opts)
-
-    -- Jump to declaration
     vim.keymap.set('n', '<leader>cd', vim.lsp.buf.declaration, opts)
-
-    -- Lists all the implementations for the symbol under the cursor
     vim.keymap.set('n', '<leader>ci', vim.lsp.buf.implementation, opts)
-
-    -- Jumps to the definition of the type symbol
     vim.keymap.set('n', '<leader>ct', vim.lsp.buf.type_definition, opts)
-
-    -- Lists all the references
     vim.keymap.set('n', '<leader>cR', vim.lsp.buf.references, opts)
-
-    -- Selects a code action available at the current cursor position
     vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
-
-    -- Rename the symbol under the cursor
     vim.keymap.set('n', '<leader>cr', vim.lsp.buf.rename, opts)
 
     -- Toggle inlay hints such as rust-analyzer's implicit `drop(...)` markers.
-    if vim.lsp.inlay_hint then
-      vim.keymap.set('n', '<leader>ch', function()
-        vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = bufnr }, { bufnr = bufnr })
-      end, vim.tbl_extend('force', opts, { desc = 'Toggle inlay hints' }))
-    end
+    vim.keymap.set('n', '<leader>ch', function()
+      vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = bufnr }, { bufnr = bufnr })
+    end, { buffer = bufnr, desc = 'Toggle inlay hints' })
   end,
 })
 
@@ -278,87 +233,40 @@ vim.api.nvim_create_autocmd('LspAttach', {
 -- nvim-treesitter's after() hook below, which carries the latex exclusion.
 
 -- Plugins
+local function call(module, method, namespace)
+  return function()
+    local target = require(module)
+    target = namespace and target[namespace] or target
+    target[method]()
+  end
+end
+
+local function lsp_picker(scope)
+  return function()
+    require('mini.extra').pickers.lsp { scope = scope }
+  end
+end
+
 --- Picker
 require('lz.n').load {
-  -- Trigger-less specs are deliberately eager (lz.n loads them at startup):
-  -- mini.extra is require()d directly by the picker keymaps below, and
-  -- nvim-nio / nvim-dap-virtual-text must be on the rtp before nvim-dap's
-  -- hooks run.
-  { 'mini.extra' },
   {
     'mini.pick',
     cmd = 'Pick',
+    load = function(name)
+      vim.cmd.packadd(name)
+      vim.cmd.packadd('mini.extra')
+    end,
     keys = {
-      {
-        '<leader>f',
-        function()
-          require('mini.pick').builtin.files()
-        end,
-        desc = 'Find [F]iles',
-      },
-      {
-        '<leader>/',
-        function()
-          require('mini.pick').builtin.grep_live()
-        end,
-        desc = 'Find [G]rep',
-      },
-      {
-        '<leader>d',
-        function()
-          require('mini.extra').pickers.diagnostic()
-        end,
-        desc = 'Find [D]iagnostics',
-      },
-      {
-        '<leader>e',
-        function()
-          require('mini.extra').pickers.explorer()
-        end,
-        desc = 'File [E]xplorer',
-      },
-      {
-        '<leader>g',
-        function()
-          require('mini.extra').pickers.git_hunks()
-        end,
-        desc = 'Find [G]it hunks',
-      },
-      {
-        '<leader>s',
-        function()
-          require('mini.extra').pickers.lsp { scope = 'document_symbol' }
-        end,
-        desc = 'Find [S]ymbols',
-      },
-      {
-        '<leader>S',
-        function()
-          require('mini.extra').pickers.lsp { scope = 'workspace_symbol' }
-        end,
-        desc = 'Find Workspace [S]ymbols',
-      },
-      {
-        '<leader>r',
-        function()
-          require('mini.extra').pickers.lsp { scope = 'references' }
-        end,
-        desc = 'Find [R]eferences',
-      },
-      {
-        '<leader>i',
-        function()
-          require('mini.extra').pickers.lsp { scope = 'implementation' }
-        end,
-        desc = 'Find [I]mplementation',
-      },
-      {
-        '<leader>T',
-        function()
-          require('mini.extra').pickers.treesitter()
-        end,
-        desc = 'Find [T]reesitter nodes',
-      },
+      { '<leader>f', call('mini.pick', 'files', 'builtin'), desc = 'Find [F]iles' },
+      { '<leader>/', call('mini.pick', 'grep_live', 'builtin'), desc = 'Find [G]rep' },
+      { '<leader>d', call('mini.extra', 'diagnostic', 'pickers'), desc = 'Find [D]iagnostics' },
+      { '<leader>e', call('mini.extra', 'explorer', 'pickers'), desc = 'File [E]xplorer' },
+      { '<leader>g', call('mini.extra', 'git_hunks', 'pickers'), desc = 'Find [G]it hunks' },
+      { '<leader>s', lsp_picker('document_symbol'), desc = 'Find [S]ymbols' },
+      { '<leader>S', lsp_picker('workspace_symbol'), desc = 'Find Workspace [S]ymbols' },
+      { '<leader>r', lsp_picker('references'), desc = 'Find [R]eferences' },
+      { '<leader>i', lsp_picker('implementation'), desc = 'Find [I]mplementation' },
+      { '<leader>T', call('mini.extra', 'treesitter', 'pickers'), desc = 'Find [T]reesitter nodes' },
     },
     after = function()
       local MiniPick = require('mini.pick')
@@ -390,107 +298,24 @@ require('lz.n').load {
   {
     'smart-splits.nvim',
     keys = {
-      {
-        '<A-h>',
-        function()
-          require('smart-splits').resize_left()
-        end,
-        desc = 'Resize left',
-      },
-      {
-        '<A-j>',
-        function()
-          require('smart-splits').resize_down()
-        end,
-        desc = 'Resize down',
-      },
-      {
-        '<A-k>',
-        function()
-          require('smart-splits').resize_up()
-        end,
-        desc = 'Resize up',
-      },
-      {
-        '<A-l>',
-        function()
-          require('smart-splits').resize_right()
-        end,
-        desc = 'Resize right',
-      },
-      {
-        '<C-h>',
-        function()
-          require('smart-splits').move_cursor_left()
-        end,
-        desc = 'Move cursor left',
-      },
-      {
-        '<C-j>',
-        function()
-          require('smart-splits').move_cursor_down()
-        end,
-        desc = 'Move cursor down',
-      },
-      {
-        '<C-k>',
-        function()
-          require('smart-splits').move_cursor_up()
-        end,
-        desc = 'Move cursor up',
-      },
-      {
-        '<C-l>',
-        function()
-          require('smart-splits').move_cursor_right()
-        end,
-        desc = 'Move cursor right',
-      },
-      {
-        '<C-\\>',
-        function()
-          require('smart-splits').move_cursor_previous()
-        end,
-        desc = 'Move cursor to previous split',
-      },
+      { '<A-h>', call('smart-splits', 'resize_left'), desc = 'Resize left' },
+      { '<A-j>', call('smart-splits', 'resize_down'), desc = 'Resize down' },
+      { '<A-k>', call('smart-splits', 'resize_up'), desc = 'Resize up' },
+      { '<A-l>', call('smart-splits', 'resize_right'), desc = 'Resize right' },
+      { '<C-h>', call('smart-splits', 'move_cursor_left'), desc = 'Move cursor left' },
+      { '<C-j>', call('smart-splits', 'move_cursor_down'), desc = 'Move cursor down' },
+      { '<C-k>', call('smart-splits', 'move_cursor_up'), desc = 'Move cursor up' },
+      { '<C-l>', call('smart-splits', 'move_cursor_right'), desc = 'Move cursor right' },
+      { '<C-\\>', call('smart-splits', 'move_cursor_previous'), desc = 'Move cursor to previous split' },
     },
-    after = function()
-      require('smart-splits').setup {}
-    end,
   },
-  { 'nvim-nio' },
   {
     'nvim-dap',
     keys = {
-      {
-        '<leader>Db',
-        function()
-          require('dap').toggle_breakpoint()
-        end,
-        desc = 'Toggle Breakpoint',
-      },
-
-      {
-        '<leader>Dc',
-        function()
-          require('dap').continue()
-        end,
-        desc = 'Continue',
-      },
-      {
-        '<leader>Ds',
-        function()
-          require('dap').step_over()
-        end,
-        desc = 'Step over',
-      },
-      {
-        '<leader>DS',
-        function()
-          require('dap').step_into()
-        end,
-        desc = 'Step into',
-      },
+      { '<leader>Db', call('dap', 'toggle_breakpoint'), desc = 'Toggle Breakpoint' },
+      { '<leader>Dc', call('dap', 'continue'), desc = 'Continue' },
+      { '<leader>Ds', call('dap', 'step_over'), desc = 'Step over' },
+      { '<leader>DS', call('dap', 'step_into'), desc = 'Step into' },
       {
         '<leader>Dr',
         function()
@@ -498,21 +323,8 @@ require('lz.n').load {
         end,
         desc = 'Open DAP repl',
       },
-      {
-        '<leader>DC',
-        function()
-          require('dap').run_to_cursor()
-        end,
-        desc = 'Run to Cursor',
-      },
-
-      {
-        '<leader>DT',
-        function()
-          require('dap').terminate()
-        end,
-        desc = 'Terminate',
-      },
+      { '<leader>DC', call('dap', 'run_to_cursor'), desc = 'Run to Cursor' },
+      { '<leader>DT', call('dap', 'terminate'), desc = 'Terminate' },
     },
 
     load = function(name)
@@ -551,25 +363,12 @@ require('lz.n').load {
           cwd = '${workspaceFolder}',
           stopOnEntry = false,
           args = {},
-
-          -- 💀
-          -- if you change `runInTerminal` to true, you might need to change the yama/ptrace_scope setting:
-          --
-          --    echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
-          --
-          -- Otherwise you might get the following error:
-          --
-          --    Error on launch: Failed to attach to the target process
-          --
-          -- But you should be aware of the implications:
-          -- https://www.kernel.org/doc/html/latest/admin-guide/LSM/Yama.html
-          -- runInTerminal = false,
+          -- runInTerminal=true may require lowering Linux's Yama ptrace_scope.
         },
       }
       dap.configurations.c = dap.configurations.rust
       dap.configurations.cpp = dap.configurations.rust
 
-      -- Configure nvim-dap-ui to open with nvim-dap
       local ok, dapui = pcall(require, 'dapui')
       if ok then
         dapui.setup {}
@@ -594,63 +393,30 @@ require('lz.n').load {
   },
   {
     'nvim-dap-ui',
-    load = function(name)
+    load = function()
       -- Load core DAP through lz.n so its before/after hooks run (adapter and
-      -- listener setup); a raw packadd would skip them. nvim-dap's own load fn
-      -- pulls in nvim-nio and friends.
+      -- listener setup); nvim-dap's load function also adds the UI package.
       require('lz.n').trigger_load('nvim-dap')
-      vim.cmd.packadd(name)
     end,
     keys = {
-      {
-        '<leader>Do',
-        function()
-          require('dapui').open()
-        end,
-        desc = '[D]ebug [O]pen',
-      },
-      {
-        '<leader>Dx',
-        function()
-          require('dapui').close()
-        end,
-        desc = '[D]ebug Close UI',
-      },
-      {
-        '<leader>Dt',
-        function()
-          require('dapui').toggle()
-        end,
-        desc = '[D]ebug [T]oggle UI',
-      },
+      { '<leader>Do', call('dapui', 'open'), desc = '[D]ebug [O]pen' },
+      { '<leader>Dx', call('dapui', 'close'), desc = '[D]ebug Close UI' },
+      { '<leader>Dt', call('dapui', 'toggle'), desc = '[D]ebug [T]oggle UI' },
     },
     -- No after() here: nvim-dap's after() (reached via trigger_load above)
     -- already runs dapui.setup and wires the listeners; a second setup()
     -- deletes and recreates every element buffer.
   },
-  { 'nvim-dap-virtual-text' },
   {
     'nvim-treesitter',
     lazy = false,
     load = function()
-      local function packadd_if_opt(pkg)
-        local paths = vim.fn.globpath(vim.o.packpath, 'pack/*/opt/' .. pkg, true, true)
-        if #paths > 0 then
-          pcall(vim.cmd.packadd, pkg)
-        end
-      end
-
-      packadd_if_opt('nvim-treesitter-textobjects')
+      vim.cmd.packadd('nvim-treesitter-textobjects')
     end,
     after = function()
-      -- New nvim-treesitter rewrite no longer exposes `configs`; use the
-      -- top-level setup and wire features ourselves.
-      require('nvim-treesitter').setup {}
-
       -- Enable treesitter highlighting everywhere except LaTeX (upstream queries
       -- are still experimental there).
       vim.api.nvim_create_autocmd('FileType', {
-        pattern = '*',
         callback = function(event)
           if event.match == 'latex' then
             return
@@ -661,7 +427,6 @@ require('lz.n').load {
 
       -- Textobjects configuration + keymaps
       require('nvim-treesitter-textobjects').setup {
-        highlight = { enable = true },
         select = {
           lookahead = true,
           selection_modes = {
@@ -731,31 +496,20 @@ require('lz.n').load {
         swap.swap_previous('@parameter.inner', 'textobjects', true)
       end, { desc = 'TS swap parameter with previous' })
 
-      vim.keymap.set({ 'n', 'x', 'o' }, ']m', function()
-        move.goto_next_start('@function.outer', 'textobjects')
-      end, { desc = 'TS next function start' })
-      vim.keymap.set({ 'n', 'x', 'o' }, ']P', function()
-        move.goto_next_start('@parameter.outer', 'textobjects')
-      end, { desc = 'TS next parameter start' })
-      vim.keymap.set({ 'n', 'x', 'o' }, ']M', function()
-        move.goto_next_end('@function.outer', 'textobjects')
-      end, { desc = 'TS next function end' })
-      vim.keymap.set({ 'n', 'x', 'o' }, ']p', function()
-        move.goto_next_end('@parameter.outer', 'textobjects')
-      end, { desc = 'TS next parameter end' })
+      local function map_move(lhs, method, capture, desc)
+        vim.keymap.set({ 'n', 'x', 'o' }, lhs, function()
+          move[method](capture, 'textobjects')
+        end, { desc = desc })
+      end
 
-      vim.keymap.set({ 'n', 'x', 'o' }, '[m', function()
-        move.goto_previous_start('@function.outer', 'textobjects')
-      end, { desc = 'TS prev function start' })
-      vim.keymap.set({ 'n', 'x', 'o' }, '[P', function()
-        move.goto_previous_start('@parameter.outer', 'textobjects')
-      end, { desc = 'TS prev parameter start' })
-      vim.keymap.set({ 'n', 'x', 'o' }, '[M', function()
-        move.goto_previous_end('@function.outer', 'textobjects')
-      end, { desc = 'TS prev function end' })
-      vim.keymap.set({ 'n', 'x', 'o' }, '[p', function()
-        move.goto_previous_end('@parameter.outer', 'textobjects')
-      end, { desc = 'TS prev parameter end' })
+      map_move(']m', 'goto_next_start', '@function.outer', 'TS next function start')
+      map_move(']P', 'goto_next_start', '@parameter.outer', 'TS next parameter start')
+      map_move(']M', 'goto_next_end', '@function.outer', 'TS next function end')
+      map_move(']p', 'goto_next_end', '@parameter.outer', 'TS next parameter end')
+      map_move('[m', 'goto_previous_start', '@function.outer', 'TS prev function start')
+      map_move('[P', 'goto_previous_start', '@parameter.outer', 'TS prev parameter start')
+      map_move('[M', 'goto_previous_end', '@function.outer', 'TS prev function end')
+      map_move('[p', 'goto_previous_end', '@parameter.outer', 'TS prev parameter end')
     end,
   },
   {
@@ -778,16 +532,7 @@ require('lz.n').load {
     after = function()
       require('conform').setup {
         notify_on_error = false,
-        format_after_save = function(bufnr)
-          -- Disable LSP fallback for languages that don't
-          -- have a well standardized coding style. You can add additional
-          -- languages here or re-enable it for the disabled ones.
-          local disable_filetypes = {}
-          return {
-            timeout_ms = 500,
-            lsp_format = disable_filetypes[vim.bo[bufnr].filetype] and 'never' or 'fallback',
-          }
-        end,
+        format_after_save = { timeout_ms = 500, lsp_format = 'fallback' },
         formatters_by_ft = {
           lua = { 'stylua' },
           markdown = { 'markdownlint' },
@@ -814,12 +559,9 @@ require('lz.n').load {
         ignore_exitcode = true,
         parser = function(output, bufnr)
           local items = {}
-          -- get buffer by file name
           for line in vim.gsplit(output, '\n') do
             local level, file, row, col, message = line:match('::(%w+)%sfile=([^,]+),line=(%d+),col=(%d+),title=(.*)')
-            local severity = nil
-            -- map linter levels to diagnostic levels
-            -- zlint levels: error, warning, off
+            local severity
             if level == 'error' then
               severity = vim.diagnostic.severity.ERROR
             elseif level == 'warning' then
@@ -829,14 +571,14 @@ require('lz.n').load {
             if file and severity then
               local l_bufnr = vim.fn.bufnr(file)
               if l_bufnr > -1 and l_bufnr == bufnr then
-                table.insert(items, {
+                items[#items + 1] = {
                   lnum = tonumber(row) - 1,
                   col = tonumber(col) - 1,
                   message = message,
                   source = 'zlint',
                   bufnr = bufnr,
                   severity = severity,
-                })
+                }
               end
             end
           end
@@ -850,14 +592,13 @@ require('lz.n').load {
         nix = { 'statix' },
         lua = { 'selene' },
       }
-      local lint_augroup = vim.api.nvim_create_augroup('lint', { clear = true })
       vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
-        group = lint_augroup,
+        group = vim.api.nvim_create_augroup('lint', { clear = true }),
         callback = function()
           -- Only run the linter in buffers that you can modify in order to
           -- avoid superfluous noise, notably within the handy LSP pop-ups that
           -- describe the hovered symbol using Markdown.
-          if vim.opt_local.modifiable:get() then
+          if vim.bo.modifiable then
             lint.try_lint()
           end
         end,
@@ -887,10 +628,6 @@ require('lz.n').load {
     end,
     after = function()
       local cmp = require('blink.cmp')
-      local function has_clangd(bufnr)
-        return #vim.lsp.get_clients { bufnr = bufnr, name = 'clangd' } > 0
-      end
-
       local function clangd_score(a, b)
         -- blink copies clangd's extension score to lsp_score, then uses
         -- score for fuzzy ranking; clangd recommends multiplying them.
@@ -910,7 +647,6 @@ require('lz.n').load {
       cmp.setup {
         completion = {
           accept = {
-            -- experimental auto-brackets support
             auto_brackets = {
               enabled = true,
             },
@@ -919,7 +655,6 @@ require('lz.n').load {
           ghost_text = { enabled = true },
           menu = {
             border = 'rounded',
-            -- Use mini.icons
             draw = {
               treesitter = { 'lsp' },
               gap = 2,
@@ -927,12 +662,11 @@ require('lz.n').load {
                 kind_icon = {
                   ellipsis = false,
                   text = function(ctx)
-                    local kind_icon, _, _ = require('mini.icons').get('lsp', ctx.kind)
+                    local kind_icon = require('mini.icons').get('lsp', ctx.kind)
                     return kind_icon
                   end,
-                  -- Optionally, you may also use the highlights from mini.icons
                   highlight = function(ctx)
-                    local _, hl, _ = require('mini.icons').get('lsp', ctx.kind)
+                    local _, hl = require('mini.icons').get('lsp', ctx.kind)
                     return hl
                   end,
                 },
@@ -944,7 +678,7 @@ require('lz.n').load {
         fuzzy = {
           implementation = 'rust',
           sorts = function()
-            if has_clangd(0) then
+            if #vim.lsp.get_clients { bufnr = 0, name = 'clangd' } > 0 then
               return { clangd_score, 'score', 'sort_text' }
             end
 
@@ -961,15 +695,14 @@ require('lz.n').load {
             local success, node = pcall(vim.treesitter.get_node)
             if vim.bo.filetype == 'lua' then
               return { 'lsp', 'path' }
-            elseif
-              success
-              and node
-              and vim.tbl_contains({ 'comment', 'line_comment', 'block_comment' }, node:type())
-            then
-              return { 'buffer' }
-            else
-              return { 'lsp', 'path', 'snippets', 'buffer' }
             end
+
+            local node_type = success and node and node:type()
+            if node_type == 'comment' or node_type == 'line_comment' or node_type == 'block_comment' then
+              return { 'buffer' }
+            end
+
+            return { 'lsp', 'path', 'snippets', 'buffer' }
           end,
         },
       }

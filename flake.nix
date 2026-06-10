@@ -1,12 +1,11 @@
 {
   description = "A flake of chaos.";
 
-  outputs = inputs @ {
+  outputs = {
     self,
     nixpressions,
     nixpkgs,
     treefmt-nix,
-    ...
   }: let
     inherit (builtins) mapAttrs;
     inherit (nixpressions) mkLib;
@@ -259,7 +258,6 @@
       packages = pkgs:
         import ./nix/packages {
           inherit
-            inputs
             pkgs
             lib
             self

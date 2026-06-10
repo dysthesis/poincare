@@ -1,13 +1,10 @@
 {
-  inputs,
   pkgs,
   lib,
   self,
-  ...
 }: let
   name = "poincare";
-  optPlugins =
-    import ./plugins {inherit pkgs inputs lib;};
+  optPlugins = import ./plugins {inherit pkgs lib;};
   leanTreeSitterGrammar = pkgs.tree-sitter.builtGrammars.tree-sitter-lean.overrideAttrs (_: {
     version = "0.2.0-unstable-2026-05-30";
     src = pkgs.fetchFromGitHub {
@@ -58,36 +55,7 @@
 
   configDir = pkgs.runCommand "${name}-cfg" {} ''
     mkdir -p "$out"
-    cp ${../../..}/init.lua "$out/init.lua"
-
-    # Copy common Neovim runtime directories when present in the repo root.
-    for d in \
-      after \
-      autoload \
-      colors \
-      compiler \
-      doc \
-      ftdetect \
-      ftplugin \
-      indent \
-      keymap \
-      lua \
-      lsp \
-      pack \
-      plugin \
-      queries \
-      rplugin \
-      spell \
-      syntax \
-      syntax_checkers \
-      tutor \
-      snippets \
-    ; do
-      src="${../../..}/$d"
-      if [ -d "$src" ]; then
-        cp -r "$src" "$out/"
-      fi
-    done
+    cp -r ${../../..}/{init.lua,lsp} "$out/"
   '';
 in
   pkgs.callPackage ./wrapper.nix {

@@ -3,26 +3,15 @@
   neovim-unwrapped,
   makeWrapper,
   runCommandLocal,
-  vimPlugins,
   lib,
-  name ? "poincare",
-  packageName ? name,
-  # Plugins to load eagerly on startup
-  startPlugins ? [vimPlugins.nvim-treesitter.withAllGrammars],
-  # Plugins to load lazily, e.g. by `:packadd`
-  optPlugins ? [],
-  # Init file
-  init ? "${configDir}/init.lua",
-  # Optional config directory to prepend to runtimepath
-  # This should contain a `lua/` subdirectory with modules referenced by `init`.
-  configDir ? null,
-  # Extra packages to make available to Neovim
-  extraPackages ? [],
-  # Extra arguments for wrapProgram, e.g. environment variables
-  extraWrapperArgs ? [],
-  # Additional passthru attributes to expose on the wrapper derivation
-  extraPassthru ? {},
-  meta ? {},
+  name,
+  startPlugins,
+  optPlugins,
+  configDir,
+  extraPackages,
+  extraWrapperArgs,
+  extraPassthru,
+  meta,
 }: let
   inherit
     (lib)
@@ -40,33 +29,28 @@
       ++ (foldPlugins (next.dependencies or []))
   ) [];
 
-  startPluginsWithDeps = unique (foldPlugins startPlugins);
-  optPluginsWithDeps = unique (foldPlugins optPlugins);
-
   packpath = let
     # Construct symlinks for each plugin to the destination in the packpath
     linkPlugins = plugins: dest:
       lib.concatMapStringsSep
       "\n"
-      (plugin: "ln -vsfT ${plugin} $out/pack/${packageName}/${dest}/${getName
+      (plugin: "ln -vsfT ${plugin} $out/pack/${name}/${dest}/${getName
         plugin}")
       plugins;
   in
     runCommandLocal "packpath" {} ''
-      mkdir -p $out/pack/${packageName}/{start,opt}
+      mkdir -p $out/pack/${name}/{start,opt}
 
-      ${linkPlugins startPluginsWithDeps "start"}
-      ${linkPlugins optPluginsWithDeps "opt"}
+      ${linkPlugins (unique (foldPlugins startPlugins)) "start"}
+      ${linkPlugins (unique (foldPlugins optPlugins)) "opt"}
     '';
 
-  mkBuild = name: init: packpath: configDir: let
-    withInit = init: [
+  wrapperArgs =
+    [
       "--add-flags"
       "-u"
       "--add-flags"
-      "${init}"
-    ];
-    withPackpath = packpath: [
+      "${configDir}/init.lua"
       "--add-flags"
       "--cmd"
       "--add-flags"
@@ -75,45 +59,24 @@
       "--cmd"
       "--add-flags"
       "'set runtimepath^=${packpath}'"
-    ];
-    withConfigDir = configDir:
-    # sh
-      if configDir == null || configDir == ""
-      then []
-      else [
-        "--add-flags"
-        "--cmd"
-        "--add-flags"
-        "'set runtimepath^=${configDir}'"
-      ];
-    withAppname = name: [
+      "--add-flags"
+      "--cmd"
+      "--add-flags"
+      "'set runtimepath^=${configDir}'"
       "--set-default"
       "NVIM_APPNAME"
       "${name}"
-    ];
-
-    withExtraPackages = packages:
-      lib.optionals (packages != [])
-      ["--prefix" "PATH" ":" (makeBinPath packages)];
-
-    args =
-      withInit init
-      ++ withPackpath packpath
-      ++ withConfigDir configDir
-      ++ withAppname name
-      ++ withExtraPackages extraPackages
-      ++ extraWrapperArgs;
-  in
-    # sh
-    ''
-      wrapProgram $out/bin/nvim ${escapeShellArgs args}
-    '';
+    ]
+    ++ ["--prefix" "PATH" ":" (makeBinPath extraPackages)]
+    ++ extraWrapperArgs;
 in
   symlinkJoin {
     inherit name meta;
     paths = [neovim-unwrapped];
     nativeBuildInputs = [makeWrapper];
-    postBuild = mkBuild name init packpath configDir;
+    postBuild = ''
+      wrapProgram $out/bin/nvim ${escapeShellArgs wrapperArgs}
+    '';
 
     passthru =
       {
