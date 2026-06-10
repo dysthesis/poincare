@@ -24,6 +24,7 @@ bench/noise-floor.sh                  # B0 — ALWAYS FIRST; same binary as both
 bench/startup.sh . "git+file:$PWD?rev=$(git rev-parse HEAD~1)"   # B1: M1, M2, M7
 bench/deferred.sh                     # B2: M3, M4, M5, M8
 bench/attribute.sh                    # single-run --startuptime triage (no stats)
+bench/nix-metrics.sh . "git+file:$PWD?rev=$(git rev-parse HEAD~1)"   # P5: M6 + closure diff
 ```
 
 Fixtures (`bench/files/`, gitignored) are generated deterministically by
