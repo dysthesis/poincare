@@ -3,7 +3,6 @@ pcall(vim.loader.enable)
 local api, cmd, opt = vim.api, vim.cmd, vim.o
 local autocmd, augroup = api.nvim_create_autocmd, api.nvim_create_augroup
 
-cmd.filetype('plugin', 'indent', 'on')
 cmd.packadd('cfilter') -- :Cfilter and :Lfilter
 
 -- Appearance
@@ -39,7 +38,6 @@ end
 opt.statusline = '%#StatusMode#%{v:lua.vim.mode_abbr()}%* %t %=%y 0x%B %l:%c %p%%'
 
 -- Command-line completion UI
-opt.wildmenu = true
 opt.wildmode = 'noselect' -- command-line completion behaviour
 opt.wildoptions = 'pum,fuzzy' -- show popup menu with fuzzy matching
 opt.completeopt = 'menu,menuone,popup,fuzzy,noselect' -- modern completion menu
