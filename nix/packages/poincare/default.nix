@@ -45,9 +45,12 @@
     tree-sitter
   ];
 
+  # Interpolate files individually so the whole repo isn't a build input;
+  # doc/bench edits must not rebuild the wrapper.
   configDir = pkgs.runCommand "${name}-cfg" {} ''
     mkdir -p "$out"
-    cp -r ${../../..}/{init.lua,lsp} "$out/"
+    cp ${../../../init.lua} "$out/init.lua"
+    cp -r ${../../../lsp} "$out/lsp"
   '';
 in
   pkgs.callPackage ./wrapper.nix {
