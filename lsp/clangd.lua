@@ -88,8 +88,12 @@ return {
       symbol_info(bufnr, client)
     end, { desc = 'Show symbol info' })
 
+    vim.keymap.set('n', '<leader>cs', function()
+      switch_source_header(bufnr, client)
+    end, { buffer = bufnr, desc = 'Switch [S]ource/Header' })
+
     vim.keymap.set('n', '<leader>csi', function()
       symbol_info(bufnr, client)
-    end, { desc = 'Show [S]ymbol [I]nfo' })
+    end, { buffer = bufnr, desc = 'Show [S]ymbol [I]nfo' })
   end,
 }

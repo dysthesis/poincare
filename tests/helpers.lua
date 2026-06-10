@@ -237,10 +237,6 @@ H.trigger_keys = {
     { mode = 'n', lhs = ' Dx' },
     { mode = 'n', lhs = ' Dt' },
   },
-  ['clangd_extensions.nvim'] = {
-    { mode = 'n', lhs = ' cs' },
-    { mode = 'n', lhs = ' cT' },
-  },
 }
 
 function H.all_trigger_keys()

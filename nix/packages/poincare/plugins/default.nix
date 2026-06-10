@@ -59,8 +59,5 @@ in
 
       lean-nvim
       gitsigns-nvim
-
-      # Language-specific
-      clangd_extensions-nvim
     ]
     ++ mkNpins npins

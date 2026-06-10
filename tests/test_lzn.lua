@@ -76,7 +76,6 @@ local lazy_specs = {
   { name = 'ultimate-autopair.nvim', mod = 'ultimate-autopair', trigger = keys('i'), cleanup = esc },
   { name = 'blink.cmp', mod = 'blink.cmp', trigger = keys('i'), cleanup = esc, extra_rtp = { 'mini.icons' } },
   { name = 'lean.nvim', mod = 'lean', trigger = edit('hello.lean'), extra_rtp = { 'plenary.nvim' } },
-  { name = 'clangd_extensions.nvim', mod = 'clangd_extensions', trigger = edit('hello.c') },
 }
 
 T['lazy specs'] = MiniTest.new_set()
@@ -144,7 +143,6 @@ T['every spec name resolves to a packpath dir'] = function()
     'lean.nvim',
     'blink.cmp',
     'gitsigns.nvim',
-    'clangd_extensions.nvim',
   }
   for _, name in ipairs(specs) do
     local pattern = 'pack/*/{start,opt}/' .. name
@@ -162,7 +160,6 @@ T['opt packpath inventory matches the specs'] = function()
   local known = {
     -- lz.n specs and packages loaded by their consumers
     'blink.cmp',
-    'clangd_extensions.nvim',
     'conform.nvim',
     'gitsigns.nvim',
     'lean.nvim',

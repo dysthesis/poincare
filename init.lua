@@ -734,43 +734,4 @@ require('lz.n').load {
       }
     end,
   },
-  {
-    'clangd_extensions.nvim',
-    ft = { 'c', 'h', 'cpp', 'hpp' },
-    -- Note: avoid <leader>ch / <leader>ct here — the LspAttach autocmd maps
-    -- those buffer-locally (inlay hints / type definition) in every LSP
-    -- buffer, which would shadow these global triggers.
-    keys = {
-      { '<leader>cs', '<cmd>ClangdSwitchSourceHeader<cr>', desc = 'Switch [S]ource/Header' },
-      { '<leader>cT', '<cmd>ClangdAST<cr>', desc = 'View Abstract Syntax [T]ree' },
-    },
-    after = function()
-      require('clangd_extensions').setup {
-        ast = {
-          role_icons = {
-            type = '',
-            declaration = '',
-            expression = '',
-            specifier = '',
-            statement = '',
-            ['template argument'] = '',
-          },
-
-          kind_icons = {
-            Compound = '',
-            Recovery = '',
-            TranslationUnit = '',
-            PackExpansion = '',
-            TemplateTypeParm = '',
-            TemplateTemplateParm = '',
-            TemplateParamObject = '',
-          },
-
-          highlights = { detail = 'Comment' },
-        },
-        memory_usage = { border = 'none' },
-        symbol_info = { border = 'none' },
-      }
-    end,
-  },
 }

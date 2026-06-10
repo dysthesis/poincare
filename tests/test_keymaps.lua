@@ -4,7 +4,7 @@
 --      desc aborts handler registration for the whole plugin (bug 1);
 --   2. descs are unique — locks the <leader>e/<leader>g copy-paste class;
 --   3. LspAttach buffer-local maps never shadow a global trigger — locks
---      the clangd re-home to <leader>cs/<leader>cT.
+--      the historic <leader>ch/<leader>ct collision class.
 local MiniTest = require('mini.test')
 local H = require('helpers')
 
