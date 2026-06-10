@@ -41,7 +41,6 @@
   extraPackages = with pkgs; [
     ripgrep
     fd
-    uutils-coreutils-noprefix
   ];
 
   # Interpolate files individually so the whole repo isn't a build input;

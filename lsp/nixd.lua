@@ -1,12 +1,5 @@
 ---@type vim.lsp.Config
-local file = io.popen('hostname')
-if file == nil then
-  return
-end
-
-local hostname = file:read('*a') or ''
-file:close()
-hostname = hostname:gsub('\n$', '')
+local hostname = vim.uv.os_gethostname()
 
 return {
   cmd = { 'nixd' },
