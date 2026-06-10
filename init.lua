@@ -1,13 +1,12 @@
 pcall(vim.loader.enable)
 
-vim.cmd.filetype('plugin', 'indent', 'on')
-vim.cmd.packadd('cfilter') -- :Cfilter and :Lfilter
+local api, cmd, opt = vim.api, vim.cmd, vim.o
+local autocmd, augroup = api.nvim_create_autocmd, api.nvim_create_augroup
 
-local cmd = vim.cmd
-local opt = vim.o
+cmd.filetype('plugin', 'indent', 'on')
+cmd.packadd('cfilter') -- :Cfilter and :Lfilter
 
 -- Appearance
---- Set theme
 vim.g.minimal_transparent = true
 -- minimal.nvim lives in pack/*/opt; :colorscheme would find it there anyway,
 -- but only packadd puts its after/queries/* on the runtimepath. Deliberately
@@ -16,14 +15,11 @@ cmd.packadd('minimal.nvim')
 cmd.colorscheme('minimal')
 opt.conceallevel = 2
 
---- Set relative line number
 vim.wo.relativenumber = true
-
---- Set colour column
 opt.colorcolumn = '80'
 
---- Statusline
-cmd([[hi StatusMode gui=bold cterm=bold]])
+-- Statusline
+cmd('hi StatusMode gui=bold cterm=bold')
 local mode_abbr = {
   n = 'NOR',
   no = 'NOR',
@@ -37,7 +33,7 @@ local mode_abbr = {
   t = 'TER',
 }
 vim.mode_abbr = function()
-  local mode = vim.api.nvim_get_mode().mode
+  local mode = api.nvim_get_mode().mode
   return mode_abbr[mode] or mode:upper()
 end
 opt.statusline = '%#StatusMode#%{v:lua.vim.mode_abbr()}%* %t %=%y 0x%B %l:%c %p%%'
@@ -48,7 +44,7 @@ opt.wildmode = 'noselect' -- command-line completion behaviour
 opt.wildoptions = 'pum,fuzzy' -- show popup menu with fuzzy matching
 opt.completeopt = 'menu,menuone,popup,fuzzy,noselect' -- modern completion menu
 -- Incrementally refresh wildmenu as you type on :, /, ?
-vim.api.nvim_create_autocmd('CmdlineChanged', {
+autocmd('CmdlineChanged', {
   pattern = { ':', '/', '?' },
   callback = function()
     pcall(vim.fn.wildtrigger)
@@ -63,7 +59,7 @@ opt.shiftround = true
 opt.softtabstop = 2
 
 -- I make these typo way too much
-local typos = {
+for from, to in pairs {
   ['W!'] = 'w!',
   ['Q!'] = 'q!',
   ['Qall!'] = 'qall!',
@@ -73,21 +69,18 @@ local typos = {
   ['WQ'] = 'wq',
   ['W'] = 'w',
   ['Q'] = 'q',
-}
-for from, to in pairs(typos) do
-  vim.api.nvim_command('cnoreabbrev ' .. from .. ' ' .. to)
+} do
+  api.nvim_command('cnoreabbrev ' .. from .. ' ' .. to)
 end
 
 -- Persist view
-local augroup = vim.api.nvim_create_augroup
-local autocmd = vim.api.nvim_create_autocmd
 local view_group = augroup('auto_view', { clear = true })
 autocmd({ 'BufWinLeave', 'BufWritePost', 'WinLeave' }, {
   desc = 'Save view with mkview for real files',
   group = view_group,
   callback = function(args)
     if vim.b[args.buf].view_activated then
-      vim.cmd.mkview { mods = { emsg_silent = true } }
+      cmd.mkview { mods = { emsg_silent = true } }
     end
   end,
 })
@@ -95,29 +88,30 @@ autocmd('BufWinEnter', {
   desc = 'Try to load file view if available and enable view saving for real files',
   group = view_group,
   callback = function(args)
-    if not vim.b[args.buf].view_activated then
-      local filetype = vim.api.nvim_get_option_value('filetype', { buf = args.buf })
-      local buftype = vim.api.nvim_get_option_value('buftype', { buf = args.buf })
-      if
-        buftype == ''
-        and filetype ~= ''
-        and filetype ~= 'gitcommit'
-        and filetype ~= 'gitrebase'
-        and filetype ~= 'svg'
-        and filetype ~= 'hgcommit'
-      then
-        vim.b[args.buf].view_activated = true
-        vim.cmd.loadview { mods = { emsg_silent = true } }
-      end
+    local b = vim.b[args.buf]
+    if b.view_activated then
+      return
+    end
+
+    local bo = vim.bo[args.buf]
+    local filetype = bo.filetype
+    if
+      bo.buftype == ''
+      and filetype ~= ''
+      and filetype ~= 'gitcommit'
+      and filetype ~= 'gitrebase'
+      and filetype ~= 'svg'
+      and filetype ~= 'hgcommit'
+    then
+      b.view_activated = true
+      cmd.loadview { mods = { emsg_silent = true } }
     end
   end,
 })
 opt.tabstop = 2
 opt.shiftwidth = 2
---- Leader keys
 vim.g.mapleader = ' '
 vim.g.maplocalleader = '\r'
---- Clipboard
 vim.schedule(function()
   opt.clipboard = 'unnamedplus'
 end)
@@ -131,7 +125,8 @@ opt.splitbelow = true
 opt.cursorline = true -- enable cursor line
 vim.g.netrw_banner = 0
 
---- LSP
+-- LSP
+local diagnostic_severity = vim.diagnostic.severity
 vim.diagnostic.config {
   virtual_text = {
     format = function(diagnostic)
@@ -141,18 +136,16 @@ vim.diagnostic.config {
   },
 
   underline = true,
-
   signs = {
     text = {
-      [vim.diagnostic.severity.ERROR] = '󰅚 ',
-      [vim.diagnostic.severity.WARN] = '󰀪 ',
-      [vim.diagnostic.severity.INFO] = '󰋽 ',
-      [vim.diagnostic.severity.HINT] = '󰌶 ',
+      [diagnostic_severity.ERROR] = '󰅚 ',
+      [diagnostic_severity.WARN] = '󰀪 ',
+      [diagnostic_severity.INFO] = '󰋽 ',
+      [diagnostic_severity.HINT] = '󰌶 ',
     },
-
     numhl = {
-      [vim.diagnostic.severity.ERROR] = 'ErrorMsg',
-      [vim.diagnostic.severity.WARN] = 'WarningMsg',
+      [diagnostic_severity.ERROR] = 'ErrorMsg',
+      [diagnostic_severity.WARN] = 'WarningMsg',
     },
   },
   update_in_insert = false,
@@ -171,20 +164,8 @@ vim.lsp.config('*', {
   root_markers = { '.git' },
 })
 
-local lsps = {
-  'lua-language-server',
-  'rust-analyzer',
-  'clangd',
-  'nil',
-  'basedpyright',
-  'ty',
-}
-
 local function enable_lsp(lsp)
-  -- The binary a config runs is cmd[1], which may differ from the config name
-  -- (basedpyright runs basedpyright-langserver). Indexing vim.lsp.config
-  -- sources lsp/<name>.lua eagerly, so only call this for names we would
-  -- enable anyway.
+  -- A config's name and executable can differ (for example, basedpyright).
   local cfg = vim.lsp.config[lsp]
   local bin = cfg and type(cfg.cmd) == 'table' and cfg.cmd[1] or lsp
   if vim.fn.executable(bin) == 1 then
@@ -192,7 +173,14 @@ local function enable_lsp(lsp)
   end
 end
 
-for _, lsp in ipairs(lsps) do
+for _, lsp in ipairs {
+  'lua-language-server',
+  'rust-analyzer',
+  'clangd',
+  'nil',
+  'basedpyright',
+  'ty',
+} do
   enable_lsp(lsp)
 end
 
@@ -200,32 +188,33 @@ if not vim.lsp.is_enabled('nil') then
   enable_lsp('nixd')
 end
 
-vim.api.nvim_create_autocmd('LspAttach', {
+autocmd('LspAttach', {
   desc = 'LSP actions',
   callback = function(event)
     local bufnr = event.buf
     vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
 
-    local opts = { buffer = bufnr }
+    local map = vim.keymap.set
+    local opts = { buf = bufnr }
 
-    vim.keymap.set('n', 'K', function()
+    map('n', 'K', function()
       vim.lsp.buf.hover { focusable = true }
     end, opts)
 
-    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-    vim.keymap.set({ 'n', 'x' }, 'gq', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
-    vim.keymap.set('i', '<C-s>', vim.lsp.buf.signature_help, opts)
-    vim.keymap.set('n', '<leader>cd', vim.lsp.buf.declaration, opts)
-    vim.keymap.set('n', '<leader>ci', vim.lsp.buf.implementation, opts)
-    vim.keymap.set('n', '<leader>ct', vim.lsp.buf.type_definition, opts)
-    vim.keymap.set('n', '<leader>cR', vim.lsp.buf.references, opts)
-    vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
-    vim.keymap.set('n', '<leader>cr', vim.lsp.buf.rename, opts)
+    map('n', 'gd', vim.lsp.buf.definition, opts)
+    map({ 'n', 'x' }, 'gq', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
+    map('i', '<C-s>', vim.lsp.buf.signature_help, opts)
+    map('n', '<leader>cd', vim.lsp.buf.declaration, opts)
+    map('n', '<leader>ci', vim.lsp.buf.implementation, opts)
+    map('n', '<leader>ct', vim.lsp.buf.type_definition, opts)
+    map('n', '<leader>cR', vim.lsp.buf.references, opts)
+    map('n', '<leader>ca', vim.lsp.buf.code_action, opts)
+    map('n', '<leader>cr', vim.lsp.buf.rename, opts)
 
     -- Toggle inlay hints such as rust-analyzer's implicit `drop(...)` markers.
-    vim.keymap.set('n', '<leader>ch', function()
+    map('n', '<leader>ch', function()
       vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = bufnr }, { bufnr = bufnr })
-    end, { buffer = bufnr, desc = 'Toggle inlay hints' })
+    end, { buf = bufnr, desc = 'Toggle inlay hints' })
   end,
 })
 
@@ -247,14 +236,14 @@ local function lsp_picker(scope)
   end
 end
 
---- Picker
+-- Picker
 require('lz.n').load {
   {
     'mini.pick',
     cmd = 'Pick',
     load = function(name)
-      vim.cmd.packadd(name)
-      vim.cmd.packadd('mini.extra')
+      cmd.packadd(name)
+      cmd.packadd('mini.extra')
     end,
     keys = {
       { '<leader>f', call('mini.pick', 'files', 'builtin'), desc = 'Find [F]iles' },
@@ -278,16 +267,15 @@ require('lz.n').load {
         window = {
           prompt_prefix = '   ',
           config = function()
-            -- centered on screen
-            local height = math.floor(0.618 * vim.o.lines)
-            local width = math.floor(0.618 * vim.o.columns)
+            local floor, lines, columns = math.floor, vim.o.lines, vim.o.columns
+            local height, width = floor(0.618 * lines), floor(0.618 * columns)
             return {
               anchor = 'NW',
               border = 'rounded',
               height = height,
               width = width,
-              row = math.floor(0.5 * (vim.o.lines - height)),
-              col = math.floor(0.5 * (vim.o.columns - width)),
+              row = floor(0.5 * (lines - height)),
+              col = floor(0.5 * (columns - width)),
             }
           end,
         },
@@ -316,22 +304,16 @@ require('lz.n').load {
       { '<leader>Dc', call('dap', 'continue'), desc = 'Continue' },
       { '<leader>Ds', call('dap', 'step_over'), desc = 'Step over' },
       { '<leader>DS', call('dap', 'step_into'), desc = 'Step into' },
-      {
-        '<leader>Dr',
-        function()
-          require('dap').repl.open()
-        end,
-        desc = 'Open DAP repl',
-      },
+      { '<leader>Dr', call('dap', 'open', 'repl'), desc = 'Open DAP repl' },
       { '<leader>DC', call('dap', 'run_to_cursor'), desc = 'Run to Cursor' },
       { '<leader>DT', call('dap', 'terminate'), desc = 'Terminate' },
     },
 
     load = function(name)
-      vim.cmd.packadd('nvim-nio')
-      vim.cmd.packadd(name)
-      vim.cmd.packadd('nvim-dap-ui')
-      vim.cmd.packadd('nvim-dap-virtual-text')
+      cmd.packadd('nvim-nio')
+      cmd.packadd(name)
+      cmd.packadd('nvim-dap-ui')
+      cmd.packadd('nvim-dap-virtual-text')
     end,
 
     after = function()
@@ -411,17 +393,16 @@ require('lz.n').load {
     'nvim-treesitter',
     lazy = false,
     load = function()
-      vim.cmd.packadd('nvim-treesitter-textobjects')
+      cmd.packadd('nvim-treesitter-textobjects')
     end,
     after = function()
       -- Enable treesitter highlighting everywhere except LaTeX (upstream queries
       -- are still experimental there).
-      vim.api.nvim_create_autocmd('FileType', {
+      autocmd('FileType', {
         callback = function(event)
-          if event.match == 'latex' then
-            return
+          if event.match ~= 'latex' then
+            pcall(vim.treesitter.start, event.buf, event.match)
           end
-          pcall(vim.treesitter.start, event.buf, event.match)
         end,
       })
 
@@ -447,9 +428,10 @@ require('lz.n').load {
       local select = require('nvim-treesitter-textobjects.select')
       local move = require('nvim-treesitter-textobjects.move')
       local swap = require('nvim-treesitter-textobjects.swap')
+      local map = vim.keymap.set
 
       local function map_sel(lhs, capture, desc)
-        vim.keymap.set({ 'x', 'o' }, lhs, function()
+        map({ 'x', 'o' }, lhs, function()
           select.select_textobject(capture, 'textobjects')
         end, { desc = desc })
       end
@@ -489,15 +471,15 @@ require('lz.n').load {
       map_sel('as', '@statement.outer', 'TS select statement')
       map_sel('ns', '@scopename.inner', 'TS select scope name')
 
-      vim.keymap.set('n', '<leader>a', function()
-        swap.swap_next('@parameter.inner', 'textobjects', true)
+      map('n', '<leader>a', function()
+        swap.swap_next('@parameter.inner', 'textobjects')
       end, { desc = 'TS swap parameter with next' })
-      vim.keymap.set('n', '<leader>A', function()
-        swap.swap_previous('@parameter.inner', 'textobjects', true)
+      map('n', '<leader>A', function()
+        swap.swap_previous('@parameter.inner', 'textobjects')
       end, { desc = 'TS swap parameter with previous' })
 
       local function map_move(lhs, method, capture, desc)
-        vim.keymap.set({ 'n', 'x', 'o' }, lhs, function()
+        map({ 'n', 'x', 'o' }, lhs, function()
           move[method](capture, 'textobjects')
         end, { desc = desc })
       end
@@ -563,12 +545,12 @@ require('lz.n').load {
             local level, file, row, col, message = line:match('::(%w+)%sfile=([^,]+),line=(%d+),col=(%d+),title=(.*)')
             local severity
             if level == 'error' then
-              severity = vim.diagnostic.severity.ERROR
+              severity = diagnostic_severity.ERROR
             elseif level == 'warning' then
-              severity = vim.diagnostic.severity.WARN
+              severity = diagnostic_severity.WARN
             end
 
-            if file and severity then
+            if severity then
               local l_bufnr = vim.fn.bufnr(file)
               if l_bufnr > -1 and l_bufnr == bufnr then
                 items[#items + 1] = {
@@ -592,8 +574,8 @@ require('lz.n').load {
         nix = { 'statix' },
         lua = { 'selene' },
       }
-      vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
-        group = vim.api.nvim_create_augroup('lint', { clear = true }),
+      autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
+        group = augroup('lint', { clear = true }),
         callback = function()
           -- Only run the linter in buffers that you can modify in order to
           -- avoid superfluous noise, notably within the handy LSP pop-ups that
@@ -609,8 +591,8 @@ require('lz.n').load {
     'lean.nvim',
     event = { 'BufReadPre *.lean', 'BufNewFile *.lean' },
     load = function(name)
-      vim.cmd.packadd('plenary.nvim')
-      vim.cmd.packadd(name)
+      cmd.packadd('plenary.nvim')
+      cmd.packadd(name)
     end,
 
     after = function()
@@ -623,8 +605,8 @@ require('lz.n').load {
     'blink.cmp',
     event = 'InsertEnter',
     load = function(name)
-      vim.cmd.packadd('mini.icons')
-      vim.cmd.packadd(name)
+      cmd.packadd('mini.icons')
+      cmd.packadd(name)
     end,
     after = function()
       local cmp = require('blink.cmp')
@@ -728,7 +710,7 @@ require('lz.n').load {
           local gs = package.loaded.gitsigns
 
           local function opts(desc)
-            return { buffer = bufnr, desc = desc }
+            return { buf = bufnr, desc = desc }
           end
 
           local map = vim.keymap.set
@@ -747,16 +729,8 @@ require('lz.n').load {
     -- those buffer-locally (inlay hints / type definition) in every LSP
     -- buffer, which would shadow these global triggers.
     keys = {
-      {
-        '<leader>cs',
-        '<cmd>ClangdSwitchSourceHeader<cr>',
-        desc = 'Switch [S]ource/Header',
-      },
-      {
-        '<leader>cT',
-        '<cmd>ClangdAST<cr>',
-        desc = 'View Abstract Syntax [T]ree',
-      },
+      { '<leader>cs', '<cmd>ClangdSwitchSourceHeader<cr>', desc = 'Switch [S]ource/Header' },
+      { '<leader>cT', '<cmd>ClangdAST<cr>', desc = 'View Abstract Syntax [T]ree' },
     },
     after = function()
       require('clangd_extensions').setup {
@@ -780,16 +754,10 @@ require('lz.n').load {
             TemplateParamObject = '',
           },
 
-          highlights = {
-            detail = 'Comment',
-          },
+          highlights = { detail = 'Comment' },
         },
-        memory_usage = {
-          border = 'none',
-        },
-        symbol_info = {
-          border = 'none',
-        },
+        memory_usage = { border = 'none' },
+        symbol_info = { border = 'none' },
       }
     end,
   },

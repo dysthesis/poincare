@@ -6,7 +6,7 @@ end
 
 local hostname = file:read('*a') or ''
 file:close()
-hostname = string.gsub(hostname, '\n$', '')
+hostname = hostname:gsub('\n$', '')
 
 return {
   cmd = { 'nixd' },
@@ -17,9 +17,7 @@ return {
       nixpkgs = {
         expr = 'import <nixpkgs> { }',
       },
-      formatting = {
-        command = { 'alejandra' },
-      },
+      formatting = { command = { 'alejandra' } },
       options = {
         nixos = {
           expr = '(builtins.getFlake ("git+file://" + toString ./.)).nixosConfigurations.' .. hostname .. '.options',

@@ -6,24 +6,13 @@ return {
     Lua = {
       runtime = {
         version = 'LuaJIT',
-        path = {
-          'lua/?.lua',
-          'lua/?/init.lua',
-        },
+        path = { 'lua/?.lua', 'lua/?/init.lua' },
       },
       workspace = {
         checkThirdParty = false,
-        library = {
-          vim.env.VIMRUNTIME,
-          -- Depending on the usage, you might want to add additional paths
-          -- here.
-          -- '${3rd}/luv/library',
-          -- '${3rd}/busted/library',
-        },
+        library = { vim.env.VIMRUNTIME },
       },
-      completion = {
-        callSnippet = 'Replace',
-      },
+      completion = { callSnippet = 'Replace' },
       telemetry = { enable = false },
       hint = {
         enable = true,
