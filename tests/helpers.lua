@@ -237,6 +237,20 @@ H.trigger_keys = {
     { mode = 'n', lhs = ' Dx' },
     { mode = 'n', lhs = ' Dt' },
   },
+  ['mini.surround'] = {
+    { mode = 'n', lhs = 'sa' },
+    { mode = 'x', lhs = 'sa' },
+    { mode = 'n', lhs = 'sd' },
+    { mode = 'n', lhs = 'sr' },
+    { mode = 'n', lhs = 'sf' },
+    { mode = 'x', lhs = 'sf' },
+    { mode = 'o', lhs = 'sf' },
+    { mode = 'n', lhs = 'sF' },
+    { mode = 'x', lhs = 'sF' },
+    { mode = 'o', lhs = 'sF' },
+    { mode = 'n', lhs = 'sh' },
+    { mode = 'n', lhs = 'sn' },
+  },
 }
 
 function H.all_trigger_keys()

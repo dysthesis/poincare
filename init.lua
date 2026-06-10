@@ -508,7 +508,17 @@ require('lz.n').load {
   },
   {
     'mini.surround',
-    event = 'BufReadPost',
+    -- Modes mirror the maps setup() creates; suffix maps (sdl, sdn, ...)
+    -- are reached through the sd/sr/sf/sF prefix stubs via key replay.
+    keys = {
+      { 'sa', mode = { 'n', 'x' }, desc = 'Surround add' },
+      { 'sd', desc = 'Surround delete' },
+      { 'sr', desc = 'Surround replace' },
+      { 'sf', mode = { 'n', 'x', 'o' }, desc = 'Surround find' },
+      { 'sF', mode = { 'n', 'x', 'o' }, desc = 'Surround find left' },
+      { 'sh', desc = 'Surround highlight' },
+      { 'sn', desc = 'Surround update n_lines' },
+    },
     after = function()
       require('mini.surround').setup {}
     end,
