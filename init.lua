@@ -41,13 +41,6 @@ opt.statusline = '%#StatusMode#%{v:lua.vim.mode_abbr()}%* %t %=%y 0x%B %l:%c %p%
 opt.wildmode = 'noselect' -- command-line completion behaviour
 opt.wildoptions = 'pum,fuzzy' -- show popup menu with fuzzy matching
 opt.completeopt = 'menu,menuone,popup,fuzzy,noselect' -- modern completion menu
--- Incrementally refresh wildmenu as you type on :, /, ?
-autocmd('CmdlineChanged', {
-  pattern = { ':', '/', '?' },
-  callback = function()
-    pcall(vim.fn.wildtrigger)
-  end,
-})
 
 -- Behaviour
 opt.smartcase = true
@@ -623,7 +616,8 @@ require('lz.n').load {
   },
   {
     'blink.cmp',
-    event = 'InsertEnter',
+    -- CmdlineEnter: blink's cmdline completion replaces the native wildmenu
+    event = { 'InsertEnter', 'CmdlineEnter' },
     load = function(name)
       cmd.packadd('mini.icons')
       cmd.packadd(name)
