@@ -2,6 +2,8 @@
   pkgs,
   lib,
   self,
+  # Overridable so packages.poincare-nightly can swap in nightly Neovim.
+  neovim-unwrapped ? pkgs.neovim-unwrapped,
 }: let
   name = "poincare";
   optPlugins = import ./plugins {inherit pkgs lib;};
@@ -60,7 +62,7 @@ in
       startPlugins
       ;
 
-    inherit (pkgs) neovim-unwrapped;
+    inherit neovim-unwrapped;
 
     extraPassthru = {
       checks = self.checks.${pkgs.stdenv.hostPlatform.system};

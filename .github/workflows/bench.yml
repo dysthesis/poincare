@@ -1,0 +1,76 @@
+name: Bench
+
+# workflow_dispatch only (TODO P6): shared runners are too noisy to gate on —
+# sub-2-3x deltas are untrustworthy there. The B0 rule still holds because
+# the noise floor is re-measured on the runner itself before any verdict;
+# expect it to be wide and most verdicts to be "indistinguishable".
+on:
+  workflow_dispatch:
+    inputs:
+      baseline:
+        description: "Baseline git rev (arm B); arm A is the dispatched ref"
+        required: false
+        default: "HEAD~1"
+
+permissions:
+  contents: read
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      BENCH_NO_TUNE: "1" # no passwordless sudo on runners; skip governor/SMT tuning
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # baseline rev must be reachable
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v11
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@v5
+
+      - name: Resolve baseline arm
+        env:
+          BASELINE: ${{ inputs.baseline }}
+        run: |
+          rev="$(git rev-parse "$BASELINE")"
+          echo "ARM_B=git+file:$PWD?rev=$rev" >> "$GITHUB_ENV"
+
+      - name: Noise floor (B0)
+        run: |
+          nix shell --inputs-from . nixpkgs#hyperfine \
+            -c bench/noise-floor.sh
+
+      - name: Startup A/B (B1)
+        run: |
+          nix shell --inputs-from . nixpkgs#hyperfine \
+            -c bench/startup.sh . "$ARM_B"
+
+      - name: Nix metrics (P5)
+        run: bench/nix-metrics.sh . "$ARM_B"
+
+      - name: Closure diff into job summary
+        run: |
+          a="$(nix build .#poincare --no-link --print-out-paths)"
+          b="$(nix build "$ARM_B#poincare" --no-link --print-out-paths)"
+          {
+            echo "## Closure diff (baseline -> candidate)"
+            echo '```'
+            nix store diff-closures "$b" "$a"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results
+          path: |
+            bench/results/noise-floor.json
+            bench/results/startup-*.json
+            bench/results/closure-*.json

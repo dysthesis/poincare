@@ -6,6 +6,7 @@
     nixpressions,
     nixpkgs,
     treefmt-nix,
+    neovim-nightly-overlay,
   }: let
     inherit (builtins) mapAttrs;
     inherit (nixpressions) mkLib;
@@ -260,6 +261,9 @@
             lib
             self
             ;
+          neovimNightly =
+            neovim-nightly-overlay.packages.${pkgs.stdenv.hostPlatform.system}.default
+            or null;
         };
     };
 
@@ -275,5 +279,10 @@
       url = "github:dysthesis/nixpressions";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # CI nightly canary. Deliberately NOT following our nixpkgs: their own
+    # pin is what nix-community.cachix.org has cached — following ours would
+    # force CI to compile Neovim HEAD from source every run.
+    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
   };
 }

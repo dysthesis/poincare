@@ -25,3 +25,53 @@ jobs:
 
       - name: Run flake checks
         run: nix flake check --print-build-logs
+
+  # Canary, not gate (TODO P6): the same config against Neovim HEAD via
+  # neovim-nightly-overlay. checkhealth/runtime live inside `checks` and are
+  # not re-run here; build + boot purity + the behavioural suite cover the
+  # regression surface that nightly Neovim can actually break.
+  nightly-canary:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v11
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # The overlay's own CI pushes every nightly build here; without it
+          # this job compiles Neovim HEAD from source.
+          extra-conf: |
+            extra-substituters = https://nix-community.cachix.org
+            extra-trusted-public-keys = nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
+
+      - name: Enable Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@v5
+
+      # The committed lock pins whatever nightly was current at lock time;
+      # a canary wants today's — and today's is what the overlay's cache has.
+      - name: Track latest nightly
+        run: nix flake update neovim-nightly-overlay
+
+      - name: Build against nightly Neovim
+        run: nix build .#poincare-nightly --print-build-logs
+
+      - name: Boot purity
+        run: |
+          err="$(mktemp)"
+          rc=0
+          env -i HOME="$(mktemp -d)" PATH=/usr/bin:/bin \
+            ./result/bin/nvim --headless +qa 2>"$err" || rc=$?
+          if [ "$rc" -ne 0 ] || [ -s "$err" ]; then
+            echo "headless boot failed (exit $rc) or wrote to stderr:" >&2
+            cat "$err" >&2
+            exit 1
+          fi
+
+      - name: Behavioural suite
+        run: |
+          nix shell --inputs-from . nixpkgs#lua-language-server \
+            -c tests/run.sh "$PWD/result/bin/nvim"
