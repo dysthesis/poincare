@@ -141,6 +141,67 @@
           touch "$out"
         '';
 
+        # Headless boot must write nothing to stderr and exit zero. This
+        # catches the entire class of lz.n spec/handler/keymap errors that
+        # print on every boot but never fail loudly.
+        boot-purity = pkgs.runCommand "check-poincare-boot-purity" {nativeBuildInputs = [pkgs.coreutils];} ''
+          set -eu
+
+          mkdir -p "$TMPDIR/home"
+          rc=0
+          env -i \
+            HOME="$TMPDIR/home" \
+            PATH="${pkgs.coreutils}/bin" \
+            ${poincare}/bin/nvim --headless +qa 2>"$TMPDIR/stderr.log" || rc=$?
+
+          if [ "$rc" -ne 0 ] || [ -s "$TMPDIR/stderr.log" ]; then
+            echo "headless boot failed (exit $rc) or wrote to stderr:" >&2
+            cat "$TMPDIR/stderr.log" >&2
+            exit 1
+          fi
+
+          touch "$out"
+        '';
+
+        # Expected checkhealth ERROR lines (fixed-string match, one per line;
+        # no blank lines — an empty pattern would match everything):
+        #   - tar/curl: external tools intentionally absent from the closure
+        #     (README policy: runtime tools come from the environment).
+        #   - "is not in runtimepath": nvim-treesitter's download/install dir
+        #     ($XDG_DATA_HOME/poincare/site) — unused; parsers ship via Nix.
+        #   - locale: hermetic env has no locale archive on some platforms
+        #     even with LANG=C.UTF-8 set below; not a property of the config.
+        checkhealthAllowlist = pkgs.writeText "checkhealth-allowlist" ''
+          tar not found
+          curl not found
+          is not in runtimepath
+          Locale does not support UTF-8
+        '';
+
+        checkhealth = pkgs.runCommand "check-poincare-checkhealth" {nativeBuildInputs = [pkgs.coreutils];} ''
+          set -eu
+
+          mkdir -p "$TMPDIR/home"
+          env -i \
+            HOME="$TMPDIR/home" \
+            LANG=C.UTF-8 \
+            PATH="${pkgs.coreutils}/bin" \
+            ${poincare}/bin/nvim --headless \
+              "+silent! checkhealth" \
+              "+silent! write! $TMPDIR/health.txt" \
+              +qa 2>/dev/null
+
+          test -s "$TMPDIR/health.txt"
+
+          if grep ERROR "$TMPDIR/health.txt" | grep -v -F -f ${checkhealthAllowlist} > "$TMPDIR/unexpected.txt"; then
+            echo "checkhealth reported non-allowlisted ERRORs:" >&2
+            cat "$TMPDIR/unexpected.txt" >&2
+            exit 1
+          fi
+
+          touch "$out"
+        '';
+
         luacheckDrv = findFirst (x: x != null) null (map (p: attrByPath p null pkgs) [
           ["luacheck"]
           ["luaPackages" "luacheck"]
@@ -153,7 +214,7 @@
         formatting = treefmt.${pkgs.stdenv.hostPlatform.system}.config.build.check self;
         selene = mkCheckIfAvailable "selene" pkgs.selene "${self}/selene.toml";
         luacheck = mkCheckIfAvailable "luacheck" luacheckDrv "${self}/.luacheckrc";
-        inherit runtime;
+        inherit runtime boot-purity checkhealth;
       };
       packages = pkgs:
         import ./nix/packages {

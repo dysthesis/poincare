@@ -13,6 +13,10 @@ opt.compatible = false
 --- Set theme
 vim.g.minimal_transparent = true
 vim.g.have_nerd_font = false
+-- minimal.nvim lives in pack/*/opt; :colorscheme would find it there anyway,
+-- but only packadd puts its after/queries/* on the runtimepath. Deliberately
+-- eager: deferring the colourscheme causes a flash of unstyled UI.
+cmd.packadd('minimal.nvim')
 cmd.colorscheme('minimal')
 opt.conceallevel = 2
 
@@ -130,13 +134,8 @@ vim.g.netrw_banner = 0
 vim.diagnostic.config {
   virtual_text = {
     format = function(diagnostic)
-      local client = vim.lsp.get_client_by_id(diagnostic.source)
-      local prefix = ''
-      if client and client.name then
-        prefix = client.name .. ': '
-      elseif diagnostic.source then
-        prefix = diagnostic.source .. ': '
-      end
+      -- diagnostic.source is a name string, not a client id.
+      local prefix = diagnostic.source and (diagnostic.source .. ': ') or ''
       return prefix .. diagnostic.message
     end,
   },
@@ -182,7 +181,13 @@ local lsps = {
 }
 
 local function enable_lsp(lsp)
-  if vim.fn.executable(lsp) == 1 then
+  -- The binary a config runs is cmd[1], which may differ from the config name
+  -- (basedpyright runs basedpyright-langserver). Indexing vim.lsp.config
+  -- sources lsp/<name>.lua eagerly, so only call this for names we would
+  -- enable anyway.
+  local cfg = vim.lsp.config[lsp]
+  local bin = cfg and type(cfg.cmd) == 'table' and cfg.cmd[1] or lsp
+  if vim.fn.executable(bin) == 1 then
     vim.lsp.enable(lsp)
     return true
   end
@@ -269,16 +274,16 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
--- Tree-sitter
-vim.api.nvim_create_autocmd('FileType', {
-  callback = function(event)
-    pcall(vim.treesitter.start, event.buf)
-  end,
-})
+-- Tree-sitter highlighting is started by the FileType autocmd registered in
+-- nvim-treesitter's after() hook below, which carries the latex exclusion.
 
 -- Plugins
 --- Picker
 require('lz.n').load {
+  -- Trigger-less specs are deliberately eager (lz.n loads them at startup):
+  -- mini.extra is require()d directly by the picker keymaps below, and
+  -- nvim-nio / nvim-dap-virtual-text must be on the rtp before nvim-dap's
+  -- hooks run.
   { 'mini.extra' },
   {
     'mini.pick',
@@ -310,14 +315,14 @@ require('lz.n').load {
         function()
           require('mini.extra').pickers.explorer()
         end,
-        desc = 'Find [D]iagnostics',
+        desc = 'File [E]xplorer',
       },
       {
         '<leader>g',
         function()
           require('mini.extra').pickers.git_hunks()
         end,
-        desc = 'Find [D]iagnostics',
+        desc = 'Find [G]it hunks',
       },
       {
         '<leader>s',
@@ -590,9 +595,10 @@ require('lz.n').load {
   {
     'nvim-dap-ui',
     load = function(name)
-      -- Ensure core DAP (and its deps) are available before the UI attaches.
-      vim.cmd.packadd('nvim-nio')
-      vim.cmd.packadd('nvim-dap')
+      -- Load core DAP through lz.n so its before/after hooks run (adapter and
+      -- listener setup); a raw packadd would skip them. nvim-dap's own load fn
+      -- pulls in nvim-nio and friends.
+      require('lz.n').trigger_load('nvim-dap')
       vim.cmd.packadd(name)
     end,
     keys = {
@@ -618,9 +624,9 @@ require('lz.n').load {
         desc = '[D]ebug [T]oggle UI',
       },
     },
-    after = function()
-      require('dapui').setup()
-    end,
+    -- No after() here: nvim-dap's after() (reached via trigger_load above)
+    -- already runs dapui.setup and wires the listeners; a second setup()
+    -- deletes and recreates every element buffer.
   },
   { 'nvim-dap-virtual-text' },
   {
@@ -635,25 +641,6 @@ require('lz.n').load {
       end
 
       packadd_if_opt('nvim-treesitter-textobjects')
-
-      -- Ensure parsers/queries shipped as optional plugins are on runtimepath
-      -- before the core nvim-treesitter plugin is loaded.
-      local function packadd_ts_assets()
-        local patterns = {
-          'pack/*/opt/nvim-treesitter-grammar-*',
-          'pack/*/opt/vimplugin-nvim-treesitter-queries-*',
-        }
-
-        for _, pattern in ipairs(patterns) do
-          local paths = vim.fn.globpath(vim.o.packpath, pattern, true, true)
-          for _, path in ipairs(paths) do
-            local plugin_name = vim.fn.fnamemodify(path, ':t')
-            pcall(vim.cmd.packadd, plugin_name)
-          end
-        end
-      end
-
-      packadd_ts_assets()
     end,
     after = function()
       -- New nvim-treesitter rewrite no longer exposes `configs`; use the
@@ -807,7 +794,7 @@ require('lz.n').load {
           nix = { 'alejandra' },
           c = { 'clang-format' },
           rust = { 'rustfmt' },
-          go = { 'go/fmt' },
+          go = { 'gofmt' },
           python = { 'black' },
         },
       }
@@ -1023,16 +1010,19 @@ require('lz.n').load {
   {
     'clangd_extensions.nvim',
     ft = { 'c', 'h', 'cpp', 'hpp' },
+    -- Note: avoid <leader>ch / <leader>ct here — the LspAttach autocmd maps
+    -- those buffer-locally (inlay hints / type definition) in every LSP
+    -- buffer, which would shadow these global triggers.
     keys = {
       {
-        '<leader>ch',
+        '<leader>cs',
         '<cmd>ClangdSwitchSourceHeader<cr>',
-        desc = 'Switch between Source/[H]eader',
+        desc = 'Switch [S]ource/Header',
       },
       {
-        '<leader>ct',
+        '<leader>cT',
         '<cmd>ClangdAST<cr>',
-        desc = { 'View Abstract Syntax [T]ree' },
+        desc = 'View Abstract Syntax [T]ree',
       },
     },
     after = function()

@@ -1,6 +1,5 @@
 {
   pkgs,
-  inputs,
   lib,
   ...
 }: let
@@ -13,7 +12,6 @@
 
   inherit
     (lib.babel.nvim)
-    mapPlugins
     mkNvimPlugin
     ;
 
@@ -55,4 +53,3 @@ in
       clangd_extensions-nvim
     ]
     ++ builtNpins
-    ++ mapPlugins pkgs inputs "plugin-lazy"
