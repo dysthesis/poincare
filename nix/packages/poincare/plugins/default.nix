@@ -52,7 +52,6 @@ in
       # via MINI_TEST_PATH (see tests/minit.lua, flake.nix's tests check, and
       # poincare.miniTest).
       blink-cmp
-      blink-compat
 
       smart-splits-nvim
       ultimate-autopair-nvim
