@@ -40,13 +40,19 @@ local lazy_specs = {
     name = 'mini.pick',
     mod = 'mini.pick',
     trigger = keys(' f'),
+    extra_rtp = { 'mini.extra' },
     cleanup = function(c)
       c.type_keys('<Esc>')
       c.lua([[pcall(function() require('mini.pick').stop() end)]])
     end,
   },
   { name = 'smart-splits.nvim', mod = 'smart-splits', trigger = keys('<A-h>') },
-  { name = 'nvim-dap', mod = 'dap', trigger = keys(' Db'), extra_rtp = { 'nvim-dap-ui' } },
+  {
+    name = 'nvim-dap',
+    mod = 'dap',
+    trigger = keys(' Db'),
+    extra_rtp = { 'nvim-dap-ui', 'nvim-nio', 'nvim-dap-virtual-text' },
+  },
   { name = 'nvim-dap-ui', mod = 'dapui', trigger = keys(' Do') },
   { name = 'mini.surround', mod = 'mini.surround', trigger = edit('hello.md') },
   { name = 'gitsigns.nvim', mod = 'gitsigns', trigger = edit('hello.md') },
@@ -92,9 +98,11 @@ end
 
 T['eager specs'] = MiniTest.new_set()
 
-T['eager specs']['trigger-less specs are packadded at startup'] = function()
+T['eager specs']['nothing trigger-less is packadded at startup'] = function()
+  -- These ride along with their consumers' load fns (mini.pick / nvim-dap);
+  -- an eager spec for any of them is startup cost regression (bench M3).
   for _, name in ipairs { 'mini.extra', 'nvim-nio', 'nvim-dap-virtual-text' } do
-    eq(child.lua_get(('T.rtp_has(%q)'):format(name)), true)
+    eq(child.lua_get(('T.rtp_has(%q)'):format(name)), false)
   end
 end
 

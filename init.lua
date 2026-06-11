@@ -281,14 +281,15 @@ vim.api.nvim_create_autocmd('LspAttach', {
 -- Plugins
 --- Picker
 require('lz.n').load {
-  -- Trigger-less specs are deliberately eager (lz.n loads them at startup):
-  -- mini.extra is require()d directly by the picker keymaps below, and
-  -- nvim-nio / nvim-dap-virtual-text must be on the rtp before nvim-dap's
-  -- hooks run.
-  { 'mini.extra' },
   {
     'mini.pick',
     cmd = 'Pick',
+    -- mini.extra is require()d directly by the picker keymaps below, so it
+    -- must reach the rtp together with mini.pick (it has no spec of its own).
+    load = function(name)
+      vim.cmd.packadd('mini.extra')
+      vim.cmd.packadd(name)
+    end,
     keys = {
       {
         '<leader>f',
@@ -459,7 +460,8 @@ require('lz.n').load {
       require('smart-splits').setup {}
     end,
   },
-  { 'nvim-nio' },
+  -- nvim-nio and nvim-dap-virtual-text have no specs: nvim-dap's load fn
+  -- packadds both before its hooks run, and nothing else requires them.
   {
     'nvim-dap',
     keys = {
@@ -629,7 +631,6 @@ require('lz.n').load {
     -- already runs dapui.setup and wires the listeners; a second setup()
     -- deletes and recreates every element buffer.
   },
-  { 'nvim-dap-virtual-text' },
   {
     'nvim-treesitter',
     lazy = false,
