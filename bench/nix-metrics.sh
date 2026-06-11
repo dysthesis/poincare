@@ -80,18 +80,18 @@ parse_diff() {
         if [ -n "$before" ]; then
             obj+=",\"before\":\"$(json_str "$before")\""
         else
-            obj+=",\"before\":null"
+            obj+=',"before":null'
         fi
         if [ -n "$after" ]; then
             obj+=",\"after\":\"$(json_str "$after")\""
         else
-            obj+=",\"after\":null"
+            obj+=',"after":null'
         fi
         if [ -n "$size" ]; then
             obj+=",\"size_delta\":\"$size\""
             obj+=",\"size_delta_bytes_approx\":$(size_to_bytes "$size")"
         else
-            obj+=",\"size_delta\":null,\"size_delta_bytes_approx\":null"
+            obj+=',"size_delta":null,"size_delta_bytes_approx":null'
         fi
         obj+=",\"raw\":\"$(json_str "$line")\"}"
         out+="${out:+,}$obj"

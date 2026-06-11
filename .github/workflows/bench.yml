@@ -1,0 +1,113 @@
+name: Bench
+
+# workflow_dispatch only, by design: shared runners are too noisy to gate
+# on (sub-2-3x deltas are untrustworthy there — the hyperfine/Neovim core
+# teams' own position). Results land as downloadable artefacts plus a job
+# summary; nothing here is a required check.
+#
+# Frozen contract consumed from P4/P5 (see TODO.md):
+#   scripts    bench/{noise-floor,startup,nix-metrics}.sh
+#   artefacts  bench/results/*.json (schema poincare-bench-v1)
+#   arms       A = candidate, B = baseline
+#   verdicts   cite bench/results/noise-floor.json measured in the SAME
+#              run on the SAME runner (B0 rule: ratio CI excludes 1.0 AND
+#              |delta median| > noise floor)
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate:
+        description: "Candidate git rev (arm A)"
+        required: false
+        default: "HEAD"
+      baseline:
+        description: "Baseline git rev (arm B)"
+        required: false
+        default: "HEAD~1"
+
+permissions:
+  contents: read
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      # GitHub runners have passwordless sudo, so without this env.sh would
+      # happily poke governor/turbo/SMT sysfs on a shared VM. Pointless
+      # there; the measured noise floor absorbs the untuned machine.
+      BENCH_NO_TUNE: "1"
+    steps:
+      - name: Checkout (full history, revs are dispatch inputs)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v11
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@v5
+
+      - name: Resolve arms
+        id: arms
+        run: |
+          a="$(git rev-parse "${{ inputs.candidate }}")"
+          b="$(git rev-parse "${{ inputs.baseline }}")"
+          echo "ref_a=git+file:$PWD?rev=$a" >> "$GITHUB_OUTPUT"
+          echo "ref_b=git+file:$PWD?rev=$b" >> "$GITHUB_OUTPUT"
+          echo "A (candidate) = $a"
+          echo "B (baseline)  = $b"
+
+      - name: Noise floor (B0)
+        run: |
+          nix shell --inputs-from . nixpkgs#hyperfine -c \
+            bench/noise-floor.sh "${{ steps.arms.outputs.ref_a }}"
+
+      - name: Startup A/B (B1 — M1, M2, M7)
+        run: |
+          nix shell --inputs-from . nixpkgs#hyperfine -c \
+            bench/startup.sh \
+            "${{ steps.arms.outputs.ref_a }}" \
+            "${{ steps.arms.outputs.ref_b }}"
+
+      - name: Closure metrics (P5 — M6)
+        run: |
+          bench/nix-metrics.sh \
+            "${{ steps.arms.outputs.ref_a }}" \
+            "${{ steps.arms.outputs.ref_b }}"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results-${{ github.run_id }}
+          path: bench/results/*.json
+          if-no-files-found: error
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Closure delta (baseline -> candidate)"
+            echo '```'
+            nix store diff-closures \
+              "$(nix build "${{ steps.arms.outputs.ref_b }}#poincare" --no-link --print-out-paths)" \
+              "$(nix build "${{ steps.arms.outputs.ref_a }}#poincare" --no-link --print-out-paths)" \
+              || echo "(diff-closures unavailable — see closure-diff.json artefact)"
+            echo '```'
+            echo "## Results"
+            for f in bench/results/noise-floor.json \
+              bench/results/startup-*.json \
+              bench/results/closure-size.json; do
+              [ -f "$f" ] || continue
+              echo "<details><summary>$(basename "$f")</summary>"
+              echo
+              echo '```json'
+              jq . "$f"
+              echo '```'
+              echo "</details>"
+            done
+          } >>"$GITHUB_STEP_SUMMARY"

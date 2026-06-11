@@ -3,6 +3,8 @@
   pkgs,
   lib,
   self,
+  # Overridable so poincare-nightly can swap in the nightly build.
+  neovim-unwrapped ? pkgs.neovim-unwrapped,
   ...
 }: let
   name = "poincare";
@@ -99,7 +101,7 @@ in
       startPlugins
       ;
 
-    inherit (pkgs) neovim-unwrapped;
+    inherit neovim-unwrapped;
 
     extraWrapperArgs = [
       "--set"
