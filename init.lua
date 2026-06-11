@@ -2,7 +2,8 @@ pcall(function()
   vim.loader.enable()
 end)
 
-vim.cmd.filetype('plugin', 'indent', 'on')
+-- No `:filetype plugin indent on` here: nvim defaults to all three ON, and
+-- re-running detection cost ~0.9ms of startup (measured).
 vim.cmd.packadd('cfilter') -- Allows filtering the quickfix list with :cfdo
 
 local cmd = vim.cmd
