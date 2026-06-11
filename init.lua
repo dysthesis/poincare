@@ -762,7 +762,17 @@ require('lz.n').load {
   },
   {
     'mini.surround',
-    event = 'BufReadPost',
+    -- Trigger on its own default mappings instead of BufReadPost: loading it
+    -- cost ~4.9ms on every first file-open (measured, bench ledger M3).
+    keys = {
+      { 'sa', mode = { 'n', 'x' }, desc = 'Surround add' },
+      { 'sd', desc = 'Surround delete' },
+      { 'sr', desc = 'Surround replace' },
+      { 'sf', desc = 'Surround find right' },
+      { 'sF', desc = 'Surround find left' },
+      { 'sh', desc = 'Surround highlight' },
+      { 'sn', desc = 'Surround update n_lines' },
+    },
     after = function()
       require('mini.surround').setup {}
     end,

@@ -54,7 +54,7 @@ local lazy_specs = {
     extra_rtp = { 'nvim-dap-ui', 'nvim-nio', 'nvim-dap-virtual-text' },
   },
   { name = 'nvim-dap-ui', mod = 'dapui', trigger = keys(' Do') },
-  { name = 'mini.surround', mod = 'mini.surround', trigger = edit('hello.md') },
+  { name = 'mini.surround', mod = 'mini.surround', trigger = keys('sa'), cleanup = esc },
   { name = 'gitsigns.nvim', mod = 'gitsigns', trigger = edit('hello.md') },
   { name = 'nvim-lint', mod = 'lint', trigger = edit('hello.md') },
   {
