@@ -114,6 +114,10 @@ in
 
     extraPassthru = {
       checks = self.checks.${pkgs.stdenv.hostPlatform.system};
+      # Test-only harness, kept out of the shipped closure. The behavioural
+      # suite injects it onto runtimepath via MINI_TEST_PATH instead of
+      # packadd, so the binary under test is exactly the released one.
+      miniTest = pkgs.vimPlugins.mini-test;
     };
 
     meta.mainProgram = "nvim";

@@ -47,7 +47,10 @@ in
       mini-extra # For LSP-based pickers
       mini-surround
       mini-icons
-      mini-test # Harness for the behavioural suite (tests/)
+      # mini-test is the harness for the behavioural suite (tests/) only; it is
+      # deliberately kept out of the shipped closure and injected at test time
+      # via MINI_TEST_PATH (see tests/minit.lua, flake.nix's tests check, and
+      # poincare.miniTest).
       blink-cmp
       blink-compat
 

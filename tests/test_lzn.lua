@@ -180,8 +180,9 @@ T['opt packpath inventory matches the specs'] = function()
     'minimal.nvim',
     'nvim-treesitter-textobjects',
     'plenary.nvim',
-    -- test harness (referenced by tests/minit.lua)
-    'mini.test',
+    -- mini.test is the test harness only; it is kept out of the shipped opt
+    -- packpath and injected onto runtimepath via MINI_TEST_PATH instead
+    -- (tests/minit.lua), so it deliberately does not appear here.
     -- blink.cmp compatibility shim: shipped as a dependency of blink.cmp
     -- in nixpkgs; nothing in init.lua loads it. Removal candidate.
     'blink.compat',

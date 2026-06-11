@@ -193,8 +193,11 @@
 
       # Behavioural suite (tests/): a mini.test parent inside the wrapped
       # binary drives child Neovim processes booted with the same store
-      # paths. lua-language-server is on PATH for the live-attach test;
-      # everything else is intentionally absent (README policy).
+      # paths. mini.test is not in the shipped closure, so it is injected onto
+      # runtimepath via MINI_TEST_PATH rather than packadd, keeping the binary
+      # under test identical to the released one. lua-language-server is on PATH
+      # for the live-attach test; everything else is intentionally absent
+      # (README policy).
       tests =
         pkgs.runCommand "check-poincare-tests" {
           nativeBuildInputs = [pkgs.coreutils pkgs.lua-language-server];
@@ -216,6 +219,7 @@
             XDG_CACHE_HOME="$TMPDIR/xdg/cache" \
             XDG_RUNTIME_DIR="$TMPDIR/xdg/run" \
             POINCARE_NVIM="${poincare}/bin/nvim" \
+            MINI_TEST_PATH="${poincare.miniTest}" \
             timeout 600 ${poincare}/bin/nvim --headless "+luafile tests/minit.lua"
 
           touch "$out"

@@ -14,6 +14,13 @@ if [ -z "$nvim_bin" ]; then
     nvim_bin="$out/bin/nvim"
 fi
 
+# mini.test ships only as a passthru on the package, not in the binary's
+# closure; resolve it here so the suite can inject it via MINI_TEST_PATH.
+mini_test_path="${MINI_TEST_PATH:-}"
+if [ -z "$mini_test_path" ]; then
+    mini_test_path="$(nix build "$root#poincare.miniTest" --no-link --print-out-paths)"
+fi
+
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 mkdir -p "$tmp/home" "$tmp/config" "$tmp/data" "$tmp/state" "$tmp/cache" "$tmp/run"
@@ -30,5 +37,5 @@ env -i \
     XDG_CACHE_HOME="$tmp/cache" \
     XDG_RUNTIME_DIR="$tmp/run" \
     POINCARE_NVIM="$nvim_bin" \
-    MINI_TEST_PATH="${MINI_TEST_PATH:-}" \
+    MINI_TEST_PATH="$mini_test_path" \
     "$nvim_bin" --headless "+luafile $root/tests/minit.lua"
