@@ -25,16 +25,28 @@ This is a Nix flake packaging my Neovim configuration -- thus, one may run it
 using Nix by running `nix run`.
 
 The packaged editor only includes editor-intrinsic tools, such as file search,
-text search, Tree-sitter support, and the debugger adapter. Project-specific
-tools, including language servers, formatters, linters, compilers, and build
-tools, are expected to come from the active project environment, usually a Nix
-development shell.
+text search, and Tree-sitter support. Project-specific tools, including
+language servers, formatters, linters, compilers, build tools, and the debug
+adapter (`codelldb`), are expected to come from the active project
+environment, usually a Nix development shell.
 
 ### Development
 
 The development toolchain is installed using Nix shells. To enter the
 development shell, either run `nix develop`, or, if one uses Direnv, permit it
 to load the environment by running `direnv allow`.
+
+For Go projects, expose the toolchain, `gopls`, and Delve from the project
+shell:
+
+```sh
+nix shell nixpkgs#go nixpkgs#gopls nixpkgs#delve
+```
+
+The editor enables `gopls` only when it is available, formats with the
+toolchain's `gofmt`, and uses the existing DAP integration for package and
+package-test debugging. `gopls` runs Staticcheck analyses, avoiding a second
+Go linter. Delve is resolved as `dlv`; `$DLV_PATH` can override its location.
 
 ## Minimality
 

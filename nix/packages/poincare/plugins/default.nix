@@ -1,7 +1,6 @@
 {
   pkgs,
   lib,
-  ...
 }: let
   inherit (lib) mapAttrsToList;
 
@@ -39,7 +38,6 @@
           '';
       })
     else plugin);
-  builtNpins = mkNpins npins;
 in
   with pkgs.vimPlugins;
     [
@@ -58,17 +56,11 @@ in
       conform-nvim
       nvim-lint
 
-      # Debugging
-      nvim-nio
-      nvim-dap
+      # Debugging (nvim-dap-ui brings nvim-dap and nvim-nio)
       nvim-dap-ui
       nvim-dap-virtual-text
 
       lean-nvim
-      plenary-nvim
       gitsigns-nvim
-
-      # Language-specific
-      clangd_extensions-nvim
     ]
-    ++ builtNpins
+    ++ mkNpins npins

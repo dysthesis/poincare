@@ -66,7 +66,6 @@
 
         expect_executable('rg')
         expect_executable('fd')
-        expect_executable('tree-sitter')
 
         vim.cmd.packadd('lean.nvim')
         if #vim.api.nvim_get_runtime_file('queries/lean/highlights.scm', true) == 0 then
@@ -94,9 +93,6 @@
           fail('Lean treesitter parser failed: ' .. tostring(err))
         end
 
-        if vim.fn.executable(vim.env.CODELLDB_PATH or "") ~= 1 then
-          fail('CODELLDB_PATH is not executable')
-        end
 
         local dap_continue = vim.fn.maparg(' Dc', 'n', false, true)
         if dap_continue.desc ~= 'Continue' then
@@ -153,6 +149,8 @@
       # no blank lines — an empty pattern would match everything):
       #   - tar/curl: external tools intentionally absent from the closure
       #     (README policy: runtime tools come from the environment).
+      #   - tree-sitter-cli: only compiles grammars; Nix ships them
+      #     precompiled, so the CLI is intentionally absent.
       #   - "is not in runtimepath": nvim-treesitter's download/install dir
       #     ($XDG_DATA_HOME/poincare/site) — unused; parsers ship via Nix.
       #   - locale: hermetic env has no locale archive on some platforms
@@ -162,6 +160,7 @@
       checkhealthAllowlist = pkgs.writeText "checkhealth-allowlist" ''
         tar not found
         curl not found
+        tree-sitter-cli not found
         is not in runtimepath
         Locale does not support UTF-8
         Graphics protocol: not supported
@@ -195,12 +194,11 @@
       # binary drives child Neovim processes booted with the same store
       # paths. mini.test is not in the shipped closure, so it is injected onto
       # runtimepath via MINI_TEST_PATH rather than packadd, keeping the binary
-      # under test identical to the released one. lua-language-server is on PATH
-      # for the live-attach test; everything else is intentionally absent
-      # (README policy).
+      # under test identical to release. Go and live-tested language servers
+      # exist only on test PATH; project tools stay absent from editor closure.
       tests =
         pkgs.runCommand "check-poincare-tests" {
-          nativeBuildInputs = [pkgs.coreutils pkgs.lua-language-server];
+          nativeBuildInputs = [pkgs.coreutils pkgs.go pkgs.gopls pkgs.lua-language-server];
         } ''
           set -eu
 
@@ -212,7 +210,7 @@
             HOME="$TMPDIR/home" \
             TMPDIR="$TMPDIR" \
             LANG=C.UTF-8 \
-            PATH="${pkgs.lib.makeBinPath [pkgs.coreutils pkgs.lua-language-server]}" \
+            PATH="${pkgs.lib.makeBinPath [pkgs.coreutils pkgs.go pkgs.gopls pkgs.lua-language-server]}" \
             XDG_CONFIG_HOME="$TMPDIR/xdg/config" \
             XDG_DATA_HOME="$TMPDIR/xdg/data" \
             XDG_STATE_HOME="$TMPDIR/xdg/state" \
@@ -278,12 +276,10 @@
         // vimChecksFor pkgs (packages pkgs).poincare;
       packages = pkgs: let
         base = import ./nix/packages {
-          inherit
-            inputs
-            pkgs
-            lib
-            self
-            ;
+          inherit pkgs lib self;
+          neovimNightly =
+            inputs.neovim-nightly-overlay.packages.${pkgs.stdenv.hostPlatform.system}.default
+            or null;
         };
       in
         base
@@ -311,12 +307,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Nightly Neovim for the CI canary matrix leg (packages.poincare-nightly
-    # + packages.poincare-nightly-checks). Locked like any input: "nightly
-    # as of the last `nix flake update`", so builds stay reproducible.
-    neovim-nightly-overlay = {
-      url = "github:nix-community/neovim-nightly-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # CI nightly canary. Its own pin matches nix-community.cachix.org; following
+    # this flake's nixpkgs would force CI to compile Neovim HEAD.
+    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
   };
 }

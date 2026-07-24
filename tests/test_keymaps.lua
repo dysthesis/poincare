@@ -4,7 +4,7 @@
 --      desc aborts handler registration for the whole plugin (bug 1);
 --   2. descs are unique — locks the <leader>e/<leader>g copy-paste class;
 --   3. LspAttach buffer-local maps never shadow a global trigger — locks
---      the clangd re-home to <leader>cs/<leader>cT.
+--      the historic <leader>ch/<leader>ct collision class.
 local MiniTest = require('mini.test')
 local H = require('helpers')
 
@@ -38,7 +38,8 @@ T['trigger descs are unique'] = function()
   for _, entry in ipairs(H.all_trigger_keys()) do
     local desc = child.lua_get(('T.map_desc(%q, %q)'):format(entry.lhs, entry.mode))
     if type(desc) == 'string' then
-      if seen[desc] ~= nil then
+      -- Same lhs across modes shares one desc; only cross-lhs reuse is a bug.
+      if seen[desc] ~= nil and seen[desc] ~= entry.lhs then
         error(('duplicate desc %q on %q and %q'):format(desc, seen[desc], entry.lhs))
       end
       seen[desc] = entry.lhs

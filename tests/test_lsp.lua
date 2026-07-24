@@ -45,6 +45,13 @@ T['ty config can start and is scoped to python'] = function()
   eq(child.lua_get('vim.lsp.config.ty.filetypes'), { 'python' })
 end
 
+T['gopls config uses module roots and staticcheck'] = function()
+  eq(child.lua_get('vim.lsp.config.gopls.cmd'), { 'gopls' })
+  eq(child.lua_get('vim.lsp.config.gopls.filetypes'), { 'go', 'gomod', 'gowork', 'gotmpl' })
+  eq(child.lua_get('vim.lsp.config.gopls.root_markers'), { 'go.work', 'go.mod', '.git' })
+  eq(child.lua_get('vim.lsp.config.gopls.settings.gopls.staticcheck'), true)
+end
+
 T['enable gate targets the resolved cmd[1]'] = function()
   -- Locks bug 7: basedpyright's binary is basedpyright-langserver. With
   -- only that shim on PATH the old name-based gate stays red. The hermetic
@@ -98,4 +105,14 @@ T['lua-language-server attaches on the fixture project'] = function()
   end
 end
 
+T['gopls attaches at the Go module root'] = function()
+  if child.lua_get([[vim.fn.executable('gopls') == 1]]) ~= true then
+    MiniTest.skip('gopls is not on PATH')
+  end
+
+  local source = H.fixture('go-project/main.go')
+  child.cmd('silent! edit ' .. vim.fn.fnameescape(source))
+  H.wait_until(child, [[#vim.lsp.get_clients({ bufnr = 0, name = 'gopls' }) == 1]], 30000)
+  eq(child.lua_get([[vim.lsp.get_clients({ bufnr = 0, name = 'gopls' })[1].root_dir]]), vim.fs.dirname(source))
+end
 return T

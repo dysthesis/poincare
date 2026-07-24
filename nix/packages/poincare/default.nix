@@ -1,15 +1,12 @@
 {
-  inputs,
   pkgs,
   lib,
   self,
-  # Overridable so poincare-nightly can swap in the nightly build.
+  # Overridable so packages.poincare-nightly can swap in nightly Neovim.
   neovim-unwrapped ? pkgs.neovim-unwrapped,
-  ...
 }: let
   name = "poincare";
-  optPlugins =
-    import ./plugins {inherit pkgs inputs lib;};
+  optPlugins = import ./plugins {inherit pkgs lib;};
   leanTreeSitterGrammar = pkgs.tree-sitter.builtGrammars.tree-sitter-lean.overrideAttrs (_: {
     version = "0.2.0-unstable-2026-05-30";
     src = pkgs.fetchFromGitHub {
@@ -46,50 +43,14 @@
   extraPackages = with pkgs; [
     ripgrep
     fd
-    uutils-coreutils-noprefix
-    tree-sitter
   ];
 
-  codelldbExt = pkgs.vscode-extensions.vadimcn.vscode-lldb;
-  codelldbPath = "${codelldbExt}/share/vscode/extensions/vadimcn.vscode-lldb/adapter/codelldb";
-  liblldbName =
-    if pkgs.stdenv.hostPlatform.isDarwin
-    then "liblldb.dylib"
-    else "liblldb.so";
-  liblldbPath = "${codelldbExt}/share/vscode/extensions/vadimcn.vscode-lldb/lldb/lib/${liblldbName}";
-
+  # Interpolate files individually so the whole repo isn't a build input;
+  # doc/bench edits must not rebuild the wrapper.
   configDir = pkgs.runCommand "${name}-cfg" {} ''
     mkdir -p "$out"
-    cp ${../../..}/init.lua "$out/init.lua"
-
-    # Copy common Neovim runtime directories when present in the repo root.
-    for d in \
-      after \
-      autoload \
-      colors \
-      compiler \
-      doc \
-      ftdetect \
-      ftplugin \
-      indent \
-      keymap \
-      lua \
-      lsp \
-      pack \
-      plugin \
-      queries \
-      rplugin \
-      spell \
-      syntax \
-      syntax_checkers \
-      tutor \
-      snippets \
-    ; do
-      src="${../../..}/$d"
-      if [ -d "$src" ]; then
-        cp -r "$src" "$out/"
-      fi
-    done
+    cp ${../../../init.lua} "$out/init.lua"
+    cp -r ${../../../lsp} "$out/lsp"
   '';
 in
   pkgs.callPackage ./wrapper.nix {
@@ -103,20 +64,10 @@ in
 
     inherit neovim-unwrapped;
 
-    extraWrapperArgs = [
-      "--set"
-      "CODELLDB_PATH"
-      codelldbPath
-      "--set"
-      "LIBLLDB_PATH"
-      liblldbPath
-    ];
-
     extraPassthru = {
       checks = self.checks.${pkgs.stdenv.hostPlatform.system};
-      # Test-only harness, kept out of the shipped closure. The behavioural
-      # suite injects it onto runtimepath via MINI_TEST_PATH instead of
-      # packadd, so the binary under test is exactly the released one.
+      # Test-only harness; tests inject it via MINI_TEST_PATH, so release
+      # closure excludes it.
       miniTest = pkgs.vimPlugins.mini-test;
     };
 

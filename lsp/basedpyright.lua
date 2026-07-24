@@ -33,10 +33,7 @@ return {
       analysis = {
         autoSearchPaths = true,
         diagnosticMode = 'openFilesOnly',
-        -- https://docs.basedpyright.com/latest/configuration/language-server-settings/
-        -- Explicitly setting `basedpyright.analysis.useLibraryCodeForTypes` is **discouraged** by the official docs.
-        -- Because it will override per-project configurations like `pyproject.toml`.
-        -- If left unset, its default value is `true`, and it can be correctly overridden by project config files.
+        -- Leave useLibraryCodeForTypes unset so projects can override its default.
       },
     },
   },
@@ -47,14 +44,10 @@ return {
         arguments = { vim.uri_from_bufnr(bufnr) },
       }
 
-      -- Using client.request() directly because "basedpyright.organizeimports" is private
-      -- (not advertised via capabilities), which client:exec_cmd() refuses to call.
-      -- https://github.com/neovim/neovim/blob/c333d6466/runtime/lua/vim/lsp/client.lua#L1024-L1030
+      -- exec_cmd() rejects this private, unadvertised command.
       ---@diagnostic disable-next-line: param-type-mismatch
       client.request('workspace/executeCommand', params, nil, bufnr)
-    end, {
-      desc = 'Organize Imports',
-    })
+    end, { desc = 'Organize Imports' })
 
     vim.api.nvim_buf_create_user_command(bufnr, 'LspPyrightSetPythonPath', set_python_path, {
       desc = 'Reconfigure basedpyright with the provided python path',

@@ -34,9 +34,11 @@ T['dapui-first wires the full dap stack (locks bug 5)'] = function()
   H.wait_until(child, [[package.loaded['dapui'] ~= nil]])
 
   eq(child.lua_get([[require('dap').adapters.codelldb ~= nil]]), true)
+  eq(child.lua_get([[require('dap').adapters.delve ~= nil]]), true)
   eq(child.lua_get([[require('dap').configurations.rust ~= nil]]), true)
   eq(child.lua_get([[require('dap').configurations.c ~= nil]]), true)
   eq(child.lua_get([[require('dap').configurations.cpp ~= nil]]), true)
+  eq(child.lua_get([[require('dap').configurations.go ~= nil]]), true)
 
   for _, listener in ipairs { 'attach', 'launch', 'event_terminated', 'event_exited' } do
     local expr = ([[type(require('dap').listeners.before[%q].dapui_config)]]):format(listener)
@@ -52,8 +54,46 @@ T['dap signs are defined'] = function()
   end
 end
 
-T['CODELLDB_PATH is executable'] = function()
-  eq(child.lua_get([[vim.fn.executable(vim.env.CODELLDB_PATH or '') == 1]]), true)
+T['missing codelldb notifies instead of erroring'] = function()
+  child.type_keys(' Db')
+  H.wait_until(child, [[package.loaded['dap'] ~= nil]])
+  -- Force the missing-binary path regardless of the host env.
+  child.lua([[
+    vim.env.CODELLDB_PATH = '/nonexistent/codelldb'
+    _G.__notified, _G.__cb_called = nil, false
+    vim.notify = function(msg) _G.__notified = msg end
+    require('dap').adapters.codelldb(function() _G.__cb_called = true end)
+  ]])
+  eq(child.lua_get('_G.__cb_called'), false)
+  eq(child.lua_get([[type(_G.__notified) == 'string' and _G.__notified:find('codelldb') ~= nil]]), true)
+end
+
+T['missing delve notifies instead of erroring'] = function()
+  child.type_keys(' Db')
+  H.wait_until(child, [[package.loaded['dap'] ~= nil]])
+  child.lua([[
+    vim.env.DLV_PATH = '/nonexistent/dlv'
+    _G.__notified, _G.__cb_called = nil, false
+    vim.notify = function(msg) _G.__notified = msg end
+    require('dap').adapters.delve(function() _G.__cb_called = true end)
+  ]])
+  eq(child.lua_get('_G.__cb_called'), false)
+  eq(child.lua_get([[type(_G.__notified) == 'string' and _G.__notified:find('dlv', 1, true) ~= nil]]), true)
+end
+
+T['delve adapter uses a dynamic loopback port'] = function()
+  H.with_path_shims({ 'dlv' }, function()
+    H.restart(child)
+    child.type_keys(' Db')
+    H.wait_until(child, [[package.loaded['dap'] ~= nil]])
+    child.lua([[
+      vim.env.DLV_PATH = nil
+      require('dap').adapters.delve(function(adapter) _G.__adapter = adapter end)
+    ]])
+    eq(child.lua_get('_G.__adapter.host'), '127.0.0.1')
+    eq(child.lua_get('_G.__adapter.port'), '${port}')
+    eq(child.lua_get('_G.__adapter.executable.args'), { 'dap', '--listen=127.0.0.1:${port}' })
+  end)
 end
 
 T['dap-first then dapui does not re-run setup'] = function()

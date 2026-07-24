@@ -2,7 +2,5 @@
 return {
   cmd = { 'ty', 'server' },
   filetypes = { 'python' },
-  settings = {
-    ty = {},
-  },
+  settings = { ty = {} },
 }

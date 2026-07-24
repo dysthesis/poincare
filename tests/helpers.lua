@@ -13,8 +13,8 @@ H.fixtures_dir = H.tests_dir .. '/fixtures'
 -- Binary under test. checks.tests and tests/run.sh point POINCARE_NVIM at
 -- the wrapper; v:progpath may resolve to the unwrapped binary, which still
 -- works because the child arguments below reconstruct the wrapper flags and
--- the wrapper environment (PATH, NVIM_APPNAME, CODELLDB_PATH) is inherited
--- from the parent process.
+-- the wrapper environment (PATH, NVIM_APPNAME) is inherited from the parent
+-- process.
 H.nvim_bin = vim.env.POINCARE_NVIM or vim.v.progpath
 
 -- The parent booted with `-u <configDir>/init.lua` ($MYVIMRC stays unset
@@ -237,9 +237,19 @@ H.trigger_keys = {
     { mode = 'n', lhs = ' Dx' },
     { mode = 'n', lhs = ' Dt' },
   },
-  ['clangd_extensions.nvim'] = {
-    { mode = 'n', lhs = ' cs' },
-    { mode = 'n', lhs = ' cT' },
+  ['mini.surround'] = {
+    { mode = 'n', lhs = 'sa' },
+    { mode = 'x', lhs = 'sa' },
+    { mode = 'n', lhs = 'sd' },
+    { mode = 'n', lhs = 'sr' },
+    { mode = 'n', lhs = 'sf' },
+    { mode = 'x', lhs = 'sf' },
+    { mode = 'o', lhs = 'sf' },
+    { mode = 'n', lhs = 'sF' },
+    { mode = 'x', lhs = 'sF' },
+    { mode = 'o', lhs = 'sF' },
+    { mode = 'n', lhs = 'sh' },
+    { mode = 'n', lhs = 'sn' },
   },
 }
 

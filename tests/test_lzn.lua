@@ -51,9 +51,14 @@ local lazy_specs = {
     name = 'nvim-dap',
     mod = 'dap',
     trigger = keys(' Db'),
-    extra_rtp = { 'nvim-dap-ui', 'nvim-nio', 'nvim-dap-virtual-text' },
+    extra_rtp = { 'nvim-nio', 'nvim-dap-ui', 'nvim-dap-virtual-text' },
   },
-  { name = 'nvim-dap-ui', mod = 'dapui', trigger = keys(' Do') },
+  {
+    name = 'nvim-dap-ui',
+    mod = 'dapui',
+    trigger = keys(' Do'),
+    extra_rtp = { 'nvim-nio', 'nvim-dap', 'nvim-dap-virtual-text' },
+  },
   { name = 'mini.surround', mod = 'mini.surround', trigger = keys('sa'), cleanup = esc },
   { name = 'gitsigns.nvim', mod = 'gitsigns', trigger = edit('hello.md') },
   { name = 'nvim-lint', mod = 'lint', trigger = edit('hello.md') },
@@ -71,7 +76,6 @@ local lazy_specs = {
   { name = 'ultimate-autopair.nvim', mod = 'ultimate-autopair', trigger = keys('i'), cleanup = esc },
   { name = 'blink.cmp', mod = 'blink.cmp', trigger = keys('i'), cleanup = esc, extra_rtp = { 'mini.icons' } },
   { name = 'lean.nvim', mod = 'lean', trigger = edit('hello.lean'), extra_rtp = { 'plenary.nvim' } },
-  { name = 'clangd_extensions.nvim', mod = 'clangd_extensions', trigger = edit('hello.c') },
 }
 
 T['lazy specs'] = MiniTest.new_set()
@@ -98,16 +102,15 @@ end
 
 T['eager specs'] = MiniTest.new_set()
 
-T['eager specs']['nothing trigger-less is packadded at startup'] = function()
-  -- These ride along with their consumers' load fns (mini.pick / nvim-dap);
-  -- an eager spec for any of them is startup cost regression (bench M3).
+T['library dependencies stay deferred until their consumers load'] = function()
   for _, name in ipairs { 'mini.extra', 'nvim-nio', 'nvim-dap-virtual-text' } do
     eq(child.lua_get(('T.rtp_has(%q)'):format(name)), false)
   end
 end
 
 T['eager specs']['nvim-treesitter is set up at startup'] = function()
-  eq(child.lua_get([[T.loaded('nvim-treesitter')]]), true)
+  eq(child.lua_get([[vim.g.loaded_nvim_treesitter]]), true)
+  eq(child.lua_get([[vim.fn.exists(':TSInstall')]]), 2)
   eq(child.lua_get([[T.loaded('nvim-treesitter-textobjects')]]), true)
   eq(child.lua_get([[T.rtp_has('nvim-treesitter-textobjects')]]), true)
 end
@@ -128,13 +131,10 @@ end
 
 T['every spec name resolves to a packpath dir'] = function()
   local specs = {
-    'mini.extra',
     'mini.pick',
     'smart-splits.nvim',
-    'nvim-nio',
     'nvim-dap',
     'nvim-dap-ui',
-    'nvim-dap-virtual-text',
     'nvim-treesitter',
     'mini.surround',
     'ultimate-autopair.nvim',
@@ -143,7 +143,6 @@ T['every spec name resolves to a packpath dir'] = function()
     'lean.nvim',
     'blink.cmp',
     'gitsigns.nvim',
-    'clangd_extensions.nvim',
   }
   for _, name in ipairs(specs) do
     local pattern = 'pack/*/{start,opt}/' .. name
@@ -159,9 +158,8 @@ T['opt packpath inventory matches the specs'] = function()
   -- load fn, and nothing unaccounted ships in the closure (this is what
   -- keeps lzn-auto-require-style dead weight out for good).
   local known = {
-    -- lz.n specs
+    -- lz.n specs and packages loaded by their consumers
     'blink.cmp',
-    'clangd_extensions.nvim',
     'conform.nvim',
     'gitsigns.nvim',
     'lean.nvim',
@@ -175,14 +173,11 @@ T['opt packpath inventory matches the specs'] = function()
     'nvim-nio',
     'smart-splits.nvim',
     'ultimate-autopair.nvim',
-    -- pulled in by custom load fns / explicit packadd
+    -- pulled in by custom load functions / explicit packadd
     'mini.icons',
     'minimal.nvim',
     'nvim-treesitter-textobjects',
     'plenary.nvim',
-    -- mini.test is the test harness only; it is kept out of the shipped opt
-    -- packpath and injected onto runtimepath via MINI_TEST_PATH instead
-    -- (tests/minit.lua), so it deliberately does not appear here.
   }
   table.sort(known)
 
