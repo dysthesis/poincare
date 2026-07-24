@@ -212,11 +212,11 @@
 
         # Behavioural suite (tests/): a mini.test parent inside the wrapped
         # binary drives child Neovim processes booted with the same store
-        # paths. lua-language-server is on PATH for the live-attach test;
-        # everything else is intentionally absent (README policy).
+        # paths. Go and the live-tested language servers are only on the test
+        # PATH; project tools remain absent from the editor closure.
         tests =
           pkgs.runCommand "check-poincare-tests" {
-            nativeBuildInputs = [pkgs.coreutils pkgs.lua-language-server];
+            nativeBuildInputs = [pkgs.coreutils pkgs.go pkgs.gopls pkgs.lua-language-server];
           } ''
             set -eu
 
@@ -228,7 +228,7 @@
               HOME="$TMPDIR/home" \
               TMPDIR="$TMPDIR" \
               LANG=C.UTF-8 \
-              PATH="${pkgs.lib.makeBinPath [pkgs.coreutils pkgs.lua-language-server]}" \
+              PATH="${pkgs.lib.makeBinPath [pkgs.coreutils pkgs.go pkgs.gopls pkgs.lua-language-server]}" \
               XDG_CONFIG_HOME="$TMPDIR/xdg/config" \
               XDG_DATA_HOME="$TMPDIR/xdg/data" \
               XDG_STATE_HOME="$TMPDIR/xdg/state" \

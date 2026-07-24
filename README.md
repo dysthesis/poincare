@@ -36,6 +36,18 @@ The development toolchain is installed using Nix shells. To enter the
 development shell, either run `nix develop`, or, if one uses Direnv, permit it
 to load the environment by running `direnv allow`.
 
+For Go projects, expose the toolchain, `gopls`, and Delve from the project
+shell:
+
+```sh
+nix shell nixpkgs#go nixpkgs#gopls nixpkgs#delve
+```
+
+The editor enables `gopls` only when it is available, formats with the
+toolchain's `gofmt`, and uses the existing DAP integration for package and
+package-test debugging. `gopls` runs Staticcheck analyses, avoiding a second
+Go linter. Delve is resolved as `dlv`; `$DLV_PATH` can override its location.
+
 ## Minimality
 
 Minimality is achieved with respect to functionality: a configuration is minimal

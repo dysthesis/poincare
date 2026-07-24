@@ -7,9 +7,7 @@ cmd.packadd('cfilter') -- :Cfilter and :Lfilter
 
 -- Appearance
 vim.g.minimal_transparent = true
--- minimal.nvim lives in pack/*/opt; :colorscheme would find it there anyway,
--- but only packadd puts its after/queries/* on the runtimepath. Deliberately
--- eager: deferring the colourscheme causes a flash of unstyled UI.
+-- deferring the colourscheme causes a flash of unstyled UI.
 cmd.packadd('minimal.nvim')
 cmd.colorscheme('minimal')
 opt.conceallevel = 2
@@ -166,6 +164,7 @@ end
 
 for _, lsp in ipairs {
   'lua-language-server',
+  'gopls',
   'rust-analyzer',
   'clangd',
   'nil',
@@ -337,6 +336,28 @@ require('lz.n').load {
         }
       end
 
+      dap.adapters.delve = function(cb)
+        local command = vim.env.DLV_PATH or 'dlv'
+        if vim.fn.executable(command) ~= 1 then
+          vim.notify(
+            'dlv not found. Add Delve to the project env, e.g.\n'
+              .. '  nix shell nixpkgs#delve\n'
+              .. 'or point $DLV_PATH at the binary.',
+            vim.log.levels.ERROR
+          )
+          return
+        end
+        cb {
+          type = 'server',
+          host = '127.0.0.1',
+          port = '${port}',
+          executable = {
+            command = command,
+            args = { 'dap', '--listen=127.0.0.1:${port}' },
+          },
+        }
+      end
+
       dap.configurations.rust = {
         {
           name = 'Launch',
@@ -353,6 +374,24 @@ require('lz.n').load {
       }
       dap.configurations.c = dap.configurations.rust
       dap.configurations.cpp = dap.configurations.rust
+
+      dap.configurations.go = {
+        {
+          name = 'Debug package',
+          type = 'delve',
+          request = 'launch',
+          program = '${fileDirname}',
+          cwd = '${workspaceFolder}',
+        },
+        {
+          name = 'Debug package tests',
+          type = 'delve',
+          request = 'launch',
+          mode = 'test',
+          program = '${fileDirname}',
+          cwd = '${workspaceFolder}',
+        },
+      }
 
       local ok, dapui = pcall(require, 'dapui')
       if ok then
