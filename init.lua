@@ -745,6 +745,32 @@ require('lz.n').load {
     end,
   },
   {
+    'todo-comments.nvim',
+    event = { 'BufReadPost', 'BufNewFile' },
+    cmd = { 'TodoQuickFix', 'TodoLocList' },
+    load = function(name)
+      cmd.packadd('plenary.nvim')
+      cmd.packadd(name)
+    end,
+    keys = {
+      { ']t', call('todo-comments', 'jump_next'), desc = 'Next todo comment' },
+      { '[t', call('todo-comments', 'jump_prev'), desc = 'Previous todo comment' },
+    },
+    after = function()
+      require('todo-comments').setup {}
+    end,
+  },
+  {
+    'zen-mode.nvim',
+    cmd = 'ZenMode',
+    keys = {
+      { '<leader>z', call('zen-mode', 'toggle'), desc = 'Toggle Zen Mode' },
+    },
+    after = function()
+      require('zen-mode').setup {}
+    end,
+  },
+  {
     'gitsigns.nvim',
     event = 'BufReadPost',
     after = function()

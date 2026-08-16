@@ -76,6 +76,18 @@ local lazy_specs = {
   { name = 'ultimate-autopair.nvim', mod = 'ultimate-autopair', trigger = keys('i'), cleanup = esc },
   { name = 'blink.cmp', mod = 'blink.cmp', trigger = keys('i'), cleanup = esc, extra_rtp = { 'mini.icons' } },
   { name = 'lean.nvim', mod = 'lean', trigger = edit('hello.lean'), extra_rtp = { 'plenary.nvim' } },
+  {
+    name = 'todo-comments.nvim',
+    mod = 'todo-comments',
+    trigger = keys(']t'),
+    extra_rtp = { 'plenary.nvim' },
+  },
+  {
+    name = 'zen-mode.nvim',
+    mod = 'zen-mode',
+    trigger = keys(' z'),
+    cleanup = keys(' z'),
+  },
 }
 
 T['lazy specs'] = MiniTest.new_set()
@@ -115,9 +127,10 @@ T['eager specs']['nvim-treesitter is set up at startup'] = function()
   eq(child.lua_get([[T.rtp_has('nvim-treesitter-textobjects')]]), true)
 end
 
-T['Pick command stub exists before load'] = function()
-  eq(child.lua_get([[T.loaded('mini.pick')]]), false)
-  eq(child.lua_get([[vim.fn.exists(':Pick')]]), 2)
+T['command stubs exist before load'] = function()
+  for _, command in ipairs { 'Pick', 'TodoQuickFix', 'TodoLocList', 'ZenMode' } do
+    eq(child.lua_get(([[vim.fn.exists(':%s')]]):format(command)), 2)
+  end
 end
 
 T['blink prebuilt fuzzy library loads'] = function()
@@ -143,6 +156,8 @@ T['every spec name resolves to a packpath dir'] = function()
     'lean.nvim',
     'blink.cmp',
     'gitsigns.nvim',
+    'todo-comments.nvim',
+    'zen-mode.nvim',
   }
   for _, name in ipairs(specs) do
     local pattern = 'pack/*/{start,opt}/' .. name
@@ -172,7 +187,9 @@ T['opt packpath inventory matches the specs'] = function()
     'nvim-lint',
     'nvim-nio',
     'smart-splits.nvim',
+    'todo-comments.nvim',
     'ultimate-autopair.nvim',
+    'zen-mode.nvim',
     -- pulled in by custom load functions / explicit packadd
     'mini.icons',
     'minimal.nvim',

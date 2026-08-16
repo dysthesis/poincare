@@ -61,6 +61,8 @@ in
       nvim-dap-virtual-text
 
       lean-nvim
+      todo-comments-nvim
+      zen-mode-nvim
       gitsigns-nvim
     ]
     ++ mkNpins npins
