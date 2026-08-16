@@ -2,6 +2,7 @@
   pkgs,
   lib,
   self,
+  inputs,
   # Overridable so packages.poincare-nightly can swap in nightly Neovim.
   neovim-unwrapped ? pkgs.neovim-unwrapped,
 }: let
@@ -32,7 +33,10 @@
         go
         zig
         c
-        nix
+        (nix.overrideAttrs (_: {
+          src = inputs.tree-sitter-nix;
+          version = "0.0.0+rev=${inputs.tree-sitter-nix.shortRev}";
+        }))
         lua
         just
         python

@@ -2,10 +2,12 @@
   self,
   pkgs,
   lib,
+  inputs,
   neovimNightly ? null,
 }: let
   poincare = pkgs.callPackage ./poincare {
     inherit
+      inputs
       pkgs
       lib
       self

@@ -25,11 +25,6 @@
   in
     if pname == "minimal.nvim"
     then
-      # The pinned Julian/tree-sitter-lean grammar no longer exposes the node
-      # shapes minimal.nvim's lean after-queries expect, and the ';; extends'
-      # file poisons every lean highlights compile ("Impossible pattern"),
-      # killing lean treesitter highlighting outright. Drop it; base
-      # highlights come from nvim-treesitter-lean.
       plugin.overrideAttrs (old: {
         postPatch =
           (old.postPatch or "")
@@ -45,10 +40,6 @@ in
       mini-extra # For LSP-based pickers
       mini-surround
       mini-icons
-      # mini-test is the harness for the behavioural suite (tests/) only; it is
-      # deliberately kept out of the shipped closure and injected at test time
-      # via MINI_TEST_PATH (see tests/minit.lua, flake.nix's tests check, and
-      # poincare.miniTest).
       blink-cmp
 
       smart-splits-nvim
@@ -56,7 +47,6 @@ in
       conform-nvim
       nvim-lint
 
-      # Debugging (nvim-dap-ui brings nvim-dap and nvim-nio)
       nvim-dap-ui
       nvim-dap-virtual-text
 

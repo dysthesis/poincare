@@ -43,188 +43,7 @@
             || base == "target");
       };
 
-    # The Neovim-level checks, parameterised over the package under test so
-    # the nightly canary (packages.poincare-nightly-checks) builds the exact
-    # same derivations. `nix flake check` gates only on the stable package.
-    vimChecksFor = pkgs: poincare: let
-      luaSrc = luaSrcFor pkgs;
-
-      runtime = pkgs.runCommand "check-poincare-runtime" {nativeBuildInputs = [pkgs.coreutils];} ''
-        set -eu
-
-        mkdir -p "$TMPDIR/home"
-        cat > "$TMPDIR/runtime-check.lua" <<'LUA'
-        local function fail(message)
-          error(message, 0)
-        end
-
-        local function expect_executable(name)
-          if vim.fn.executable(name) ~= 1 then
-            fail(name .. ' is not executable')
-          end
-        end
-
-        expect_executable('rg')
-        expect_executable('fd')
-
-        vim.cmd.packadd('lean.nvim')
-        if #vim.api.nvim_get_runtime_file('queries/lean/highlights.scm', true) == 0 then
-          fail('Lean treesitter queries are not on runtimepath')
-        end
-        if #vim.api.nvim_get_runtime_file('queries/lean/indents.scm', true) == 0 then
-          fail('Lean treesitter parser queries are not on runtimepath')
-        end
-        local query_files = vim.treesitter.query.get_files('lean', 'highlights')
-        if not query_files[1] or not query_files[1]:find('nvim%-treesitter%-lean', 1) then
-          fail('Lean treesitter parser queries do not take precedence: ' .. vim.inspect(query_files))
-        end
-        local queries_ok, query_err = pcall(vim.treesitter.query.get, 'lean', 'highlights')
-        if not queries_ok then
-          fail('Lean treesitter highlight queries failed: ' .. tostring(query_err))
-        end
-        if #vim.api.nvim_get_runtime_file('parser/lean.*', true) == 0 then
-          fail('Lean treesitter parser is not on runtimepath')
-        end
-
-        vim.cmd.enew()
-        vim.bo.filetype = 'lean'
-        local ok, err = pcall(vim.treesitter.start, 0, 'lean')
-        if not ok then
-          fail('Lean treesitter parser failed: ' .. tostring(err))
-        end
-
-
-        local dap_continue = vim.fn.maparg(' Dc', 'n', false, true)
-        if dap_continue.desc ~= 'Continue' then
-          fail('<leader>Dc should remain DAP continue, got ' .. vim.inspect(dap_continue.desc))
-        end
-
-        local dap_close = vim.fn.maparg(' Dx', 'n', false, true)
-        if dap_close.desc ~= '[D]ebug Close UI' then
-          fail('<leader>Dx should close DAP UI, got ' .. vim.inspect(dap_close.desc))
-        end
-        LUA
-
-        # A +luafile error prints to stderr but Neovim continues to +qa and
-        # exits 0, so the check must gate on stderr, not the exit code.
-        rc=0
-        env -i \
-          HOME="$TMPDIR/home" \
-          PATH="${pkgs.coreutils}/bin" \
-          ${poincare}/bin/nvim --headless "+luafile $TMPDIR/runtime-check.lua" +qa \
-          2>"$TMPDIR/stderr.log" || rc=$?
-
-        if [ "$rc" -ne 0 ] || [ -s "$TMPDIR/stderr.log" ]; then
-          echo "runtime check failed (exit $rc):" >&2
-          cat "$TMPDIR/stderr.log" >&2
-          exit 1
-        fi
-
-        touch "$out"
-      '';
-
-      # Headless boot must write nothing to stderr and exit zero. This
-      # catches the entire class of lz.n spec/handler/keymap errors that
-      # print on every boot but never fail loudly.
-      boot-purity = pkgs.runCommand "check-poincare-boot-purity" {nativeBuildInputs = [pkgs.coreutils];} ''
-        set -eu
-
-        mkdir -p "$TMPDIR/home"
-        rc=0
-        env -i \
-          HOME="$TMPDIR/home" \
-          PATH="${pkgs.coreutils}/bin" \
-          ${poincare}/bin/nvim --headless +qa 2>"$TMPDIR/stderr.log" || rc=$?
-
-        if [ "$rc" -ne 0 ] || [ -s "$TMPDIR/stderr.log" ]; then
-          echo "headless boot failed (exit $rc) or wrote to stderr:" >&2
-          cat "$TMPDIR/stderr.log" >&2
-          exit 1
-        fi
-
-        touch "$out"
-      '';
-
-      # Expected checkhealth ERROR lines (fixed-string match, one per line;
-      # no blank lines — an empty pattern would match everything):
-      #   - tar/curl: external tools intentionally absent from the closure
-      #     (README policy: runtime tools come from the environment).
-      #   - tree-sitter-cli: only compiles grammars; Nix ships them
-      #     precompiled, so the CLI is intentionally absent.
-      #   - "is not in runtimepath": nvim-treesitter's download/install dir
-      #     ($XDG_DATA_HOME/poincare/site) — unused; parsers ship via Nix.
-      #   - locale: hermetic env has no locale archive on some platforms
-      #     even with LANG=C.UTF-8 set below; not a property of the config.
-      #   - graphics protocol: nightly Neovim health-checks terminal image
-      #     support; headless checks have no terminal, so it always ERRORs.
-      checkhealthAllowlist = pkgs.writeText "checkhealth-allowlist" ''
-        tar not found
-        curl not found
-        tree-sitter-cli not found
-        is not in runtimepath
-        Locale does not support UTF-8
-        Graphics protocol: not supported
-      '';
-
-      checkhealth = pkgs.runCommand "check-poincare-checkhealth" {nativeBuildInputs = [pkgs.coreutils];} ''
-        set -eu
-
-        mkdir -p "$TMPDIR/home"
-        env -i \
-          HOME="$TMPDIR/home" \
-          LANG=C.UTF-8 \
-          PATH="${pkgs.coreutils}/bin" \
-          ${poincare}/bin/nvim --headless \
-            "+silent! checkhealth" \
-            "+silent! write! $TMPDIR/health.txt" \
-            +qa 2>/dev/null
-
-        test -s "$TMPDIR/health.txt"
-
-        if grep ERROR "$TMPDIR/health.txt" | grep -v -F -f ${checkhealthAllowlist} > "$TMPDIR/unexpected.txt"; then
-          echo "checkhealth reported non-allowlisted ERRORs:" >&2
-          cat "$TMPDIR/unexpected.txt" >&2
-          exit 1
-        fi
-
-        touch "$out"
-      '';
-
-      # Behavioural suite (tests/): a mini.test parent inside the wrapped
-      # binary drives child Neovim processes booted with the same store
-      # paths. mini.test is not in the shipped closure, so it is injected onto
-      # runtimepath via MINI_TEST_PATH rather than packadd, keeping the binary
-      # under test identical to release. Go and live-tested language servers
-      # exist only on test PATH; project tools stay absent from editor closure.
-      tests =
-        pkgs.runCommand "check-poincare-tests" {
-          nativeBuildInputs = [pkgs.coreutils pkgs.go pkgs.gopls pkgs.lua-language-server];
-        } ''
-          set -eu
-
-          mkdir -p "$TMPDIR/home" "$TMPDIR/xdg"/{config,data,state,cache,run}
-          chmod 700 "$TMPDIR/xdg/run"
-
-          cd ${luaSrc}
-          env -i \
-            HOME="$TMPDIR/home" \
-            TMPDIR="$TMPDIR" \
-            LANG=C.UTF-8 \
-            PATH="${pkgs.lib.makeBinPath [pkgs.coreutils pkgs.go pkgs.gopls pkgs.lua-language-server]}" \
-            XDG_CONFIG_HOME="$TMPDIR/xdg/config" \
-            XDG_DATA_HOME="$TMPDIR/xdg/data" \
-            XDG_STATE_HOME="$TMPDIR/xdg/state" \
-            XDG_CACHE_HOME="$TMPDIR/xdg/cache" \
-            XDG_RUNTIME_DIR="$TMPDIR/xdg/run" \
-            POINCARE_NVIM="${poincare}/bin/nvim" \
-            MINI_TEST_PATH="${poincare.miniTest}" \
-            timeout 600 ${poincare}/bin/nvim --headless "+luafile tests/minit.lua"
-
-          touch "$out"
-        '';
-    in {
-      inherit runtime boot-purity checkhealth tests;
-    };
+    vimChecksFor = import ./nix/checks.nix luaSrcFor;
   in
     # Budget flake-parts
     mapAttrs (_: forAllSystems) rec {
@@ -247,12 +66,16 @@
             set -eu
             export HOME="$TMPDIR"
             cd ${luaSrc}
-            ${drv}/bin/${name} ${optionalString (configPath != null) "--config ${configPath}"} .
+            ${drv}/bin/${name} ${optionalString (configPath != null)
+              "--config ${configPath}"} .
             touch "$out"
           '';
 
         mkCheckIfAvailable = name: drv: configPath:
-          if drv != null && pkgs.lib.meta.availableOn pkgs.stdenv.hostPlatform drv
+          if
+            drv
+            != null
+            && pkgs.lib.meta.availableOn pkgs.stdenv.hostPlatform drv
           then mkLuaCheck name drv configPath
           else
             pkgs.runCommand "skip-${name}" {} ''
@@ -274,9 +97,10 @@
           luacheck = mkCheckIfAvailable "luacheck" luacheckDrv "${self}/.luacheckrc";
         }
         // vimChecksFor pkgs (packages pkgs).poincare;
+
       packages = pkgs: let
         base = import ./nix/packages {
-          inherit pkgs lib self;
+          inherit pkgs lib self inputs;
           neovimNightly =
             inputs.neovim-nightly-overlay.packages.${pkgs.stdenv.hostPlatform.system}.default
             or null;
@@ -284,10 +108,7 @@
       in
         base
         // {
-          # Canary aggregate: every Neovim-level check built against the
-          # nightly package. Deliberately NOT in `checks`, so `nix flake
-          # check` (and PR CI) never gates on upstream nightly breakage —
-          # CI builds it in a continue-on-error matrix leg.
+          # every Neovim-level check built against the nightly package.
           poincare-nightly-checks =
             pkgs.linkFarm "poincare-nightly-checks"
             (vimChecksFor pkgs base.poincare-nightly);
@@ -300,6 +121,9 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # More maintained grammar for Nix that also has pipe operators
+    tree-sitter-nix.url = "github:numtide/tree-sitter-nix";
 
     # Personal library
     nixpressions = {
