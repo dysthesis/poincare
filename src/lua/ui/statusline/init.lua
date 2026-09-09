@@ -9,25 +9,55 @@ function M.hl(group)
   })
 end
 
-M.base = M.hl("StatusLine")
+local function ref(group, attr)
+  return { group = group, attr = attr }
+end
 
 M.hl_groups = {
-  ModeNormal = { fg = M.base.bg, bg = M.hl("StatusLine").fg },
-  ModePending = { fg = M.base.bg, bg = M.hl("Comment").fg },
-  ModeVisual = { fg = M.base.bg, bg = M.hl("SpecialKey").fg },
-  ModeInsert = { fg = M.base.bg, bg = M.hl("DiffAdded").fg },
-  ModeCommand = { fg = M.base.bg, bg = M.hl("Number").fg },
-  ModeReplace = { fg = M.base.bg, bg = M.hl("Constant").fg },
-  Bold = { fg = M.base.fg, bg = M.base.bg, bold = true },
-  Dim = { fg = M.hl("LineNr").fg, bg = M.base.bg },
+  Mode = {
+    fg = ref("PmenuSel", "fg"),
+    bg = ref("StatusLine", "bg"),
+    bold = true,
+  },
+
+  Name = {
+    fg = ref("Normal", "fg"),
+    bg = ref("StatusLine", "bg"),
+  },
 }
 
+local function resolve(value)
+  if type(value) ~= "table" or not value.group then
+    return value
+  end
+
+  return M.hl(value.group)[value.attr]
+end
+
+local function compile(spec)
+  local result = {}
+
+  for attr, value in pairs(spec) do
+    result[attr] = resolve(value)
+  end
+
+  return result
+end
+
+local function inverted(opts)
+  return vim.tbl_extend("force", opts, {
+    fg = opts.bg,
+    bg = opts.fg,
+  })
+end
+
 function M.set_hl_groups()
-  for group, opts in pairs(M.hl_groups) do
-    group = "StatusLine" .. group
+  for name, spec in pairs(M.hl_groups) do
+    local group = "StatusLine" .. name
+    local opts = compile(spec)
+
     vim.api.nvim_set_hl(0, group, opts)
-    opts.fg, opts.bg = opts.bg, opts.fg
-    vim.api.nvim_set_hl(0, group .. "Inverted", opts)
+    vim.api.nvim_set_hl(0, group .. "Inverted", inverted(opts))
   end
 end
 
@@ -50,6 +80,7 @@ function M.render()
 
   return table.concat({
     require("ui.statusline.mode").component(),
+    require("ui.statusline.name").component(),
     "%=", -- Left/right separator
     "Statusline right-aligned stuff",
   })
