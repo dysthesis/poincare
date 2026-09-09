@@ -2,7 +2,7 @@ local M = {}
 
 M.hl_groups = {
   Lsp = {
-    fg = { group = "LineNr", attr = "fg" },
+    fg = { group = "Conceal", attr = "fg" },
     bg = { group = "StatusLine", attr = "bg" },
   },
 

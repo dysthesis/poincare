@@ -2,12 +2,12 @@ local M = {}
 
 M.hl_groups = {
   VcIcon = {
-    fg = { group = "LineNr", attr = "fg" },
+    fg = { group = "Conceal", attr = "fg" },
     bg = { group = "StatusLine", attr = "bg" },
   },
 
   Vc = {
-    fg = { group = "LineNr", attr = "fg" },
+    fg = { group = "Conceal", attr = "fg" },
     bg = { group = "StatusLine", attr = "bg" },
   },
 
@@ -218,7 +218,7 @@ function M.component()
 
   local result = {
     "%#StatusLineVcIcon#",
-    "",
+    " ",
     "%#StatusLineVc#",
     " ",
     current.label,
@@ -226,7 +226,7 @@ function M.component()
 
   if current.dirty then
     result[#result + 1] = "%#StatusLineVcDirty#"
-    result[#result + 1] = "*"
+    result[#result + 1] = " ±"
   end
 
   return table.concat(result)
