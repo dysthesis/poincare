@@ -32,10 +32,7 @@ local function leaf(spec)
 
   next_id = next_id + 1
 
-  local name = ("lang_%s_%d"):format(
-    base:gsub("[^%w_]", "_"),
-    next_id
-  )
+  local name = ("lang_%s_%d"):format(base:gsub("[^%w_]", "_"), next_id)
 
   formatters[name] = {
     inherit = base,

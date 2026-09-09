@@ -7,3 +7,5 @@ cmd.colorscheme("minimal")
 opt.conceallevel = 2 -- How much syntax to hide
 wo.relativenumber = true
 opt.colorcolumn = "80"
+
+opt.statusline = "%{%v:lua.require'ui.statusline'.render()%}"
