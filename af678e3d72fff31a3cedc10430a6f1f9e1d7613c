@@ -1,0 +1,513 @@
+{
+  "analyser_commit": "d27bd6b9282cbc20022d6dea8da58d0221cdf46c",
+  "commit": "af678e3d72fff31a3cedc10430a6f1f9e1d7613c",
+  "error": null,
+  "format": "poincare-size-note/v2",
+  "jj_change_id": "xmlomznvmoolsruxlnskwvwnwsloymnq",
+  "measurement": {
+    "format": "poincare-size/v1",
+    "metrics": [
+      "bytecodes",
+      "functions",
+      "decisions",
+      "calls",
+      "closures",
+      "tables",
+      "global_reads",
+      "global_writes",
+      "upvalue_reads",
+      "upvalue_writes"
+    ],
+    "runtime": {
+      "arch": "x64",
+      "os": "Linux",
+      "version": "LuaJIT 2.1.1785763465"
+    },
+    "source_count": 4,
+    "tree": {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [],
+              "name": "init.lua",
+              "own": {
+                "bytecodes": 59,
+                "calls": 7,
+                "closures": 1,
+                "decisions": 5,
+                "functions": 2,
+                "global_reads": 9,
+                "global_writes": 0,
+                "tables": 1,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              },
+              "total": {
+                "bytecodes": 59,
+                "calls": 7,
+                "closures": 1,
+                "decisions": 5,
+                "functions": 2,
+                "global_reads": 9,
+                "global_writes": 0,
+                "tables": 1,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              }
+            },
+            {
+              "children": [
+                {
+                  "children": [],
+                  "name": "nil.lua",
+                  "own": {
+                    "bytecodes": 8,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 1,
+                    "global_reads": 0,
+                    "global_writes": 0,
+                    "tables": 4,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 8,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 1,
+                    "global_reads": 0,
+                    "global_writes": 0,
+                    "tables": 4,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  }
+                }
+              ],
+              "name": "lsp",
+              "own": {
+                "bytecodes": 0,
+                "calls": 0,
+                "closures": 0,
+                "decisions": 0,
+                "functions": 0,
+                "global_reads": 0,
+                "global_writes": 0,
+                "tables": 0,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              },
+              "total": {
+                "bytecodes": 8,
+                "calls": 0,
+                "closures": 0,
+                "decisions": 0,
+                "functions": 1,
+                "global_reads": 0,
+                "global_writes": 0,
+                "tables": 4,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              }
+            }
+          ],
+          "name": "config",
+          "own": {
+            "bytecodes": 0,
+            "calls": 0,
+            "closures": 0,
+            "decisions": 0,
+            "functions": 0,
+            "global_reads": 0,
+            "global_writes": 0,
+            "tables": 0,
+            "upvalue_reads": 0,
+            "upvalue_writes": 0
+          },
+          "total": {
+            "bytecodes": 67,
+            "calls": 7,
+            "closures": 1,
+            "decisions": 5,
+            "functions": 3,
+            "global_reads": 9,
+            "global_writes": 0,
+            "tables": 5,
+            "upvalue_reads": 0,
+            "upvalue_writes": 0
+          }
+        },
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "name": "minimal.lua",
+                      "own": {
+                        "bytecodes": 3520,
+                        "calls": 6,
+                        "closures": 0,
+                        "decisions": 56,
+                        "functions": 1,
+                        "global_reads": 48,
+                        "global_writes": 0,
+                        "tables": 667,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      },
+                      "total": {
+                        "bytecodes": 3520,
+                        "calls": 6,
+                        "closures": 0,
+                        "decisions": 56,
+                        "functions": 1,
+                        "global_reads": 48,
+                        "global_writes": 0,
+                        "tables": 667,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      }
+                    }
+                  ],
+                  "name": "colors",
+                  "own": {
+                    "bytecodes": 0,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 0,
+                    "global_reads": 0,
+                    "global_writes": 0,
+                    "tables": 0,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 3520,
+                    "calls": 6,
+                    "closures": 0,
+                    "decisions": 56,
+                    "functions": 1,
+                    "global_reads": 48,
+                    "global_writes": 0,
+                    "tables": 667,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  }
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [
+                            {
+                              "children": [],
+                              "name": "minimal.lua",
+                              "own": {
+                                "bytecodes": 93,
+                                "calls": 0,
+                                "closures": 0,
+                                "decisions": 1,
+                                "functions": 1,
+                                "global_reads": 1,
+                                "global_writes": 0,
+                                "tables": 20,
+                                "upvalue_reads": 0,
+                                "upvalue_writes": 0
+                              },
+                              "total": {
+                                "bytecodes": 93,
+                                "calls": 0,
+                                "closures": 0,
+                                "decisions": 1,
+                                "functions": 1,
+                                "global_reads": 1,
+                                "global_writes": 0,
+                                "tables": 20,
+                                "upvalue_reads": 0,
+                                "upvalue_writes": 0
+                              }
+                            }
+                          ],
+                          "name": "themes",
+                          "own": {
+                            "bytecodes": 0,
+                            "calls": 0,
+                            "closures": 0,
+                            "decisions": 0,
+                            "functions": 0,
+                            "global_reads": 0,
+                            "global_writes": 0,
+                            "tables": 0,
+                            "upvalue_reads": 0,
+                            "upvalue_writes": 0
+                          },
+                          "total": {
+                            "bytecodes": 93,
+                            "calls": 0,
+                            "closures": 0,
+                            "decisions": 1,
+                            "functions": 1,
+                            "global_reads": 1,
+                            "global_writes": 0,
+                            "tables": 20,
+                            "upvalue_reads": 0,
+                            "upvalue_writes": 0
+                          }
+                        }
+                      ],
+                      "name": "lualine",
+                      "own": {
+                        "bytecodes": 0,
+                        "calls": 0,
+                        "closures": 0,
+                        "decisions": 0,
+                        "functions": 0,
+                        "global_reads": 0,
+                        "global_writes": 0,
+                        "tables": 0,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      },
+                      "total": {
+                        "bytecodes": 93,
+                        "calls": 0,
+                        "closures": 0,
+                        "decisions": 1,
+                        "functions": 1,
+                        "global_reads": 1,
+                        "global_writes": 0,
+                        "tables": 20,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      }
+                    }
+                  ],
+                  "name": "lua",
+                  "own": {
+                    "bytecodes": 0,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 0,
+                    "global_reads": 0,
+                    "global_writes": 0,
+                    "tables": 0,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 93,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 1,
+                    "functions": 1,
+                    "global_reads": 1,
+                    "global_writes": 0,
+                    "tables": 20,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  }
+                }
+              ],
+              "name": "minimal-nvim",
+              "own": {
+                "bytecodes": 0,
+                "calls": 0,
+                "closures": 0,
+                "decisions": 0,
+                "functions": 0,
+                "global_reads": 0,
+                "global_writes": 0,
+                "tables": 0,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              },
+              "total": {
+                "bytecodes": 3613,
+                "calls": 6,
+                "closures": 0,
+                "decisions": 57,
+                "functions": 2,
+                "global_reads": 49,
+                "global_writes": 0,
+                "tables": 687,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              }
+            }
+          ],
+          "name": "plugins",
+          "own": {
+            "bytecodes": 0,
+            "calls": 0,
+            "closures": 0,
+            "decisions": 0,
+            "functions": 0,
+            "global_reads": 0,
+            "global_writes": 0,
+            "tables": 0,
+            "upvalue_reads": 0,
+            "upvalue_writes": 0
+          },
+          "total": {
+            "bytecodes": 3613,
+            "calls": 6,
+            "closures": 0,
+            "decisions": 57,
+            "functions": 2,
+            "global_reads": 49,
+            "global_writes": 0,
+            "tables": 687,
+            "upvalue_reads": 0,
+            "upvalue_writes": 0
+          }
+        }
+      ],
+      "name": "poincare",
+      "own": {
+        "bytecodes": 0,
+        "calls": 0,
+        "closures": 0,
+        "decisions": 0,
+        "functions": 0,
+        "global_reads": 0,
+        "global_writes": 0,
+        "tables": 0,
+        "upvalue_reads": 0,
+        "upvalue_writes": 0
+      },
+      "total": {
+        "bytecodes": 3680,
+        "calls": 13,
+        "closures": 1,
+        "decisions": 62,
+        "functions": 5,
+        "global_reads": 58,
+        "global_writes": 0,
+        "tables": 692,
+        "upvalue_reads": 0,
+        "upvalue_writes": 0
+      }
+    },
+    "vm": {
+      "jump_bias": 32767,
+      "jump_mode": 13,
+      "opcode_bits": 8,
+      "opcode_width": 6,
+      "opcodes": [
+        "ISLT",
+        "ISGE",
+        "ISLE",
+        "ISGT",
+        "ISEQV",
+        "ISNEV",
+        "ISEQS",
+        "ISNES",
+        "ISEQN",
+        "ISNEN",
+        "ISEQP",
+        "ISNEP",
+        "ISTC",
+        "ISFC",
+        "IST",
+        "ISF",
+        "ISTYPE",
+        "ISNUM",
+        "MOV",
+        "NOT",
+        "UNM",
+        "LEN",
+        "ADDVN",
+        "SUBVN",
+        "MULVN",
+        "DIVVN",
+        "MODVN",
+        "ADDNV",
+        "SUBNV",
+        "MULNV",
+        "DIVNV",
+        "MODNV",
+        "ADDVV",
+        "SUBVV",
+        "MULVV",
+        "DIVVV",
+        "MODVV",
+        "POW",
+        "CAT",
+        "KSTR",
+        "KCDATA",
+        "KSHORT",
+        "KNUM",
+        "KPRI",
+        "KNIL",
+        "UGET",
+        "USETV",
+        "USETS",
+        "USETN",
+        "USETP",
+        "UCLO",
+        "FNEW",
+        "TNEW",
+        "TDUP",
+        "GGET",
+        "GSET",
+        "TGETV",
+        "TGETS",
+        "TGETB",
+        "TGETR",
+        "TSETV",
+        "TSETS",
+        "TSETB",
+        "TSETM",
+        "TSETR",
+        "CALLM",
+        "CALL",
+        "CALLMT",
+        "CALLT",
+        "ITERC",
+        "ITERN",
+        "VARG",
+        "ISNEXT",
+        "RETM",
+        "RET",
+        "RET0",
+        "RET1",
+        "FORI",
+        "JFORI",
+        "FORL",
+        "IFORL",
+        "JFORL",
+        "ITERL",
+        "IITERL",
+        "JITERL",
+        "LOOP",
+        "ILOOP",
+        "JLOOP",
+        "JMP",
+        "BNOT",
+        "BAND",
+        "BOR",
+        "BXOR",
+        "BSHL",
+        "BSHR",
+        "BSAR",
+        "FUNCF",
+        "IFUNCF",
+        "JFUNCF",
+        "FUNCV",
+        "IFUNCV",
+        "JFUNCV",
+        "FUNCC",
+        "FUNCCW"
+      ]
+    }
+  }
+}
