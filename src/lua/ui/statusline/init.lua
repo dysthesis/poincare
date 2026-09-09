@@ -13,6 +13,7 @@ local mode = require("ui.statusline.mode")
 local name_component = require("ui.statusline.name")
 local ft = require("ui.statusline.ft")
 local pos = require("ui.statusline.pos")
+local diagnostics = require("ui.statusline.diagnostic")
 
 local function resolve(value)
   if type(value) ~= "table" or not value.group then
@@ -38,6 +39,7 @@ M.left_components = {
 }
 
 M.right_components = {
+  diagnostics,
   ft,
   pos,
 }
