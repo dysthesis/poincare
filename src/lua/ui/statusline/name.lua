@@ -1,5 +1,12 @@
 local M = {}
 
+M.hl_groups = {
+  Name = {
+    fg = { group = "Normal", attr = "fg" },
+    bg = { group = "StatusLine", attr = "bg" },
+  },
+}
+
 function M.component()
   local path = vim.api.nvim_buf_get_name(0)
 

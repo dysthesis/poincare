@@ -9,42 +9,10 @@ function M.hl(group)
   })
 end
 
-local function ref(group, attr)
-  return { group = group, attr = attr }
-end
-
-M.hl_groups = {
-  Mode = {
-    fg = ref("LineNr", "fg"),
-    bg = ref("StatusLine", "bg"),
-    bold = true,
-  },
-
-  Name = {
-    fg = ref("Normal", "fg"),
-    bg = ref("StatusLine", "bg"),
-  },
-
-  FtIcon = {
-    fg = ref("LineNr", "fg"),
-    bg = ref("StatusLine", "bg"),
-  },
-
-  Ft = {
-    fg = ref("Normal", "fg"),
-    bg = ref("StatusLine", "bg"),
-  },
-
-  PosIcon = {
-    fg = ref("LineNr", "fg"),
-    bg = ref("StatusLine", "bg"),
-  },
-
-  Pos = {
-    fg = ref("Normal", "fg"),
-    bg = ref("StatusLine", "bg"),
-  },
-}
+local mode = require("ui.statusline.mode")
+local name_component = require("ui.statusline.name")
+local ft = require("ui.statusline.ft")
+local pos = require("ui.statusline.pos")
 
 local function resolve(value)
   if type(value) ~= "table" or not value.group then
@@ -64,41 +32,41 @@ local function compile(spec)
   return result
 end
 
-local function inverted(opts)
-  return vim.tbl_extend("force", opts, {
-    fg = opts.bg,
-    bg = opts.fg,
-  })
+M.left_components = {
+  mode,
+  name_component,
+}
+
+M.right_components = {
+  ft,
+  pos,
+}
+
+function M.set_section_hl(section)
+  for _, component in ipairs(section) do
+    if component.hl_groups then
+      for name, spec in pairs(component.hl_groups) do
+        local group = "StatusLine" .. name
+        local opts = compile(spec)
+
+        vim.api.nvim_set_hl(0, group, opts)
+      end
+    end
+  end
 end
 
 function M.set_hl_groups()
-  for name, spec in pairs(M.hl_groups) do
-    local group = "StatusLine" .. name
-    local opts = compile(spec)
-
-    vim.api.nvim_set_hl(0, group, opts)
-    vim.api.nvim_set_hl(0, group .. "Inverted", inverted(opts))
-  end
+  M.set_section_hl(M.left_components)
+  M.set_section_hl(M.right_components)
 end
 
 M.set_hl_groups()
 
--- Re-compile statusline colours when the colorscheme changes
 vim.api.nvim_create_autocmd("ColorScheme", {
-  group = vim.api.nvim_create_augroup("my_statusline", {}),
+  group = vim.api.nvim_create_augroup("my_statusline", { clear = true }),
   desc = "Re-apply statusline highlights on colorscheme change",
   callback = M.set_hl_groups,
 })
-
-M.left_components = {
-  "mode",
-  "name",
-}
-
-M.right_components = {
-  "ft",
-  "pos",
-}
 
 M.sep = " "
 
@@ -108,7 +76,7 @@ function M.push_section(modeline, section)
       table.insert(modeline, M.sep)
     end
 
-    table.insert(modeline, require("ui.statusline." .. component).component())
+    table.insert(modeline, component.component())
   end
 end
 

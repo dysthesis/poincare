@@ -1,5 +1,13 @@
 local M = {}
 
+M.hl_groups = {
+  Mode = {
+    fg = { group = "LineNr", attr = "fg" },
+    bg = { group = "StatusLine", attr = "bg" },
+    bold = true,
+  },
+}
+
 M.mode_settings = {
   ["n"] = "NOR",
   ["no"] = "OP-PENDING",

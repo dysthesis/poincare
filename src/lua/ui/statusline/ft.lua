@@ -1,5 +1,17 @@
 local M = {}
 
+M.hl_groups = {
+  FtIcon = {
+    fg = { group = "LineNr", attr = "fg" },
+    bg = { group = "StatusLine", attr = "bg" },
+  },
+
+  Ft = {
+    fg = { group = "Normal", attr = "fg" },
+    bg = { group = "StatusLine", attr = "bg" },
+  },
+}
+
 local icons = {
   lua = "",
   nix = "󱄅",

@@ -1,5 +1,17 @@
 local M = {}
 
+M.hl_groups = {
+  PosIcon = {
+    fg = { group = "LineNr", attr = "fg" },
+    bg = { group = "StatusLine", attr = "bg" },
+  },
+
+  Pos = {
+    fg = { group = "Normal", attr = "fg" },
+    bg = { group = "StatusLine", attr = "bg" },
+  },
+}
+
 function M.component()
   local row = vim.fn.line(".")
   local col = vim.fn.virtcol(".")
