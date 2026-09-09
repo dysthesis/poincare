@@ -15,6 +15,7 @@ local ft = require("ui.statusline.ft")
 local pos = require("ui.statusline.pos")
 local diagnostics = require("ui.statusline.diagnostic")
 local project = require("ui.statusline.project")
+local vc = require("ui.statusline.vc")
 
 local function resolve(value)
   if type(value) ~= "table" or not value.group then
@@ -37,13 +38,15 @@ end
 M.left_components = {
   mode,
   name_component,
-  project,
+  vc,
 }
 
 M.right_components = {
+
   diagnostics,
   ft,
   pos,
+  project,
 }
 
 function M.set_section_hl(section)
