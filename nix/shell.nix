@@ -29,6 +29,11 @@ in {
       deadnix
       alejandra
 
+      # Python for dev scripts
+      (python3.withPackages (p: with p; [rich]))
+      basedpyright
+      black
+
       # Miscellaneous tooling
       just
     ];

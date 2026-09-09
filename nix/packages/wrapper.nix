@@ -57,10 +57,10 @@ in
     postBuild = ''
       wrapProgram $out/bin/nvim \
         --add-flags '-u' \
-        --add-flags '${cfgDir}/init.lua' \
+        --add-flags '${packpath}/init.lua' \
         --add-flags '--cmd' \
         --add-flags "'set packpath^=${packpath} | set runtimepath^=${packpath}'" \
-        --set-default NVIM_APPNAME nvim-custom
+        --set-default NVIM_APPNAME "${name}"
     '';
 
     passthru = {
