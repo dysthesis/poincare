@@ -27,4 +27,10 @@
 		{{ARGS}}
 
 @test-size:
-	python3 -m unittest scripts/test_size.py scripts/test_size_note.py
+	python3 -B -m unittest scripts/test_size.py scripts/test_size_note.py
+
+@test:
+	nix develop -c nvim --headless --noplugin -u tests/init.lua -c "lua MiniTest.run()"
+
+@bench:
+	nix develop -c hyperfine --warmup 5 'nvim --headless +qa'

@@ -11,11 +11,14 @@
     builtins.elemAt styluaOptions 1;
 in {
   default = pkgs.mkShellNoCC {
+    MINI_TEST_RTP = pkgs.vimPlugins.mini-nvim;
+
     inputsFrom = [
       treefmt.config.build.devShell
     ];
     packages = with pkgs; [
       # Lua development
+      neovim
       stylua
       lua-language-server
       selene
@@ -36,6 +39,7 @@ in {
 
       # Miscellaneous tooling
       just
+      hyperfine
     ];
 
     shellHook = ''
