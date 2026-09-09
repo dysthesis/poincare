@@ -24,6 +24,26 @@ M.hl_groups = {
     fg = ref("Normal", "fg"),
     bg = ref("StatusLine", "bg"),
   },
+
+  FtIcon = {
+    fg = ref("LineNr", "fg"),
+    bg = ref("StatusLine", "bg"),
+  },
+
+  Ft = {
+    fg = ref("Normal", "fg"),
+    bg = ref("StatusLine", "bg"),
+  },
+
+  PosIcon = {
+    fg = ref("LineNr", "fg"),
+    bg = ref("StatusLine", "bg"),
+  },
+
+  Pos = {
+    fg = ref("Normal", "fg"),
+    bg = ref("StatusLine", "bg"),
+  },
 }
 
 local function resolve(value)
@@ -77,6 +97,7 @@ M.left_components = {
 
 M.right_components = {
   "ft",
+  "pos",
 }
 
 M.sep = " "

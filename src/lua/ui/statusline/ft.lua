@@ -30,7 +30,13 @@ function M.component()
 
   local icon = icons[ft] or ""
 
-  return "%#StatusLineFiletype#" .. icon .. " " .. ft
+  return table.concat({
+    "%#StatusLineFtIcon#",
+    icon,
+    "%#StatusLineFt#",
+    " ",
+    ft,
+  })
 end
 
 return M
