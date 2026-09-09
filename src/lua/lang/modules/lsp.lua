@@ -1,6 +1,4 @@
-local combinator = require("lib.combinator")
-
-local function executable(name)
+local function available(name)
   local config = vim.lsp.config[name]
 
   assert(config, ("no LSP configuration named %q"):format(name))
@@ -20,37 +18,29 @@ local function executable(name)
   return vim.fn.executable(cmd[1]) == 1
 end
 
-local function enable(name)
-  assert(
-    type(name) == "string",
-    "LSP specification must be a configuration name"
-  )
+-- A spec is one server or a list of fallbacks; the first available wins.
+return function(lang, spec)
+  if type(spec) == "string" then
+    spec = { spec }
+  end
 
-  assert(
-    executable(name),
-    ("LSP %q is configured but its executable is unavailable"):format(name)
-  )
+  for _, name in ipairs(spec) do
+    assert(
+      type(name) == "string",
+      "LSP specification must be a configuration name"
+    )
 
-  vim.lsp.enable(name)
-end
-
-return function(_, spec)
-  local kind, servers = combinator.unpack(spec)
-
-  if kind == "either" then
-    for _, server in ipairs(servers) do
-      assert(type(server) == "string")
-
-      if executable(server) then
-        vim.lsp.enable(server)
-        return
-      end
+    if available(name) then
+      vim.lsp.enable(name)
+      return
     end
-
-    error("None of the fallback LSPs are available.")
   end
 
-  for _, server in ipairs(servers) do
-    enable(server)
-  end
+  vim.notify(
+    ("no LSP available for %s (tried: %s)"):format(
+      table.concat(lang.filetypes, ", "),
+      table.concat(spec, ", ")
+    ),
+    vim.log.levels.WARN
+  )
 end

@@ -1,5 +1,5 @@
 return {
-  lsp = { either = { "nil", "nixd" } },
-  formatters = { either = { "alejandra", "nixfmt" } },
-  linters = { all = { "statix", "deadnix" } },
+  lsp = { "nil", "nixd" },
+  formatters = { "alejandra", "nixfmt" },
+  linters = { "statix", "deadnix" },
 }

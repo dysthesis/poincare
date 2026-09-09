@@ -1,5 +1,3 @@
-local combinator = require("lib.combinator")
-
 local linters_by_ft = {}
 local namespaces = {}
 local processes = {}
@@ -140,28 +138,24 @@ vim.api.nvim_create_autocmd({
   end,
 })
 
+-- A spec is one linter or a list of them; every available one runs.
 return function(lang, spec)
-  local kind, names = combinator.unpack(spec)
+  if type(spec) == "string" then
+    spec = { spec }
+  end
+
   local selected = {}
 
-  if kind == "either" then
-    for _, name in ipairs(names) do
-      assert(type(name) == "string")
+  for _, name in ipairs(spec) do
+    assert(type(name) == "string", "linter must be a name")
 
-      if executable(name) then
-        selected[1] = name
-        break
-      end
-    end
-
-    assert(#selected > 0, "none of the fallback linters are available")
-  else
-    for _, name in ipairs(names) do
-      assert(type(name) == "string")
-
-      assert(executable(name), ("linter %q is unavailable"):format(name))
-
+    if executable(name) then
       selected[#selected + 1] = name
+    else
+      vim.notify(
+        ("linter %q is not installed; skipping"):format(name),
+        vim.log.levels.WARN
+      )
     end
   end
 

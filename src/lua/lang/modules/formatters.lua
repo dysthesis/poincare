@@ -1,13 +1,12 @@
-local combinator = require("lib.combinator")
-
 local formatters_by_ft = {}
 local formatters = {}
 
 local next_id = 0
 
+-- Returns the conform formatter name and the binary it needs.
 local function leaf(spec)
   if type(spec) == "string" then
-    return spec
+    return spec, spec
   end
 
   assert(type(spec) == "table", "formatter must be a string or argv table")
@@ -16,7 +15,7 @@ local function leaf(spec)
   local base = spec[1]
 
   if #spec == 1 then
-    return base
+    return base, base
   end
 
   local args = {}
@@ -39,20 +38,32 @@ local function leaf(spec)
     prepend_args = args,
   }
 
-  return name
+  return name, base
 end
 
+-- A spec is one formatter or a list of them; an argv leaf nests one level
+-- (`{ { "shfmt", "-i", "2" } }`). Every available formatter runs, in order.
 local function compile(spec)
-  local kind, specs = combinator.unpack(spec)
+  if type(spec) == "string" then
+    spec = { spec }
+  end
 
   local result = {}
 
-  for _, formatter in ipairs(specs) do
-    result[#result + 1] = leaf(formatter)
-  end
+  for _, entry in ipairs(spec) do
+    local name, bin = leaf(entry)
 
-  if kind == "either" then
-    result.stop_after_first = true
+    -- simplification: a formatter's name is assumed to be its executable;
+    -- a conform formatter whose `command` differs is wrongly skipped.
+    -- Upgrade path: resolve through conform's registry after plugin load.
+    if vim.fn.executable(bin) == 1 then
+      result[#result + 1] = name
+    else
+      vim.notify(
+        ("formatter %q is not installed; skipping"):format(bin),
+        vim.log.levels.WARN
+      )
+    end
   end
 
   return result
