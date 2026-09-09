@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from copy import deepcopy
 from dataclasses import fields
 from pathlib import Path
 from unittest.mock import patch
@@ -314,6 +315,10 @@ class MetricAndTreeTests(unittest.TestCase):
         size.render_json(root, response, 2, file=output)
 
         rendered = json.loads(output.getvalue())
+        self.assertEqual(
+            set(rendered),
+            {"format", "runtime", "vm", "source_count", "metrics", "tree"},
+        )
         self.assertEqual(rendered["format"], "poincare-size/v1")
         self.assertEqual(rendered["source_count"], 2)
         self.assertEqual(
@@ -322,6 +327,303 @@ class MetricAndTreeTests(unittest.TestCase):
         self.assertEqual(rendered["tree"]["total"]["decisions"], 1)
         self.assertEqual(rendered["tree"]["children"][0]["name"], "b")
         self.assertEqual(rendered["tree"]["children"][0]["own"]["bytecodes"], 2)
+
+
+class HistoryTests(unittest.TestCase):
+    def test_distribution_handles_ties_extremes_and_small_samples(self) -> None:
+        self.assertIsNone(size.distribution(10, []))
+        self.assertEqual(
+            size.distribution(10, [20, 10, 0, 10]),
+            {
+                "n": 4,
+                "percentile": 50,
+                "median": 10,
+                "q1": 7.5,
+                "q3": 12.5,
+                "min": 0,
+                "max": 20,
+            },
+        )
+        for values in ([10], [10, 10, 10]):
+            for current, percentile in ((9, 0), (10, 50), (11, 100)):
+                with self.subTest(values=values, current=current):
+                    self.assertEqual(
+                        size.distribution(current, values),
+                        {
+                            "n": len(values),
+                            "percentile": percentile,
+                            "median": 10,
+                            "q1": 10,
+                            "q3": 10,
+                            "min": 10,
+                            "max": 10,
+                        },
+                    )
+        self.assertEqual(
+            size.distribution(0, [0, 0]),
+            {
+                "n": 2,
+                "percentile": 50,
+                "median": 0,
+                "q1": 0,
+                "q3": 0,
+                "min": 0,
+                "max": 0,
+            },
+        )
+
+    def test_local_notes_select_ancestors_and_validate_complete_measurements(
+        self,
+    ) -> None:
+        response = response_for(("RET0", None))
+        counts = size.Metrics(bytecodes=10)
+        data = size.measurement(
+            size.Node("poincare", own=counts, total=counts), response, 1
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+
+            def git(*arguments: str, input: str | None = None) -> str:
+                return subprocess.run(
+                    [
+                        "git",
+                        "-c",
+                        "user.name=Size Test",
+                        "-c",
+                        "user.email=size@example.invalid",
+                        *arguments,
+                    ],
+                    cwd=root,
+                    input=input,
+                    text=True,
+                    capture_output=True,
+                    check=True,
+                ).stdout.strip()
+
+            git("init", "--quiet")
+            empty_tree = git("mktree", input="")
+
+            def commit(message: str, *parents: str) -> str:
+                return git(
+                    "commit-tree",
+                    empty_tree,
+                    *(argument for parent in parents for argument in ("-p", parent)),
+                    input=message,
+                )
+
+            def annotate(
+                revision: str, measurement: object, **metadata: object
+            ) -> None:
+                note = {
+                    "format": "poincare-size-note/v2",
+                    "commit": revision,
+                    "analyser_commit": revision,
+                    "jj_change_id": None,
+                    "measurement": measurement,
+                    "error": None,
+                    **metadata,
+                }
+                if note["format"] == "poincare-size-note/v1":
+                    del note["analyser_commit"]
+                    del note["error"]
+                git(
+                    "notes",
+                    f"--ref={size.NOTES_REF}",
+                    "add",
+                    "--file=-",
+                    revision,
+                    input=json.dumps(note),
+                )
+
+            base = commit("unnoted")
+            git("update-ref", "HEAD", base)
+            empty = size.load_history(response, root=root)
+            self.assertEqual(empty.samples, [])
+            self.assertEqual(empty.ancestors, 0)
+
+            first = commit("v2", base)
+            annotate(first, data)
+            second = commit("v1", first)
+            legacy = deepcopy(data)
+            legacy["tree"]["own"]["bytecodes"] = 30
+            legacy["tree"]["total"]["bytecodes"] = 30
+            annotate(second, legacy, format="poincare-size-note/v1")
+
+            invalid = []
+            for value in (True, -1, 1.5, "10"):
+                bad = deepcopy(data)
+                bad["tree"]["own"]["bytecodes"] = value
+                invalid.append(bad)
+            bad = deepcopy(data)
+            bad["tree"]["total"]["bytecodes"] += 1
+            invalid.append(bad)
+            bad = deepcopy(data)
+            del bad["tree"]["own"]["decisions"]
+            invalid.append(bad)
+            bad = deepcopy(data)
+            bad["metrics"] = ["bytecodes"]
+            invalid.append(bad)
+            bad = deepcopy(data)
+            child = size._node_object(size.Node("duplicate"))
+            bad["tree"]["children"] = [child, child]
+            invalid.append(bad)
+
+            tip = second
+            for index, bad in enumerate(invalid):
+                tip = commit(f"invalid {index}", tip)
+                annotate(tip, bad)
+            tip = commit("invalid JSON", tip)
+            git("notes", f"--ref={size.NOTES_REF}", "add", "-m", "not JSON", tip)
+            tip = commit("wrong attachment", tip)
+            annotate(tip, data, commit=first)
+            tip = commit("unsupported note", tip)
+            annotate(tip, data, format="poincare-size-note/v99")
+
+            for key in ("format", "runtime", "vm"):
+                bad = deepcopy(data)
+                bad[key] = "different"
+                tip = commit(f"incompatible {key}", tip)
+                annotate(tip, bad)
+            tip = commit("unavailable", tip)
+            annotate(tip, None, error="build failed")
+
+            merged = commit("merged side branch", base)
+            merged_data = deepcopy(data)
+            merged_data["tree"]["own"]["bytecodes"] = 20
+            merged_data["tree"]["total"]["bytecodes"] = 20
+            annotate(merged, merged_data)
+            unrelated = commit("unrelated")
+            annotate(unrelated, data)
+            head = commit("HEAD", tip, merged)
+            annotate(head, data)
+            git("update-ref", "HEAD", head)
+
+            history = size.load_history(response, root=root)
+
+        totals = [sample[()].bytecodes for sample in history.samples]
+        self.assertEqual(sorted(totals), [10, 20, 30])
+        self.assertLess(totals.index(30), totals.index(10))
+        self.assertEqual(
+            history.skipped,
+            {
+                "unnoted": 1,
+                "unavailable": 1,
+                "invalid": len(invalid) + 3,
+                "incompatible format/runtime/VM": 3,
+            },
+        )
+        self.assertEqual(
+            history.ancestors, len(history.samples) + sum(history.skipped.values())
+        )
+        self.assertEqual(len(history.warnings), len(invalid) + 3)
+        self.assertTrue(any("aggregation" in warning for warning in history.warnings))
+        self.assertTrue(any("duplicate" in warning for warning in history.warnings))
+
+    def test_history_render_matches_collapsed_paths_and_historical_shares(self) -> None:
+        root = size.Node("poincare", total=size.Metrics(bytecodes=100))
+        config = size.Node(
+            "config", own=size.Metrics(bytecodes=10), total=size.Metrics(bytecodes=30)
+        )
+        directory = size.Node("dir", total=size.Metrics(bytecodes=20))
+        directory.children["file.lua"] = size.Node(
+            "file.lua", total=size.Metrics(bytecodes=20)
+        )
+        config.children["dir"] = directory
+        root.children["config"] = config
+        root.children["new.lua"] = size.Node(
+            "new.lua", total=size.Metrics(bytecodes=70)
+        )
+        history = size.History(
+            samples=[
+                {
+                    (): size.Metrics(bytecodes=total),
+                    ("config",): size.Metrics(bytecodes=parent),
+                    ("config", "dir"): size.Metrics(bytecodes=leaf),
+                    ("config", "dir", "file.lua"): size.Metrics(bytecodes=leaf),
+                }
+                for total, parent, leaf in ((100, 40, 20), (200, 20, 20), (0, 0, 0))
+            ]
+            + [{(): size.Metrics(bytecodes=100)}],
+            ancestors=4,
+        )
+
+        for width in (80, 120):
+            with self.subTest(width=width):
+                output = io.StringIO()
+                size.render(
+                    root,
+                    {"version": "LuaJIT", "arch": "x64", "os": "Linux"},
+                    2,
+                    "bytecodes",
+                    None,
+                    all_metrics=True,
+                    file=output,
+                    width=width,
+                    history=history,
+                )
+                self.assertNotIn("\nCall=", output.getvalue())
+                rendered = " ".join(
+                    " ".join(
+                        line.lstrip("│ ") for line in output.getvalue().splitlines()
+                    ).split()
+                )
+                self.assertIn("poincare/config/dir/file.lua", rendered)
+                self.assertIn("BC=20 [P66.7]", rendered)
+                self.assertIn("GWrite=0 [P50.0]", rendered)
+                self.assertIn("parent=66.7% [P50.0] (n=2)", rendered)
+                self.assertIn("root=20.0% [P75.0] (n=2)", rendered)
+                self.assertIn(
+                    "history BC (n=3/4): median=20 middle50=10..20 range=0..20",
+                    rendered,
+                )
+                self.assertIn("history BC: no samples for this path", rendered)
+                self.assertNotIn("…", rendered)
+
+        output = io.StringIO()
+        size.render(
+            root,
+            {"version": "LuaJIT", "arch": "x64", "os": "Linux"},
+            2,
+            "decisions",
+            0,
+            file=output,
+            width=120,
+            history=history,
+        )
+        self.assertIn("parent=n/a [n/a]  root=n/a [n/a]", output.getvalue())
+
+    def test_history_is_explicit_and_does_not_change_snapshot_json(self) -> None:
+        self.assertFalse(size.parse_args([]).with_history)
+        self.assertTrue(size.parse_args(["--with-history"]).with_history)
+        with patch("sys.stderr", new=io.StringIO()), self.assertRaises(SystemExit):
+            size.parse_args(["--with-history", "--json"])
+        output = io.StringIO()
+        size.render(
+            size.Node("poincare"),
+            {"version": "LuaJIT", "arch": "x64", "os": "Linux"},
+            0,
+            "bytecodes",
+            0,
+            file=output,
+            width=120,
+            history=size.History(),
+        )
+        self.assertIn("No comparable local history", output.getvalue())
+        self.assertIn("BC=0", output.getvalue())
+        self.assertNotIn("[P", output.getvalue())
+
+    def test_unreadable_history_is_reported(self) -> None:
+        with patch(
+            "scripts.size.subprocess.run",
+            side_effect=[
+                subprocess.CompletedProcess([], 0, b"head\nancestor\n", b""),
+                subprocess.CompletedProcess([], 0, b"blob ancestor\n", b""),
+                subprocess.CompletedProcess([], 128, b"", b"fatal: unreadable note"),
+            ],
+        ), self.assertRaisesRegex(
+            size.AnalysisError, "cannot read size history: fatal: unreadable note"
+        ):
+            size.load_history(response_for(("RET0", None)))
 
 
 class ProtocolTests(unittest.TestCase):

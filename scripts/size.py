@@ -7,14 +7,18 @@ import os
 import subprocess
 import sys
 import tempfile
+from collections import Counter
 from collections.abc import Iterable
 from dataclasses import dataclass, field, fields
 from pathlib import Path
+from statistics import quantiles
+from textwrap import wrap
 from typing import IO, Any
 
 ROOT = Path(__file__).resolve().parent.parent
 ADAPTER = Path(__file__).resolve().with_name("bytecode.lua")
 OUTPUT_FORMAT = "poincare-size/v1"
+NOTES_REF = "refs/notes/poincare-size"
 METRIC_NAMES = {
     "bytecodes": "bytecodes",
     "decisions": "decisions",
@@ -136,6 +140,14 @@ class Node:
     own: Metrics = field(default_factory=Metrics)
     total: Metrics = field(default_factory=Metrics)
     children: dict[str, Node] = field(default_factory=dict)
+
+
+@dataclass
+class History:
+    samples: list[dict[tuple[str, ...], Metrics]] = field(default_factory=list)
+    ancestors: int = 0
+    skipped: Counter[str] = field(default_factory=Counter)
+    warnings: list[str] = field(default_factory=list)
 
 
 def realise_outputs() -> tuple[Path, Path]:
@@ -626,6 +638,142 @@ def render_json(
     output.write("\n")
 
 
+def load_history(response: dict[str, Any], *, root: Path = ROOT) -> History:
+    def git(*arguments: str) -> bytes:
+        try:
+            result = subprocess.run(
+                ["git", *arguments], cwd=root, capture_output=True, check=False
+            )
+        except OSError as error:
+            raise AnalysisError(f"cannot read size history: {error}") from error
+        if result.returncode:
+            detail = result.stderr.decode(errors="replace").strip()
+            raise AnalysisError(f"cannot read size history: {detail}")
+        return result.stdout
+
+    # HEAD is not its own history, even when its committed tree has a note.
+    ancestors = git("rev-list", "--topo-order", "HEAD").decode("ascii").splitlines()[1:]
+    notes = {
+        commit: blob
+        for blob, commit in (
+            line.split()
+            for line in git("notes", f"--ref={NOTES_REF}", "list")
+            .decode("ascii")
+            .splitlines()
+        )
+    }
+    history = History(ancestors=len(ancestors))
+    metric_keys = {item.name for item in fields(Metrics)}
+
+    def visit(
+        value: Any, path: tuple[str, ...], nodes: dict[tuple[str, ...], Metrics]
+    ) -> Metrics:
+        node = _exact_object(
+            value, {"name", "own", "total", "children"}, "history node"
+        )
+        name = node["name"]
+        if (
+            not isinstance(name, str)
+            or not name
+            or "/" in name
+            or (not path and name != "poincare")
+            or path in nodes
+        ):
+            raise AnalysisError("invalid or duplicate history path")
+        counts = {}
+        for kind in ("own", "total"):
+            raw = _exact_object(node[kind], metric_keys, f"history {kind}")
+            counts[kind] = Metrics(
+                **{key: _integer(raw[key], f"history {key}") for key in metric_keys}
+            )
+        nodes[path] = counts["total"]
+        if not isinstance(node["children"], list):
+            raise AnalysisError("invalid history children")
+        expected = counts["own"]
+        for child in node["children"]:
+            if not isinstance(child, dict) or not isinstance(child.get("name"), str):
+                raise AnalysisError("invalid history child")
+            expected = expected + visit(child, path + (child["name"],), nodes)
+        if expected != counts["total"]:
+            raise AnalysisError("history aggregation invariant failed")
+        return expected
+
+    for commit in ancestors:
+        if commit not in notes:
+            history.skipped["unnoted"] += 1
+            continue
+        # simplification: one Git read per note; use cat-file --batch for large histories.
+        payload = git("cat-file", "blob", notes[commit])
+        try:
+            note = json.loads(payload)
+            if not isinstance(note, dict) or note.get("format") not in (
+                "poincare-size-note/v1",
+                "poincare-size-note/v2",
+            ):
+                raise AnalysisError("unsupported size note format")
+            if note.get("commit") != commit:
+                raise AnalysisError("size note commit does not match its attachment")
+            if "measurement" not in note:
+                raise AnalysisError("size note has no measurement field")
+            data = note["measurement"]
+            if data is None and isinstance(note.get("error"), str) and note["error"]:
+                history.skipped["unavailable"] += 1
+                continue
+            if not isinstance(data, dict) or note.get("error") is not None:
+                raise AnalysisError("invalid size note measurement/error")
+            if (
+                data.get("format") != OUTPUT_FORMAT
+                or data.get("runtime") != response["runtime"]
+                or data.get("vm") != response["vm"]
+            ):
+                history.skipped["incompatible format/runtime/VM"] += 1
+                continue
+            metrics = data.get("metrics")
+            if (
+                not isinstance(metrics, list)
+                or not all(isinstance(key, str) for key in metrics)
+                or len(metrics) != len(metric_keys)
+                or set(metrics) != metric_keys
+            ):
+                raise AnalysisError("invalid history metric list")
+            _integer(data.get("source_count"), "history source count")
+            nodes: dict[tuple[str, ...], Metrics] = {}
+            visit(data.get("tree"), (), nodes)
+        except (AnalysisError, ValueError, RecursionError) as error:
+            history.skipped["invalid"] += 1
+            history.warnings.append(f"{commit[:12]}: {error}")
+            continue
+        history.samples.append(nodes)
+    return history
+
+
+def distribution(
+    value: int | float, samples: Iterable[int | float]
+) -> dict[str, float] | None:
+    values = sorted(samples)
+    if not values:
+        return None
+    q1, median, q3 = (
+        quantiles(values, n=4, method="inclusive")
+        if len(values) > 1
+        else [values[0]] * 3
+    )
+    return {
+        "n": len(values),
+        "percentile": 100
+        * (
+            sum(sample < value for sample in values)
+            + sum(sample == value for sample in values) / 2
+        )
+        / len(values),
+        "median": median,
+        "q1": q1,
+        "q3": q3,
+        "min": values[0],
+        "max": values[-1],
+    }
+
+
 def _display_children(
     node: Node, path: tuple[str, ...]
 ) -> Iterable[tuple[str, Node, tuple[str, ...]]]:
@@ -681,6 +829,7 @@ def render(
     all_metrics: bool = False,
     file: IO[str] | None = None,
     width: int | None = None,
+    history: History | None = None,
 ) -> None:
     from rich.console import Console
 
@@ -710,7 +859,58 @@ def render(
         style="bold",
         markup=False,
     )
+    if history is not None:
+        console.print(
+            f"History: {len(history.samples)} comparable notes / {history.ancestors} ancestors of HEAD (HEAD excluded)",
+            style="bold",
+            markup=False,
+        )
+        console.print(f"Local notes: {NOTES_REF}", markup=False)
+        if history.skipped:
+            console.print(
+                "Skipped: "
+                + ", ".join(
+                    f"{count} {reason}"
+                    for reason, count in sorted(history.skipped.items())
+                ),
+                markup=False,
+            )
+        for warning in history.warnings:
+            console.print(f"History warning: {warning}", style="yellow", markup=False)
+        if history.samples:
+            console.print(
+                "P = historical percentile: percentage below now, counting half of ties. "
+                "P50 is central; higher means larger, not necessarily worse.\n"
+                "middle50 = 25th-75th percentiles (inclusive interpolation). "
+                "Each noted commit has equal weight; this is not a trend or significance test.\n"
+                "n counts notes containing the exact path; absent paths are not zero. "
+                "Shares use the same historical parent/root and omit zero denominators. "
+                "One observation cannot describe a spread.\n"
+                "BC counts bytecode instructions, not bytes; Dec counts control-flow decisions.",
+                style="dim",
+                markup=False,
+            )
+        else:
+            console.print(
+                "No comparable local history; showing current values only.",
+                markup=False,
+            )
+
+    def rank(stats: dict[str, float] | None) -> str:
+        return " [n/a]" if stats is None else f" [P{stats['percentile']:.1f}]"
+
+    def print_detail(prefix: str, text: str, style: str | None = None) -> None:
+        lines = (
+            wrap(text, max(1, console.width - len(prefix)), break_on_hyphens=False)
+            if history and history.samples
+            else [text]
+        )
+        for line in lines:
+            console.print(prefix + line, style=style, overflow="fold", markup=False)
+
+    paths: dict[int, tuple[str, ...]] = {}
     for node, parent, level, path, branches in _display_rows(root, selected, depth):
+        paths[id(node)] = path
         parent_value = (
             getattr(parent.total, selected) if parent else getattr(root.total, selected)
         )
@@ -726,14 +926,66 @@ def render(
             "    " if not branches else guide + ("│   " if branches[-1] else "    ")
         )
         console.print(guide + branch + logical, overflow="fold", markup=False)
+        past = (
+            [sample for sample in history.samples if path in sample] if history else []
+        )
+        stats = (
+            {
+                column: distribution(
+                    getattr(node.total, column),
+                    (getattr(sample[path], column) for sample in past),
+                )
+                for column in columns
+            }
+            if history and history.samples
+            else {}
+        )
         values = "  ".join(
-            f"{labels[column]}={getattr(node.total, column):,}" for column in columns
+            f"{labels[column]}={getattr(node.total, column):,}"
+            + (rank(stats[column]) if stats else "")
+            for column in columns
         )
-        console.print(
-            f"{detail}{values}  parent={percentage(value, parent_value)}  root={percentage(value, root_value)}",
-            overflow="fold",
-            markup=False,
-        )
+        shares = []
+        for label, denominator, denominator_path in (
+            ("parent", parent_value, paths[id(parent)] if parent else ()),
+            ("root", root_value, ()),
+        ):
+            share = f"{label}={percentage(value, denominator)}"
+            if stats:
+                share_stats = (
+                    distribution(
+                        100 * value / denominator,
+                        (
+                            100
+                            * getattr(sample[path], selected)
+                            / getattr(sample[denominator_path], selected)
+                            for sample in past
+                            if getattr(sample[denominator_path], selected)
+                        ),
+                    )
+                    if denominator
+                    else None
+                )
+                share += rank(share_stats)
+                if share_stats and share_stats["n"] != len(past):
+                    share += f" (n={share_stats['n']:.0f})"
+            shares.append(share)
+        print_detail(detail, f"{values}  {'  '.join(shares)}")
+        if stats and history is not None:
+            summary = stats[selected]
+            if summary is None:
+                text = f"history {labels[selected]}: no samples for this path"
+            else:
+                formatted = {
+                    key: f"{summary[key]:,.2f}".rstrip("0").rstrip(".")
+                    for key in ("median", "q1", "q3", "min", "max")
+                }
+                text = (
+                    f"history {labels[selected]} (n={len(past)}/{len(history.samples)}): "
+                    f"median={formatted['median']}  middle50={formatted['q1']}..{formatted['q3']}  "
+                    f"range={formatted['min']}..{formatted['max']}"
+                )
+            print_detail(detail, text, style="dim")
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -744,7 +996,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--metric",
         choices=METRIC_NAMES,
         default="bytecodes",
-        help="metric used for sorting and parent/root percentages (default: bytecodes)",
+        help="metric used for sorting, parent/root percentages and history summary (default: bytecodes)",
     )
     depth = parser.add_mutually_exclusive_group()
     depth.add_argument(
@@ -757,10 +1009,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--all-metrics", action="store_true", help="show every metric column"
     )
-    parser.add_argument(
+    output = parser.add_mutually_exclusive_group()
+    output.add_argument(
         "--json",
         action="store_true",
         help="emit the complete measurement tree as versioned JSON",
+    )
+    output.add_argument(
+        "--with-history",
+        action="store_true",
+        help="compare against local size notes on ancestors of HEAD, excluding HEAD; terminal output only",
     )
     parser.add_argument("--nvim", type=Path, help=argparse.SUPPRESS)
     parser.add_argument("--packpath", type=Path, help=argparse.SUPPRESS)
@@ -792,6 +1050,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.metric,
                 None if args.full else args.depth,
                 args.all_metrics,
+                history=load_history(response) if args.with_history else None,
             )
     except AnalysisError as error:
         print(f"size: {error}", file=sys.stderr)
