@@ -8,6 +8,7 @@
       settings = {
         column_width = 80;
         indent_type = "Spaces";
+        indent_width = 2;
       };
     };
   };

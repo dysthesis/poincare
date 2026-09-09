@@ -42,7 +42,9 @@
     runCommandLocal "packpath" {}
     # sh
     ''
-       mkdir -p $out/pack/${name}/{start,opt}
+      mkdir -p $out/pack/${name}/{start,opt}
+      cp -r ${../../src}/* $out/
+
 
       ${eagerPlugins |> withDeps |> unique |> linkPlugins "start"}
       ${lazyPlugins |> withDeps |> unique |> linkPlugins "opt"}
