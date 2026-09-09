@@ -31,6 +31,7 @@ class RecordTests(unittest.TestCase):
             git(root, "config", "user.email", "size@example.invalid")
             scripts = root / "scripts"
             scripts.mkdir()
+            (root / "flake.nix").write_text("{}\n")
             analyser = scripts / "size.py"
             measurement = {
                 "format": size_note.MEASUREMENT_FORMAT,
@@ -44,7 +45,7 @@ class RecordTests(unittest.TestCase):
                 "import json\nprint(json.dumps(" + repr(measurement) + "))\n"
             )
             (root / ".absolute-link").symlink_to("/nix/store/test-target")
-            git(root, "add", "scripts/size.py", ".absolute-link")
+            git(root, "add", "scripts/size.py", ".absolute-link", "flake.nix")
             git(root, "commit", "--quiet", "-m", "fixture")
             analyser.write_text("raise RuntimeError('working tree was analysed')\n")
 
@@ -60,6 +61,8 @@ class RecordTests(unittest.TestCase):
                 ).stdout
             )
             self.assertEqual(note["format"], size_note.NOTE_FORMAT)
+            self.assertEqual(note["analyser_commit"], note["commit"])
+            self.assertIsNone(note["error"])
             self.assertEqual(note["jj_change_id"], "test-change-id")
             self.assertEqual(note["measurement"]["tree"]["name"], "committed")
 
@@ -90,6 +93,7 @@ class InstallTests(unittest.TestCase):
                 (scripts / "size.py").write_text(
                     "import json\nprint(json.dumps(" + repr(measurement) + "))\n"
                 )
+                (scripts / "bytecode.lua").write_text("-- fixture\n")
                 hooks = repository / ".githooks"
                 hooks.mkdir()
                 hook = hooks / "post-commit"
@@ -124,6 +128,7 @@ class InstallTests(unittest.TestCase):
                     check=True,
                 )
                 size_note.install(root=repository)
+                (repository / "flake.nix").write_text("{}\n")
                 tracked.write_text("after\n")
 
                 subprocess.run(
@@ -155,8 +160,32 @@ class InstallTests(unittest.TestCase):
                     ).stdout
                 )
                 self.assertEqual(note["commit"], commit)
+                self.assertEqual(note["analyser_commit"], commit)
+                self.assertIsNone(note["error"])
                 self.assertEqual(note["measurement"]["tree"]["name"], "through-jj")
                 self.assertTrue(note["jj_change_id"])
+
+                initial = git(repository, "rev-parse", f"{commit}^").stdout.strip()
+                size_note.backfill(
+                    initial,
+                    commit,
+                    root=repository,
+                    analyser_revision=commit,
+                    include_base=True,
+                    record_errors=True,
+                )
+                initial_note = json.loads(
+                    git(
+                        repository,
+                        "notes",
+                        f"--ref={size_note.NOTES_REF}",
+                        "show",
+                        initial,
+                    ).stdout
+                )
+                self.assertEqual(initial_note["analyser_commit"], commit)
+                self.assertIsNone(initial_note["measurement"])
+                self.assertIn("has no flake.nix", initial_note["error"])
 
 
 if __name__ == "__main__":

@@ -21,7 +21,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent.parent
 NOTES_REF = "refs/notes/poincare-size"
 MEASUREMENT_FORMAT = "poincare-size/v1"
-NOTE_FORMAT = "poincare-size-note/v1"
+NOTE_FORMAT = "poincare-size-note/v2"
+ANALYSER_PATHS = ["scripts/size.py", "scripts/bytecode.lua"]
 JJ_ALIAS = [
     "util",
     "exec",
@@ -93,10 +94,18 @@ def _has_note(commit: str, root: Path) -> bool:
     return result.returncode == 0
 
 
-def _extract(commit: str, destination: Path, root: Path) -> None:
+def _extract(
+    commit: str,
+    destination: Path,
+    root: Path,
+    paths: list[str] | None = None,
+) -> None:
+    command = ["git", "archive", "--format=tar", commit]
+    if paths:
+        command.extend(["--", *paths])
     try:
         result = subprocess.run(
-            ["git", "archive", "--format=tar", commit],
+            command,
             cwd=root,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -115,14 +124,18 @@ def _extract(commit: str, destination: Path, root: Path) -> None:
         raise NoteError(f"cannot extract commit {commit}: {error}") from error
 
 
-def _analyse(commit: str, root: Path) -> dict[str, Any]:
+def _analyse(commit: str, analyser: str, root: Path) -> dict[str, Any]:
     with tempfile.TemporaryDirectory(prefix="poincare-size-") as temporary:
         source = Path(temporary)
         _extract(commit, source, root)
-        analyser = source / "scripts" / "size.py"
-        if not analyser.is_file():
+        if not (source / "flake.nix").is_file():
+            raise NoteError(f"commit {commit} has no flake.nix")
+        if analyser != commit:
+            _extract(analyser, source, root, ANALYSER_PATHS)
+        analyser_path = source / "scripts" / "size.py"
+        if not analyser_path.is_file():
             raise NoteError(f"commit {commit} has no scripts/size.py")
-        result = _run([sys.executable, str(analyser), "--json"], cwd=source)
+        result = _run([sys.executable, str(analyser_path), "--json"], cwd=source)
         try:
             measurement = json.loads(result.stdout)
         except json.JSONDecodeError as error:
@@ -135,24 +148,23 @@ def _analyse(commit: str, root: Path) -> dict[str, Any]:
     return measurement
 
 
-def record(
-    revision: str,
+def _attach_note(
+    commit: str,
+    analyser: str,
+    change_id: str | None,
+    measurement: dict[str, Any] | None,
+    error: str | None,
     *,
-    root: Path = ROOT,
-    change_id: str | None = None,
+    root: Path,
     force: bool = False,
 ) -> None:
-    commit = _resolve_commit(revision, root)
-    if not force and _has_note(commit, root):
-        print(f"size-note: {commit[:12]} already has a measurement", file=sys.stderr)
-        return
-
-    print(f"size-note: measuring {commit[:12]}", file=sys.stderr)
     note = {
         "format": NOTE_FORMAT,
         "commit": commit,
         "jj_change_id": change_id,
-        "measurement": _analyse(commit, root),
+        "analyser_commit": analyser,
+        "measurement": measurement,
+        "error": error,
     }
     payload = json.dumps(note, indent=2, sort_keys=True) + "\n"
     arguments = ["notes", f"--ref={NOTES_REF}", "add"]
@@ -161,6 +173,110 @@ def record(
     arguments.extend(["--file=-", commit])
     _git(arguments, root=root, input=payload)
     print(f"size-note: attached {NOTES_REF} to {commit[:12]}", file=sys.stderr)
+
+
+def record(
+    revision: str,
+    *,
+    root: Path = ROOT,
+    change_id: str | None = None,
+    analyser_revision: str | None = None,
+    force: bool = False,
+) -> None:
+    commit = _resolve_commit(revision, root)
+    if not force and _has_note(commit, root):
+        print(f"size-note: {commit[:12]} already has a measurement", file=sys.stderr)
+        return
+
+    print(f"size-note: measuring {commit[:12]}", file=sys.stderr)
+    analyser = _resolve_commit(analyser_revision or commit, root)
+    _attach_note(
+        commit,
+        analyser,
+        change_id,
+        _analyse(commit, analyser, root),
+        None,
+        root=root,
+        force=force,
+    )
+
+
+def _jj_change_id(commit: str, root: Path) -> str | None:
+    result = _run(
+        [
+            "jj",
+            "--ignore-working-copy",
+            "log",
+            "--no-graph",
+            "-r",
+            commit,
+            "-T",
+            'change_id ++ "\\n"',
+        ],
+        cwd=root,
+        check=False,
+    )
+    lines = result.stdout.splitlines()
+    return lines[0] if result.returncode == 0 and len(lines) == 1 else None
+
+
+def backfill(
+    base_revision: str,
+    tip_revision: str,
+    *,
+    root: Path = ROOT,
+    analyser_revision: str | None = None,
+    include_base: bool = False,
+    record_errors: bool = False,
+) -> None:
+    base = _resolve_commit(base_revision, root)
+    tip = _resolve_commit(tip_revision, root)
+    ancestry = _git(["merge-base", "--is-ancestor", base, tip], root=root, check=False)
+    if ancestry.returncode == 1:
+        raise NoteError(f"{base_revision!r} is not an ancestor of {tip_revision!r}")
+    if ancestry.returncode:
+        detail = ancestry.stderr.strip() or ancestry.stdout.strip()
+        raise NoteError(f"cannot inspect the requested commit range: {detail}")
+    result = _git(
+        ["rev-list", "--reverse", "--topo-order", f"{base}..{tip}"], root=root
+    )
+    commits = result.stdout.splitlines()
+    if include_base:
+        commits.insert(0, base)
+    analyser = _resolve_commit(analyser_revision or tip, root)
+    print(
+        f"size-note: backfilling {len(commits)} commits with analyser {analyser[:12]}",
+        file=sys.stderr,
+    )
+    failures = 0
+    for index, commit in enumerate(commits, 1):
+        print(f"size-note: [{index}/{len(commits)}]", file=sys.stderr)
+        change_id = _jj_change_id(commit, root)
+        try:
+            record(
+                commit,
+                root=root,
+                change_id=change_id,
+                analyser_revision=analyser,
+            )
+        except NoteError as error:
+            if not record_errors:
+                raise
+            failures += 1
+            print(f"size-note: unavailable: {error}", file=sys.stderr)
+            _attach_note(
+                commit,
+                analyser,
+                change_id,
+                None,
+                str(error),
+                root=root,
+            )
+    if failures:
+        print(
+            f"size-note: recorded {failures} unavailable measurements",
+            file=sys.stderr,
+        )
 
 
 def _jj_identity(root: Path) -> tuple[str, str]:
@@ -250,6 +366,25 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     record_parser.add_argument(
         "--force", action="store_true", help="replace an existing measurement"
     )
+    record_parser.add_argument(
+        "--analyser", help="revision providing size.py and bytecode.lua"
+    )
+    backfill_parser = commands.add_parser(
+        "backfill", help="measure every commit in an ancestry range"
+    )
+    backfill_parser.add_argument("base")
+    backfill_parser.add_argument("tip", nargs="?", default="HEAD")
+    backfill_parser.add_argument(
+        "--analyser", help="revision providing size.py and bytecode.lua (default: tip)"
+    )
+    backfill_parser.add_argument(
+        "--include-base", action="store_true", help="also measure the base revision"
+    )
+    backfill_parser.add_argument(
+        "--record-errors",
+        action="store_true",
+        help="attach unavailable notes and continue when analysis fails",
+    )
     return parser.parse_args(argv)
 
 
@@ -261,8 +396,20 @@ def main(argv: list[str] | None = None) -> int:
         args = parse_args(arguments)
         if args.command == "install":
             install()
+        elif args.command == "backfill":
+            backfill(
+                args.base,
+                args.tip,
+                analyser_revision=args.analyser,
+                include_base=args.include_base,
+                record_errors=args.record_errors,
+            )
         else:
-            record(args.revision, force=args.force)
+            record(
+                args.revision,
+                analyser_revision=args.analyser,
+                force=args.force,
+            )
     except NoteError as error:
         print(f"size-note: {error}", file=sys.stderr)
         return 1

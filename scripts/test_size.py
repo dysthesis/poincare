@@ -99,6 +99,24 @@ class DiscoveryTests(unittest.TestCase):
             with self.assertRaisesRegex(size.AnalysisError, "escapes owner root"):
                 size.discover(root)
 
+    def test_non_lua_symlink_escapes_are_ignored(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary, tempfile.TemporaryDirectory() as external:
+            root = Path(temporary)
+            plugin = root / "pack" / "x" / "start" / "plugin"
+            plugin.mkdir(parents=True)
+            (plugin / "parser.so").symlink_to("/nix/store/external-parser.so")
+            queries = Path(external) / "queries"
+            queries.mkdir()
+            (queries / "highlights.scm").write_text("(identifier) @variable")
+            (plugin / "queries").symlink_to(queries, target_is_directory=True)
+            (plugin / "tests").mkdir()
+            (plugin / "tests" / "invalid.lua").write_text("local function incomplete(")
+            (plugin / "plugin.lua").write_text("return {}")
+
+            found = size.discover(root)
+
+            self.assertEqual([source.path.name for source in found], ["plugin.lua"])
+
 
 class CfgTests(unittest.TestCase):
     def test_linear_instructions_form_one_basic_block(self) -> None:
@@ -230,6 +248,33 @@ class MetricAndTreeTests(unittest.TestCase):
             "poincare/a-very-long-logical-directory-name", rendered.replace("\n", "")
         )
 
+    def test_render_draws_tree_branches_through_detail_lines(self) -> None:
+        root = size.Node("poincare", total=size.Metrics(bytecodes=3))
+        parent = size.Node(
+            "parent",
+            own=size.Metrics(bytecodes=1),
+            total=size.Metrics(bytecodes=2),
+        )
+        parent.children["leaf"] = size.Node("leaf", total=size.Metrics(bytecodes=1))
+        root.children["parent"] = parent
+        root.children["sibling"] = size.Node("sibling", total=size.Metrics(bytecodes=1))
+        output = io.StringIO()
+
+        size.render(
+            root,
+            {"version": "LuaJIT", "arch": "x64", "os": "Linux"},
+            2,
+            "bytecodes",
+            None,
+            file=output,
+            width=120,
+        )
+
+        rendered = output.getvalue()
+        self.assertIn("\n├── poincare/parent\n│   BC=2", rendered)
+        self.assertIn("\n│   └── poincare/parent/leaf\n│       BC=1", rendered)
+        self.assertIn("\n└── poincare/sibling\n    BC=1", rendered)
+
     def test_zero_denominator_percentage_is_undefined(self) -> None:
         output = io.StringIO()
         size.render(
@@ -280,6 +325,18 @@ class MetricAndTreeTests(unittest.TestCase):
 
 
 class ProtocolTests(unittest.TestCase):
+    def test_runtime_may_omit_known_opcodes(self) -> None:
+        source = size.Source(0, ("config", "file.lua"), Path("file.lua"))
+        response = response_for(("RET0", None))
+        vm = response["vm"]
+        self.assertIsInstance(vm, dict)
+        assert isinstance(vm, dict)
+        vm["opcodes"] = sorted(size.KNOWN_OPS - {"BAND", "BNOT"})
+
+        validated = size.validate_response(response, [source])
+
+        self.assertEqual(validated["sources"][0]["id"], 0)
+
     def test_source_error_rejects_partial_results(self) -> None:
         sources = [size.Source(0, ("config", "bad.lua"), Path("bad.lua"))]
         response = {

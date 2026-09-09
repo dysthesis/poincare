@@ -178,17 +178,22 @@ def _lua_files(
     def visit(
         path: Path, parts: tuple[str, ...], ancestors: frozenset[tuple[int, int]]
     ) -> None:
+        is_directory = path.is_dir()
+        if is_directory and path != root and path.name == "tests":
+            return
+        if not is_directory and not path.name.endswith(".lua"):
+            return
         try:
             resolved = path.resolve(strict=True)
             stat = path.stat()
         except OSError as error:
             raise AnalysisError(f"cannot follow {path}: {error}") from error
-        if not resolved.is_relative_to(owner):
+        if not is_directory and not resolved.is_relative_to(owner):
             raise AnalysisError(
                 f"source symlink escapes owner root {root}: {path} -> {resolved}"
             )
         key = (stat.st_dev, stat.st_ino)
-        if path.is_dir():
+        if is_directory:
             if key in ancestors:
                 raise AnalysisError(f"directory traversal cycle at {path}")
             try:
@@ -333,12 +338,8 @@ def validate_response(response: Any, sources: list[Source]) -> dict[str, Any]:
     runtime_ops = set(opcodes)
     if len(opcodes) != len(runtime_ops):
         raise AnalysisError("duplicate LuaJIT opcode metadata")
-    if runtime_ops != KNOWN_OPS:
-        missing = sorted(KNOWN_OPS - runtime_ops)
-        added = sorted(runtime_ops - KNOWN_OPS)
-        raise AnalysisError(
-            f"unsupported LuaJIT opcode universe (missing={missing}, added={added})"
-        )
+    if added := sorted(runtime_ops - KNOWN_OPS):
+        raise AnalysisError(f"unsupported LuaJIT opcode universe (added={added})")
     items = response["sources"]
     if not isinstance(items, list):
         raise AnalysisError("invalid sources array")
@@ -645,19 +646,27 @@ def _display_children(
 
 def _display_rows(
     root: Node, metric: str, depth: int | None
-) -> list[tuple[Node, Node | None, int, tuple[str, ...]]]:
-    rows: list[tuple[Node, Node | None, int, tuple[str, ...]]] = [(root, None, 0, ())]
+) -> list[tuple[Node, Node | None, int, tuple[str, ...], tuple[bool, ...]]]:
+    rows: list[tuple[Node, Node | None, int, tuple[str, ...], tuple[bool, ...]]] = [
+        (root, None, 0, (), ())
+    ]
     index = 0
     while index < len(rows):
-        node, _, level, path = rows[index]
+        node, _, level, path, branches = rows[index]
         if depth is None or level < depth:
             children = sorted(
                 _display_children(node, path),
                 key=lambda item: (-getattr(item[1].total, metric), item[0]),
             )
             rows[index + 1 : index + 1] = [
-                (child, node, level + 1, child_path)
-                for _, child, child_path in children
+                (
+                    child,
+                    node,
+                    level + 1,
+                    child_path,
+                    branches + (child_index < len(children) - 1,),
+                )
+                for child_index, (_, child, child_path) in enumerate(children)
             ]
         index += 1
     return rows
@@ -701,7 +710,7 @@ def render(
         style="bold",
         markup=False,
     )
-    for node, parent, level, path in _display_rows(root, selected, depth):
+    for node, parent, level, path, branches in _display_rows(root, selected, depth):
         parent_value = (
             getattr(parent.total, selected) if parent else getattr(root.total, selected)
         )
@@ -711,12 +720,17 @@ def render(
             "n/a" if denominator == 0 else f"{100 * numerator / denominator:.1f}%"
         )
         logical = "/".join((root.name,) + path)
-        console.print("  " * level + logical, overflow="fold", markup=False)
+        guide = "".join("│   " if continued else "    " for continued in branches[:-1])
+        branch = "" if not branches else "├── " if branches[-1] else "└── "
+        detail = (
+            "    " if not branches else guide + ("│   " if branches[-1] else "    ")
+        )
+        console.print(guide + branch + logical, overflow="fold", markup=False)
         values = "  ".join(
             f"{labels[column]}={getattr(node.total, column):,}" for column in columns
         )
         console.print(
-            f"{'  ' * (level + 1)}{values}  parent={percentage(value, parent_value)}  root={percentage(value, root_value)}",
+            f"{detail}{values}  parent={percentage(value, parent_value)}  root={percentage(value, root_value)}",
             overflow="fold",
             markup=False,
         )
