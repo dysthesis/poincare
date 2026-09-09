@@ -1,0 +1,12 @@
+std = "lua51+neovim"
+exclude = [
+  "nix/**",
+  ".direnv/**",
+  "result/**"
+]
+
+[rules]
+# Plugin specs in lz.n intentionally use mixed array/table style (string repo
+# plus keyed options). Allow it globally so lint mirrors accepted Neovim
+# plugin patterns instead of flagging false positives.
+mixed_table = "allow"

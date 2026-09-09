@@ -28,8 +28,17 @@
           }
       );
   in {
-    devShells = eachSystem (import ./nix/shell.nix);
-    formatter = eachSystem (pkgs: treefmtEval.${pkgs.system}.config.build.wrapper);
+    devShells = eachSystem ({
+      pkgs,
+      system,
+      ...
+    }:
+      import ./nix/shell.nix {
+        inherit pkgs;
+        treefmt = treefmtEval.${system};
+      });
+    formatter = eachSystem ({system, ...}: treefmtEval.${system}.config.build.wrapper);
+    packages = eachSystem ({pkgs, ...}: import ./nix/packages {inherit pkgs lib;});
   };
 
   inputs = {
