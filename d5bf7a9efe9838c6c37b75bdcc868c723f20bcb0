@@ -1,8 +1,9 @@
 {
-  "analyser_commit": "7e89f9dccac58687aacd63b0db146bce899ade84",
+  "analyser_commit": "d27bd6b9282cbc20022d6dea8da58d0221cdf46c",
   "commit": "d5bf7a9efe9838c6c37b75bdcc868c723f20bcb0",
+  "error": null,
   "format": "poincare-size-note/v2",
-  "jj_change_id": "qsxnmqprnyxwxwtororxuyxpsummoqlp",
+  "jj_change_id": null,
   "measurement": {
     "format": "poincare-size/v1",
     "metrics": [
