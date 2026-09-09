@@ -18,6 +18,8 @@ ROOT = Path(__file__).resolve().parent.parent
 ADAPTER = Path(__file__).resolve().with_name("bytecode.lua")
 OUTPUT_FORMAT = "poincare-size/v1"
 NOTES_REF = "refs/notes/poincare-size"
+# Minimum terminal width in columns before bars/sparklines are drawn.
+GRAPH_MIN_WIDTH = 100
 METRIC_NAMES = {
     "bytecodes": "bytecodes",
     "decisions": "decisions",
@@ -773,6 +775,37 @@ def distribution(
     }
 
 
+_BAR_EIGHTHS = "▏▎▍▌▋▊▉"
+_SPARK_LEVELS = "▁▂▃▄▅▆▇█"
+
+
+def _bar(fraction: float, cells: int, align: str = "left") -> str:
+    eighths = int(max(0.0, min(1.0, fraction)) * cells * 8)
+    full, part = divmod(eighths, 8)
+    filled = "█" * full + (_BAR_EIGHTHS[part - 1] if part else "")
+    return filled.ljust(cells) if align == "left" else filled.rjust(cells)
+
+
+def _sparkline(values: Iterable[int | float], width: int) -> str:
+    series = list(values)
+    if not series or width < 1:
+        return ""
+    if len(series) > width:
+        series = [
+            max(
+                series[bucket * len(series) // width : (bucket + 1) * len(series) // width]
+            )
+            for bucket in range(width)
+        ]
+    low, high = min(series), max(series)
+    if low == high:
+        # Flat series sit mid-height unless they are zero.
+        return (_SPARK_LEVELS[0] if high == 0 else _SPARK_LEVELS[3]) * len(series)
+    return "".join(
+        _SPARK_LEVELS[round(7 * (value - low) / (high - low))] for value in series
+    )
+
+
 def _display_children(
     node: Node, path: tuple[str, ...]
 ) -> Iterable[tuple[str, Node, tuple[str, ...]]]:
@@ -854,6 +887,7 @@ def render(
     if selected not in columns:
         columns.append(selected)
     console = Console(file=file, width=width, color_system=None if file else "auto")
+    graphs = console.is_terminal and console.width >= GRAPH_MIN_WIDTH
     console.print(
         f"{runtime['version']} {runtime['arch']} | {file_count} Lua files | metric={metric}",
         style="bold",
@@ -927,7 +961,7 @@ def render(
             else [content]
         )
         for line in lines:
-            output = Text(prefix, style="dim") if history is not None else Text(prefix)
+            output = Text(prefix, style="dim")
             output.append_text(line)
             console.print(output, overflow="fold", markup=False)
 
@@ -948,12 +982,9 @@ def render(
         detail = (
             "    " if not branches else guide + ("│   " if branches[-1] else "    ")
         )
-        if history is not None:
-            path_text = Text(guide + branch, style="dim")
-            path_text.append(logical, style="bold")
-            console.print(path_text, overflow="fold", markup=False)
-        else:
-            console.print(guide + branch + logical, overflow="fold", markup=False)
+        path_text = Text(guide + branch, style="dim")
+        path_text.append(logical, style="bold")
+        console.print(path_text, overflow="fold", markup=False)
         past = (
             [sample for sample in history.samples if path in sample] if history else []
         )
@@ -972,7 +1003,7 @@ def render(
         for index, column in enumerate(columns):
             if index:
                 details.append("  ")
-            style = "bold cyan" if history is not None and column == selected else None
+            style = "bold cyan" if column == selected else None
             details.append(
                 f"{labels[column]}={getattr(node.total, column):,}", style=style
             )
@@ -985,7 +1016,7 @@ def render(
             details.append("  ")
             details.append(
                 f"{label}={percentage(value, denominator)}",
-                style="dim" if history is not None else None,
+                style="dim",
             )
             if stats:
                 share_stats = (
@@ -1010,6 +1041,16 @@ def render(
                 elif denominator and past:
                     details.append(" (no history)", style="dim italic")
         print_detail(detail, details)
+        if graphs and root_value:
+            cells = max(4, min(28, console.width - len(detail) - 2))
+            bar = Text(detail, style="dim")
+            if history is not None:
+                bar.append(_bar(value / root_value, cells), style="green")
+            else:
+                # Right-align plain-mode bars: shared right edge, clear of the tree.
+                bar.append(" " * (console.width - len(detail) - cells))
+                bar.append(_bar(value / root_value, cells, align="right"), style="green")
+            console.print(bar, overflow="fold", markup=False)
         if stats and history is not None:
             summary = stats[selected]
             if summary is None:
@@ -1035,6 +1076,27 @@ def render(
                         f"range {formatted['min']}-{formatted['max']}"
                     )
             print_detail(detail, text, style="dim italic")
+            if graphs and past:
+                # Samples arrive newest-first; draw oldest to current, left to right.
+                series = [getattr(sample[path], selected) for sample in reversed(past)]
+                series.append(value)
+                annotation = f"{number(series[0])} → {number(series[-1])}"
+                cells = max(
+                    8,
+                    min(
+                        60,
+                        console.width
+                        - len(detail)
+                        - len(labels[selected])
+                        - len(annotation)
+                        - 10,
+                    ),
+                )
+                trend = Text(detail, style="dim")
+                trend.append(f"{labels[selected]} trend ", style="dim italic")
+                trend.append(_sparkline(series, cells), style="cyan")
+                trend.append(f" {annotation}", style="dim italic")
+                console.print(trend, overflow="fold", markup=False)
             if level == 0 and root.children and (depth is None or depth > 0):
                 console.print()
 

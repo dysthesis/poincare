@@ -628,6 +628,45 @@ class HistoryTests(unittest.TestCase):
             size.load_history(response_for(("RET0", None)))
 
 
+class GraphTests(unittest.TestCase):
+    def test_bar_fills_eighth_cells_and_clamps(self) -> None:
+        self.assertEqual(size._bar(0, 4), "    ")
+        self.assertEqual(size._bar(1, 4), "████")
+        self.assertEqual(size._bar(0.5, 4), "██  ")
+        self.assertEqual(size._bar(0.125, 4), "▌   ")
+        self.assertEqual(size._bar(2, 2), "██")
+        self.assertEqual(size._bar(-1, 2), "  ")
+        self.assertEqual(size._bar(0.5, 4, align="right"), "  ██")
+        self.assertEqual(size._bar(0.125, 4, align="right"), "   ▌")
+        self.assertEqual(size._bar(1, 4, align="right"), "████")
+
+    def test_sparkline_normalises_buckets_and_flat_series(self) -> None:
+        self.assertEqual(size._sparkline([], 4), "")
+        self.assertEqual(size._sparkline([0, 7], 4), "▁█")
+        self.assertEqual(size._sparkline([0, 0, 0], 4), "▁▁▁")
+        self.assertEqual(size._sparkline([5, 5, 5], 4), "▄▄▄")
+        self.assertEqual(size._sparkline(range(8), 4), "▁▃▆█")
+        self.assertEqual(size._sparkline([3, 1, 2], 1), "▄")
+
+    def test_render_to_file_never_emits_graph_glyphs(self) -> None:
+        output = io.StringIO()
+        size.render(
+            size.Node("poincare", total=size.Metrics(bytecodes=2)),
+            {"version": "LuaJIT", "arch": "x64", "os": "Linux"},
+            1,
+            "bytecodes",
+            0,
+            file=output,
+            width=200,
+            history=size.History(
+                samples=[{(): size.Metrics(bytecodes=1)}], ancestors=1
+            ),
+        )
+        rendered = output.getvalue()
+        for glyph in "█▁▂▃▄▅▆▇▏▎▍▌▋▊▉":
+            self.assertNotIn(glyph, rendered)
+
+
 class ProtocolTests(unittest.TestCase):
     def test_runtime_may_omit_known_opcodes(self) -> None:
         source = size.Source(0, ("config", "file.lua"), Path("file.lua"))
