@@ -1,97 +1,277 @@
-local formatters_by_ft = {}
-local formatters = {}
+local DEFAULT_ARGS = {
+  stylua = {
+    "--search-parent-directories",
+    "--respect-ignores",
+    "--stdin-filepath",
+    "$FILENAME",
+    "-",
+  },
+}
 
-local next_id = 0
+local TIMEOUT_MS = 1000
+local pipelines_by_ft = {}
+local formatting = {}
 
--- Returns the conform formatter name and the binary it needs.
-local function leaf(spec)
-  if type(spec) == "string" then
-    return spec, spec
-  end
+local group = vim.api.nvim_create_augroup("lang_formatters", { clear = true })
 
-  assert(type(spec) == "table", "formatter must be a string or argv table")
-  assert(type(spec[1]) == "string", "formatter argv must start with a name")
-
-  local base = spec[1]
-
-  if #spec == 1 then
-    return base, base
-  end
-
-  local args = {}
-
-  for i = 2, #spec do
-    assert(
-      type(spec[i]) == "string",
-      "formatter argv must contain only strings"
-    )
-
-    args[#args + 1] = spec[i]
-  end
-
-  next_id = next_id + 1
-
-  local name = ("lang_%s_%d"):format(base:gsub("[^%w_]", "_"), next_id)
-
-  formatters[name] = {
-    inherit = base,
-    prepend_args = args,
-  }
-
-  return name, base
+local function fail(name, why)
+  vim.notify(("formatter %q failed: %s"):format(name, why), vim.log.levels.WARN)
 end
 
--- A spec is one formatter or a list of them; an argv leaf nests one level
--- (`{ { "shfmt", "-i", "2" } }`). Every available formatter runs, in order.
+local function output_text(lines)
+  for _, line in ipairs(lines) do
+    -- Buffered job channels encode NUL bytes as embedded newlines in an item.
+    if line:find("\n", 1, true) then
+      return nil, "returned a NUL byte"
+    end
+  end
+
+  return table.concat(lines, "\n")
+end
+
+local function run(argv, text, filename, cwd, deadline)
+  local cmd = {}
+
+  for i, arg in ipairs(argv) do
+    cmd[i] = arg == "$FILENAME" and filename or arg
+  end
+
+  local stdout, stderr = {}, {}
+  local id = vim.fn.jobstart(cmd, {
+    cwd = cwd,
+    stdout_buffered = true,
+    stderr_buffered = true,
+    on_stdout = function(_, data)
+      stdout = data or {}
+    end,
+    on_stderr = function(_, data)
+      stderr = data or {}
+    end,
+  })
+
+  if id <= 0 then
+    return nil, id == 0 and "invalid arguments" or "could not start"
+  end
+
+  local sent = pcall(vim.fn.chansend, id, text)
+  pcall(vim.fn.chanclose, id, "stdin")
+
+  if not sent then
+    vim.fn.jobstop(id)
+    return nil, "could not write stdin"
+  end
+
+  local remaining = math.ceil((deadline - vim.uv.hrtime()) / 1e6)
+
+  if remaining <= 0 then
+    vim.fn.jobstop(id)
+    return nil, "timed out"
+  end
+
+  local status = vim.fn.jobwait({ id }, remaining)[1]
+
+  if status < 0 then
+    vim.fn.jobstop(id)
+    return nil, status == -1 and "timed out" or "wait interrupted"
+  end
+
+  if status ~= 0 then
+    local message = output_text(stderr)
+    local line = message and message:match("%S[^\r\n]*")
+
+    return nil,
+      line and ("exit %d: %s"):format(status, line:sub(1, 160))
+        or ("exit %d"):format(status)
+  end
+
+  return output_text(stdout)
+end
+
+local function unchanged(bufnr, state)
+  if
+    not vim.api.nvim_buf_is_valid(bufnr)
+    or not vim.api.nvim_buf_is_loaded(bufnr)
+  then
+    return false
+  end
+
+  local bo = vim.bo[bufnr]
+
+  return vim.api.nvim_buf_get_changedtick(bufnr) == state.tick
+    and vim.api.nvim_buf_get_name(bufnr) == state.name
+    and bo.filetype == state.filetype
+    and bo.buftype == ""
+    and bo.modifiable
+    and not bo.binary
+end
+
+local function apply(bufnr, old_lines, new_lines)
+  if vim.deep_equal(old_lines, new_lines) then
+    return
+  end
+
+  -- A buffer line array includes its final line, so terminate both diff inputs.
+  local hunks = vim.text.diff(
+    table.concat(old_lines, "\n") .. "\n",
+    table.concat(new_lines, "\n") .. "\n",
+    {
+      result_type = "indices",
+      algorithm = "histogram",
+    }
+  )
+
+  if hunks == nil then
+    return
+  end
+
+  -- Work bottom-up so mutations do not shift the coordinates of earlier hunks.
+  -- Run :undojoin in the target buffer's undo context, even when it is not
+  -- current.
+  vim.api.nvim_buf_call(bufnr, function()
+    for i = #hunks, 1, -1 do
+      local hunk = hunks[i]
+      local old_start = hunk[1] - (hunk[2] > 0 and 1 or 0)
+      local replacement = hunk[4] == 0 and {}
+        or vim.list_slice(new_lines, hunk[3], hunk[3] + hunk[4] - 1)
+
+      if i < #hunks then
+        vim.cmd.undojoin()
+      end
+
+      vim.api.nvim_buf_set_lines(
+        bufnr,
+        old_start,
+        old_start + hunk[2],
+        false,
+        replacement
+      )
+    end
+  end)
+end
+
+local function format(bufnr)
+  local bo = vim.bo[bufnr]
+  local pipeline = pipelines_by_ft[bo.filetype]
+
+  if not pipeline or bo.buftype ~= "" or not bo.modifiable or bo.binary then
+    return
+  end
+
+  local state = {
+    tick = vim.api.nvim_buf_get_changedtick(bufnr),
+    name = vim.api.nvim_buf_get_name(bufnr),
+    filetype = bo.filetype,
+  }
+  local cwd = state.name == "" and vim.fn.getcwd() or vim.fs.dirname(state.name)
+  local filename = state.name ~= "" and state.name
+    or ("%s/unnamed.%s"):format(cwd, state.filetype)
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+  local text = table.concat(lines, "\n") .. "\n"
+  local deadline = vim.uv.hrtime() + TIMEOUT_MS * 1e6
+
+  for _, argv in ipairs(pipeline) do
+    local output, reason = run(argv, text, filename, cwd, deadline)
+
+    if not output then
+      fail(argv[1], reason)
+      return
+    end
+
+    if output:match("^%s*$") and not text:match("^%s*$") then
+      fail(argv[1], "returned no output")
+      return
+    end
+
+    text = output
+  end
+
+  if not unchanged(bufnr, state) then
+    fail(pipeline[1][1], "buffer changed while formatting; discarded output")
+    return
+  end
+
+  local new_lines = vim.split(text, "\r?\n")
+
+  if #new_lines > 1 and new_lines[#new_lines] == "" then
+    new_lines[#new_lines] = nil
+  end
+
+  apply(bufnr, lines, new_lines)
+end
+
+vim.api.nvim_create_autocmd("BufWritePre", {
+  group = group,
+  callback = function(event)
+    if formatting[event.buf] then
+      return
+    end
+
+    formatting[event.buf] = true
+    local ok, err = xpcall(format, debug.traceback, event.buf)
+    formatting[event.buf] = nil
+
+    if not ok then
+      vim.notify("formatter failed unexpectedly: " .. err, vim.log.levels.WARN)
+    end
+  end,
+})
+
 local function compile(spec)
   if type(spec) == "string" then
     spec = { spec }
   end
 
-  local result = {}
+  assert(type(spec) == "table", "formatters must be a string or list")
+  local pipeline = {}
 
   for _, entry in ipairs(spec) do
-    local name, bin = leaf(entry)
+    local argv = {}
 
-    -- simplification: a formatter's name is assumed to be its executable;
-    -- a conform formatter whose `command` differs is wrongly skipped.
-    -- Upgrade path: resolve through conform's registry after plugin load.
-    if vim.fn.executable(bin) == 1 then
-      result[#result + 1] = name
+    if type(entry) == "string" then
+      argv[1] = entry
+    else
+      assert(type(entry) == "table", "formatter must be a string or argv table")
+      assert(
+        type(entry[1]) == "string",
+        "formatter argv must start with a name"
+      )
+
+      for _, arg in ipairs(entry) do
+        assert(
+          type(arg) == "string",
+          "formatter argv must contain only strings"
+        )
+        argv[#argv + 1] = arg
+      end
+    end
+
+    -- simplification: only shipped tools inherit stdin arguments; other commands
+    -- must encode their stdin/stdout mode in argv. Add a registry if this grows.
+    if vim.fn.executable(argv[1]) == 1 then
+      vim.list_extend(argv, DEFAULT_ARGS[argv[1]] or {})
+      pipeline[#pipeline + 1] = argv
     else
       vim.notify(
-        ("formatter %q is not installed; skipping"):format(bin),
+        ("formatter %q is not installed; skipping"):format(argv[1]),
         vim.log.levels.WARN
       )
     end
   end
 
-  return result
+  return pipeline
 end
 
-require("lz.n").load({
-  "conform.nvim",
-
-  event = "BufWritePre",
-  cmd = "ConformInfo",
-
-  after = function()
-    require("conform").setup({
-      formatters_by_ft = formatters_by_ft,
-      formatters = formatters,
-
-      format_on_save = {
-        timeout_ms = 1000,
-        lsp_format = "never",
-      },
-    })
-  end,
-})
-
+-- Register (language, ordered formatter list); nested argv leaves put custom
+-- arguments before any defaults.
 return function(lang, spec)
-  local compiled = compile(spec)
+  assert(
+    type(lang) == "table" and type(lang.filetypes) == "table",
+    "lang.filetypes must be a list"
+  )
+  local pipeline = compile(spec)
 
   for _, filetype in ipairs(lang.filetypes) do
-    formatters_by_ft[filetype] = compiled
+    assert(type(filetype) == "string", "filetype must be a string")
+    pipelines_by_ft[filetype] = #pipeline > 0 and pipeline or nil
   end
 end
