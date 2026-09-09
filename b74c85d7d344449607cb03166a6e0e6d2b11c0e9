@@ -1,0 +1,8 @@
+{
+  "analyser_commit": "d27bd6b9282cbc20022d6dea8da58d0221cdf46c",
+  "commit": "b74c85d7d344449607cb03166a6e0e6d2b11c0e9",
+  "error": "/nix/store/mi8gwgay426vya22z44kh32pjvkw3s3n-python3-3.14.7-env/bin/python3 /tmp/nix-shell.yc9zE8/poincare-size-g9_ekg18/scripts/size.py --json failed: size: nix build failed: error: flake 'path:/tmp/nix-shell.yc9zE8/poincare-size-g9_ekg18' does not provide attribute 'packages.x86_64-linux.poincare', 'defaultPackage.x86_64-linux.poincare', 'legacyPackages.x86_64-linux.poincare' or 'poincare'",
+  "format": "poincare-size-note/v2",
+  "jj_change_id": "wpkvuskuxloozppwspzztwzrklxywxup",
+  "measurement": null
+}
