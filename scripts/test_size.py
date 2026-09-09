@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from dataclasses import fields
 from pathlib import Path
 from unittest.mock import patch
 
@@ -241,6 +242,41 @@ class MetricAndTreeTests(unittest.TestCase):
             width=80,
         )
         self.assertIn("parent=n/a  root=n/a", output.getvalue())
+
+    def test_json_contains_complete_uncollapsed_tree(self) -> None:
+        root = size.Node(
+            "poincare",
+            own=size.Metrics(bytecodes=1),
+            total=size.Metrics(bytecodes=3, decisions=1),
+        )
+        root.children["b"] = size.Node(
+            "b",
+            own=size.Metrics(bytecodes=2, decisions=1),
+            total=size.Metrics(bytecodes=2, decisions=1),
+        )
+        output = io.StringIO()
+        response = {
+            "runtime": {"version": "LuaJIT", "arch": "x64", "os": "Linux"},
+            "vm": {
+                "opcode_width": 6,
+                "opcode_bits": 8,
+                "jump_mode": 13,
+                "jump_bias": 0x7FFF,
+                "opcodes": sorted(size.KNOWN_OPS),
+            },
+        }
+
+        size.render_json(root, response, 2, file=output)
+
+        rendered = json.loads(output.getvalue())
+        self.assertEqual(rendered["format"], "poincare-size/v1")
+        self.assertEqual(rendered["source_count"], 2)
+        self.assertEqual(
+            rendered["metrics"], [field.name for field in fields(size.Metrics)]
+        )
+        self.assertEqual(rendered["tree"]["total"]["decisions"], 1)
+        self.assertEqual(rendered["tree"]["children"][0]["name"], "b")
+        self.assertEqual(rendered["tree"]["children"][0]["own"]["bytecodes"], 2)
 
 
 class ProtocolTests(unittest.TestCase):

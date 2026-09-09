@@ -14,6 +14,7 @@ from typing import IO, Any
 
 ROOT = Path(__file__).resolve().parent.parent
 ADAPTER = Path(__file__).resolve().with_name("bytecode.lua")
+OUTPUT_FORMAT = "poincare-size/v1"
 METRIC_NAMES = {
     "bytecodes": "bytecodes",
     "decisions": "decisions",
@@ -584,6 +585,46 @@ def assert_aggregation(node: Node) -> Metrics:
     return expected
 
 
+def _metrics_object(metrics: Metrics) -> dict[str, int]:
+    return {item.name: getattr(metrics, item.name) for item in fields(metrics)}
+
+
+def _node_object(node: Node) -> dict[str, Any]:
+    return {
+        "name": node.name,
+        "own": _metrics_object(node.own),
+        "total": _metrics_object(node.total),
+        "children": [
+            _node_object(child)
+            for child in sorted(node.children.values(), key=lambda child: child.name)
+        ],
+    }
+
+
+def measurement(
+    root: Node, response: dict[str, Any], file_count: int
+) -> dict[str, Any]:
+    return {
+        "format": OUTPUT_FORMAT,
+        "runtime": response["runtime"],
+        "vm": response["vm"],
+        "source_count": file_count,
+        "metrics": [item.name for item in fields(Metrics)],
+        "tree": _node_object(root),
+    }
+
+
+def render_json(
+    root: Node,
+    response: dict[str, Any],
+    file_count: int,
+    file: IO[str] | None = None,
+) -> None:
+    output = file or sys.stdout
+    json.dump(measurement(root, response, file_count), output, indent=2, sort_keys=True)
+    output.write("\n")
+
+
 def _display_children(
     node: Node, path: tuple[str, ...]
 ) -> Iterable[tuple[str, Node, tuple[str, ...]]]:
@@ -702,6 +743,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--all-metrics", action="store_true", help="show every metric column"
     )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="emit the complete measurement tree as versioned JSON",
+    )
     parser.add_argument("--nvim", type=Path, help=argparse.SUPPRESS)
     parser.add_argument("--packpath", type=Path, help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
@@ -722,14 +768,17 @@ def main(argv: list[str] | None = None) -> int:
         response = probe(nvim, sources)
         tree = aggregate(sources, response)
         assert_aggregation(tree)
-        render(
-            tree,
-            response["runtime"],
-            len(sources),
-            args.metric,
-            None if args.full else args.depth,
-            args.all_metrics,
-        )
+        if args.json:
+            render_json(tree, response, len(sources))
+        else:
+            render(
+                tree,
+                response["runtime"],
+                len(sources),
+                args.metric,
+                None if args.full else args.depth,
+                args.all_metrics,
+            )
     except AnalysisError as error:
         print(f"size: {error}", file=sys.stderr)
         return 1
