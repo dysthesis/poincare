@@ -12,7 +12,6 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field, fields
 from pathlib import Path
 from statistics import quantiles
-from textwrap import wrap
 from typing import IO, Any
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -832,6 +831,7 @@ def render(
     history: History | None = None,
 ) -> None:
     from rich.console import Console
+    from rich.text import Text
 
     selected = METRIC_NAMES[metric]
     labels = {
@@ -860,53 +860,76 @@ def render(
         markup=False,
     )
     if history is not None:
+        console.print()
+        sample_count = len(history.samples)
         console.print(
-            f"History: {len(history.samples)} comparable notes / {history.ancestors} ancestors of HEAD (HEAD excluded)",
+            f"History: {sample_count} comparable measurements from "
+            f"{history.ancestors} earlier commits",
             style="bold",
             markup=False,
         )
-        console.print(f"Local notes: {NOTES_REF}", markup=False)
         if history.skipped:
+            reasons = {
+                "incompatible format/runtime/VM": "incompatible",
+                "invalid": "invalid",
+                "unavailable": "unavailable",
+                "unnoted": (
+                    "without a note"
+                    if history.skipped["unnoted"] == 1
+                    else "without notes"
+                ),
+            }
             console.print(
-                "Skipped: "
+                "Skipped commits: "
                 + ", ".join(
-                    f"{count} {reason}"
+                    f"{count} {reasons.get(reason, reason)}"
                     for reason, count in sorted(history.skipped.items())
                 ),
+                style="dim",
                 markup=False,
             )
         for warning in history.warnings:
-            console.print(f"History warning: {warning}", style="yellow", markup=False)
+            console.print(f"Warning: {warning}", style="yellow", markup=False)
         if history.samples:
+            console.print()
             console.print(
-                "P = historical percentile: percentage below now, counting half of ties. "
-                "P50 is central; higher means larger, not necessarily worse.\n"
-                "middle50 = 25th-75th percentiles (inclusive interpolation). "
-                "Each noted commit has equal weight; this is not a trend or significance test.\n"
-                "n counts notes containing the exact path; absent paths are not zero. "
-                "Shares use the same historical parent/root and omit zero denominators. "
-                "One observation cannot describe a spread.\n"
-                "BC counts bytecode instructions, not bytes; Dec counts control-flow decisions.",
-                style="dim",
+                "P is the percentile among earlier measurements "
+                "(P50 is typical; higher is larger).\n"
+                "Samples include only commits containing that path; "
+                "share comparisons omit zero baselines.",
+                style="dim italic",
                 markup=False,
             )
         else:
             console.print(
-                "No comparable local history; showing current values only.",
+                "No comparable history; showing current values only.",
+                style="dim italic",
                 markup=False,
             )
+        console.print()
+
+    def number(value: float) -> str:
+        return f"{value:,.2f}".rstrip("0").rstrip(".")
 
     def rank(stats: dict[str, float] | None) -> str:
-        return " [n/a]" if stats is None else f" [P{stats['percentile']:.1f}]"
+        assert stats is not None
+        percentile = f"{stats['percentile']:.1f}".rstrip("0").rstrip(".")
+        return f"P{percentile}"
 
-    def print_detail(prefix: str, text: str, style: str | None = None) -> None:
+    def print_detail(prefix: str, text: str | Text, style: str | None = None) -> None:
+        if isinstance(text, str):
+            content = Text(text, style=style) if style else Text(text)
+        else:
+            content = text
         lines = (
-            wrap(text, max(1, console.width - len(prefix)), break_on_hyphens=False)
+            content.wrap(console, max(1, console.width - len(prefix)))
             if history and history.samples
-            else [text]
+            else [content]
         )
         for line in lines:
-            console.print(prefix + line, style=style, overflow="fold", markup=False)
+            output = Text(prefix, style="dim") if history is not None else Text(prefix)
+            output.append_text(line)
+            console.print(output, overflow="fold", markup=False)
 
     paths: dict[int, tuple[str, ...]] = {}
     for node, parent, level, path, branches in _display_rows(root, selected, depth):
@@ -925,7 +948,12 @@ def render(
         detail = (
             "    " if not branches else guide + ("│   " if branches[-1] else "    ")
         )
-        console.print(guide + branch + logical, overflow="fold", markup=False)
+        if history is not None:
+            path_text = Text(guide + branch, style="dim")
+            path_text.append(logical, style="bold")
+            console.print(path_text, overflow="fold", markup=False)
+        else:
+            console.print(guide + branch + logical, overflow="fold", markup=False)
         past = (
             [sample for sample in history.samples if path in sample] if history else []
         )
@@ -940,17 +968,25 @@ def render(
             if history and history.samples
             else {}
         )
-        values = "  ".join(
-            f"{labels[column]}={getattr(node.total, column):,}"
-            + (rank(stats[column]) if stats else "")
-            for column in columns
-        )
-        shares = []
+        details = Text()
+        for index, column in enumerate(columns):
+            if index:
+                details.append("  ")
+            style = "bold cyan" if history is not None and column == selected else None
+            details.append(
+                f"{labels[column]}={getattr(node.total, column):,}", style=style
+            )
+            if column == selected and stats.get(column):
+                details.append(f" ({rank(stats[column])})", style=style)
         for label, denominator, denominator_path in (
             ("parent", parent_value, paths[id(parent)] if parent else ()),
             ("root", root_value, ()),
         ):
-            share = f"{label}={percentage(value, denominator)}"
+            details.append("  ")
+            details.append(
+                f"{label}={percentage(value, denominator)}",
+                style="dim" if history is not None else None,
+            )
             if stats:
                 share_stats = (
                     distribution(
@@ -966,26 +1002,41 @@ def render(
                     if denominator
                     else None
                 )
-                share += rank(share_stats)
-                if share_stats and share_stats["n"] != len(past):
-                    share += f" (n={share_stats['n']:.0f})"
-            shares.append(share)
-        print_detail(detail, f"{values}  {'  '.join(shares)}")
+                if share_stats:
+                    context = [rank(share_stats)]
+                    if share_stats["n"] != len(past):
+                        context.append(f"{share_stats['n']:.0f} samples")
+                    details.append(f" ({'; '.join(context)})", style="cyan")
+                elif denominator and past:
+                    details.append(" (no history)", style="dim italic")
+        print_detail(detail, details)
         if stats and history is not None:
             summary = stats[selected]
             if summary is None:
-                text = f"history {labels[selected]}: no samples for this path"
+                text = f"{labels[selected]} history: no earlier samples for this path"
             else:
                 formatted = {
-                    key: f"{summary[key]:,.2f}".rstrip("0").rstrip(".")
+                    key: number(summary[key])
                     for key in ("median", "q1", "q3", "min", "max")
                 }
-                text = (
-                    f"history {labels[selected]} (n={len(past)}/{len(history.samples)}): "
-                    f"median={formatted['median']}  middle50={formatted['q1']}..{formatted['q3']}  "
-                    f"range={formatted['min']}..{formatted['max']}"
+                samples = (
+                    f"{len(past)} sample{'s' if len(past) != 1 else ''}"
+                    if len(past) == len(history.samples)
+                    else f"{len(past)} of {len(history.samples)} samples"
                 )
-            print_detail(detail, text, style="dim")
+                if len(past) == 1:
+                    text = f"{labels[selected]} history ({samples}): only value {formatted['median']}"
+                elif summary["min"] == summary["max"]:
+                    text = f"{labels[selected]} history ({samples}): {formatted['median']} throughout"
+                else:
+                    text = (
+                        f"{labels[selected]} history ({samples}): median {formatted['median']}; "
+                        f"middle 50% {formatted['q1']}-{formatted['q3']}; "
+                        f"range {formatted['min']}-{formatted['max']}"
+                    )
+            print_detail(detail, text, style="dim italic")
+            if level == 0 and root.children and (depth is None or depth > 0):
+                console.print()
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

@@ -568,15 +568,16 @@ class HistoryTests(unittest.TestCase):
                     ).split()
                 )
                 self.assertIn("poincare/config/dir/file.lua", rendered)
-                self.assertIn("BC=20 [P66.7]", rendered)
-                self.assertIn("GWrite=0 [P50.0]", rendered)
-                self.assertIn("parent=66.7% [P50.0] (n=2)", rendered)
-                self.assertIn("root=20.0% [P75.0] (n=2)", rendered)
+                self.assertIn("BC=20 (P66.7)", rendered)
+                self.assertIn("GWrite=0", rendered)
+                self.assertNotIn("GWrite=0 (P", rendered)
+                self.assertIn("parent=66.7% (P50; 2 samples)", rendered)
+                self.assertIn("root=20.0% (P75; 2 samples)", rendered)
                 self.assertIn(
-                    "history BC (n=3/4): median=20 middle50=10..20 range=0..20",
+                    "BC history (3 of 4 samples): median 20; middle 50% 10-20; range 0-20",
                     rendered,
                 )
-                self.assertIn("history BC: no samples for this path", rendered)
+                self.assertIn("BC history: no earlier samples for this path", rendered)
                 self.assertNotIn("…", rendered)
 
         output = io.StringIO()
@@ -590,7 +591,8 @@ class HistoryTests(unittest.TestCase):
             width=120,
             history=history,
         )
-        self.assertIn("parent=n/a [n/a]  root=n/a [n/a]", output.getvalue())
+        self.assertIn("parent=n/a  root=n/a", output.getvalue())
+        self.assertIn("Dec history (4 samples): 0 throughout", output.getvalue())
 
     def test_history_is_explicit_and_does_not_change_snapshot_json(self) -> None:
         self.assertFalse(size.parse_args([]).with_history)
@@ -608,7 +610,7 @@ class HistoryTests(unittest.TestCase):
             width=120,
             history=size.History(),
         )
-        self.assertIn("No comparable local history", output.getvalue())
+        self.assertIn("No comparable history", output.getvalue())
         self.assertIn("BC=0", output.getvalue())
         self.assertNotIn("[P", output.getvalue())
 
