@@ -1,11 +1,16 @@
 local M = {}
 
 function M.component()
-  local name = vim.api.nvim_buf_get_name(0)
+  local path = vim.api.nvim_buf_get_name(0)
 
-  return table.concat({
-    "%#StatuslineMode" .. "Name" .. "#" .. name,
-  })
+  local name
+  if path == "" then
+    name = "[No Name]"
+  else
+    name = vim.fs.basename(path)
+  end
+
+  return "%#StatusLineName#" .. name
 end
 
 return M

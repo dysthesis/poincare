@@ -1,18 +1,18 @@
 local M = {}
 
 M.mode_settings = {
-  ["n"] = "NORMAL",
+  ["n"] = "NOR",
   ["no"] = "OP-PENDING",
   ["nov"] = "OP-PENDING",
   ["noV"] = "OP-PENDING",
   ["no\22"] = "OP-PENDING",
-  ["niI"] = "NORMAL",
-  ["niR"] = "NORMAL",
-  ["niV"] = "NORMAL",
-  ["nt"] = "NORMAL",
-  ["ntT"] = "NORMAL",
-  ["v"] = "VISUAL",
-  ["vs"] = "VISUAL",
+  ["niI"] = "NOR",
+  ["niR"] = "NOR",
+  ["niV"] = "NOR",
+  ["nt"] = "NOR",
+  ["ntT"] = "NOR",
+  ["v"] = "VIS",
+  ["vs"] = "VIS",
   ["V"] = "V-LINE",
   ["Vs"] = "V-LINE",
   ["\22"] = "V-BLOCK",
@@ -20,31 +20,28 @@ M.mode_settings = {
   ["s"] = "SELECT",
   ["S"] = "S-LINE",
   ["\19"] = "S-BLOCK",
-  ["i"] = "INSERT",
-  ["ic"] = "INSERT",
-  ["ix"] = "INSERT",
-  ["R"] = "REPLACE",
-  ["Rc"] = "REPLACE",
-  ["Rx"] = "REPLACE",
-  ["Rv"] = "V-REPLACE",
-  ["Rvc"] = "V-REPLACE",
-  ["Rvx"] = "V-REPLACE",
-  ["c"] = "COMMAND",
+  ["i"] = "INS",
+  ["ic"] = "INS",
+  ["ix"] = "INS",
+  ["R"] = "REP",
+  ["Rc"] = "REP",
+  ["Rx"] = "REP",
+  ["Rv"] = "V-REP",
+  ["Rvc"] = "V-REP",
+  ["Rvx"] = "V-REP",
+  ["c"] = "CMD",
   ["cv"] = "EX",
   ["ce"] = "EX",
-  ["r"] = "REPLACE",
+  ["r"] = "REP",
   ["rm"] = "MORE",
-  ["r?"] = "CONFIRM",
-  ["!"] = "SHELL",
-  ["t"] = "TERMINAL",
+  ["r?"] = "CONF",
+  ["!"] = "SH",
+  ["t"] = "TER",
 }
 
 function M.component()
   local mode = M.mode_settings[vim.fn.mode()] or {}
-
-  return table.concat({
-    "%#StatuslineMode" .. "Mode" .. "#" .. mode,
-  })
+  return "%#StatusLineMode#" .. mode
 end
 
 return M

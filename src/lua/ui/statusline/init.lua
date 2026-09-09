@@ -15,7 +15,7 @@ end
 
 M.hl_groups = {
   Mode = {
-    fg = ref("PmenuSel", "fg"),
+    fg = ref("LineNr", "fg"),
     bg = ref("StatusLine", "bg"),
     bold = true,
   },
@@ -70,6 +70,27 @@ vim.api.nvim_create_autocmd("ColorScheme", {
   callback = M.set_hl_groups,
 })
 
+M.left_components = {
+  "mode",
+  "name",
+}
+
+M.right_components = {
+  "ft",
+}
+
+M.sep = " "
+
+function M.push_section(modeline, section)
+  for idx, component in ipairs(section) do
+    if idx ~= 1 then
+      table.insert(modeline, M.sep)
+    end
+
+    table.insert(modeline, require("ui.statusline." .. component).component())
+  end
+end
+
 function M.render()
   local active = vim.fn.win_getid()
   local status = tonumber(vim.g.actual_curwin)
@@ -78,12 +99,13 @@ function M.render()
     return "Statusline for inactive windows"
   end
 
-  return table.concat({
-    require("ui.statusline.mode").component(),
-    require("ui.statusline.name").component(),
-    "%=", -- Left/right separator
-    "Statusline right-aligned stuff",
-  })
+  local modeline = {}
+
+  M.push_section(modeline, M.left_components)
+  table.insert(modeline, "%=")
+  M.push_section(modeline, M.right_components)
+
+  return table.concat(modeline)
 end
 
 return M
