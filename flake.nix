@@ -10,7 +10,7 @@
       "aarch64-darwin"
     ];
 
-    # Eval the treefmt modules from ./treefmt.nix
+    # Eval the treefmt modules from ./nix/formatting.nix
     treefmtEval =
       eachSystem
       ({pkgs, ...}:

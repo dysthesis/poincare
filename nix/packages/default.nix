@@ -5,11 +5,15 @@
 }: let
   wrapper = pkgs.callPackage ./wrapper.nix {inherit lib;};
   extraPlugins = import ./plugins {inherit pkgs lib;};
-  eagerPlugins = with pkgs.vimPlugins; with extraPlugins; [minimal-nvim];
+  eagerPlugins = with pkgs.vimPlugins; with extraPlugins; [minimal-nvim lz-n];
+  lazyPlugins = with pkgs.vimPlugins; [conform-nvim];
 in
   rec {
     poincare = wrapper.override {
-      inherit eagerPlugins;
+      inherit
+        eagerPlugins
+        lazyPlugins
+        ;
     };
 
     default = poincare;

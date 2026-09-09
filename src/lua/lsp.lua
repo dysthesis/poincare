@@ -1,23 +1,7 @@
--- Which servers we have configurations for in ../lsp/ that we want to make
--- available?
-local servers = {
-  "nil",
-}
+-- This module handles global LSP configurations, i.e. configs that apply to
+-- any and all servers and languages. For language-specific behaviour, see
+-- `lua/lang/*`.
 
-local function enable(lsp)
-  local cfg = vim.lsp.config[lsp]
-  local bin = cfg and type(cfg.cmd) == "table" and cfg.cmd[1] or lsp
-  if vim.fn.executable(bin) then
-    vim.lsp.enable(lsp)
-  end
-end
-
-for _, lsp in ipairs(servers) do
-  enable(lsp)
-end
-
--- What should be configured when an LSP is available (e.g. bindings for LSP
--- commands)?
 local autocmd = vim.api.nvim_create_autocmd
 autocmd("LspAttach", {
   desc = "LSP actions",
@@ -26,8 +10,10 @@ autocmd("LspAttach", {
     vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
 
     local map = vim.keymap.set
-    local opts = { buf = bufnr }
+    local opts = { buffer = bufnr }
 
+    -- Pressing "K" while hovering over a symbol opens the hover menu for that
+    -- symbol.
     map("n", "K", function()
       vim.lsp.buf.hover({ focusable = true })
     end, opts)
@@ -53,6 +39,6 @@ autocmd("LspAttach", {
         not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }),
         { bufnr = bufnr }
       )
-    end, { buf = bufnr, desc = "Toggle inlay hints" })
+    end, { buffer = bufnr, desc = "Toggle inlay hints" })
   end,
 })
