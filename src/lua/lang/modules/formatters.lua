@@ -24,12 +24,19 @@ local STDIN_ARGS_BY_FORMATTER = {
 
 local TIMEOUT_MS = 1000
 local pipelines_by_ft = {}
-local formatting = {}
+local formats_in_progress = {}
 
 local group = vim.api.nvim_create_augroup("lang_formatters", { clear = true })
 
-local function fail(name, why)
-  vim.notify(("formatter %q failed: %s"):format(name, why), vim.log.levels.WARN)
+local function notify_formatter_failure(command, reason)
+  vim.notify(
+    ("formatter %q failed: %s"):format(command, reason),
+    vim.log.levels.WARN
+  )
+end
+
+local function notify_orchestration_warning(reason)
+  vim.notify("formatter orchestration: " .. reason, vim.log.levels.WARN)
 end
 
 local function first_diagnostic(text)
@@ -91,14 +98,13 @@ local function run_formatter(argv, text, filename, cwd, deadline)
   end
 
   if result.code ~= 0 then
-    return nil,
-      process_failure(("exit %d"):format(result.code), result.stderr)
+    return nil, process_failure(("exit %d"):format(result.code), result.stderr)
   end
 
   return validate_output(result.stdout or "")
 end
 
-local function unchanged(bufnr, state)
+local function buffer_is_eligible(bufnr)
   if
     not vim.api.nvim_buf_is_valid(bufnr)
     or not vim.api.nvim_buf_is_loaded(bufnr)
@@ -108,12 +114,94 @@ local function unchanged(bufnr, state)
 
   local bo = vim.bo[bufnr]
 
-  return vim.api.nvim_buf_get_changedtick(bufnr) == state.tick
-    and vim.api.nvim_buf_get_name(bufnr) == state.name
-    and bo.filetype == state.filetype
-    and bo.buftype == ""
-    and bo.modifiable
-    and not bo.binary
+  return bo.buftype == "" and bo.modifiable and not bo.binary
+end
+
+local function buffer_lines_to_formatter_input(lines)
+  -- Buffer lines do not encode a terminal newline. Give formatters exactly one;
+  -- 'endofline' remains buffer metadata and is therefore left unchanged.
+  return table.concat(lines, "\n") .. "\n"
+end
+
+local function formatter_output_to_buffer_lines(text)
+  local lines = vim.split(text, "\r?\n")
+
+  -- A terminal newline produces one sentinel empty item. Remove exactly that
+  -- item; preceding empty items represent real trailing buffer lines.
+  if #lines > 1 and lines[#lines] == "" then
+    lines[#lines] = nil
+  end
+
+  return lines
+end
+
+local function capture_buffer_snapshot(bufnr)
+  if not buffer_is_eligible(bufnr) then
+    return
+  end
+
+  local bo = vim.bo[bufnr]
+  local pipeline = pipelines_by_ft[bo.filetype]
+
+  if not pipeline then
+    return
+  end
+
+  local name = vim.api.nvim_buf_get_name(bufnr)
+  local cwd = name == "" and vim.fn.getcwd() or vim.fs.dirname(name)
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+
+  return {
+    bufnr = bufnr,
+    changedtick = vim.api.nvim_buf_get_changedtick(bufnr),
+    name = name,
+    filetype = bo.filetype,
+    pipeline = pipeline,
+    cwd = cwd,
+    filename = name ~= "" and name
+      or ("%s/unnamed.%s"):format(cwd, bo.filetype),
+    lines = lines,
+    formatter_input = buffer_lines_to_formatter_input(lines),
+  }
+end
+
+local function buffer_matches_snapshot(snapshot)
+  if not buffer_is_eligible(snapshot.bufnr) then
+    return false
+  end
+
+  local bo = vim.bo[snapshot.bufnr]
+
+  return vim.api.nvim_buf_get_changedtick(snapshot.bufnr)
+      == snapshot.changedtick
+    and vim.api.nvim_buf_get_name(snapshot.bufnr) == snapshot.name
+    and bo.filetype == snapshot.filetype
+end
+
+local function would_erase_non_whitespace(input, output)
+  return output:match("^%s*$") ~= nil and input:match("^%s*$") == nil
+end
+
+local function run_pipeline(snapshot)
+  local text = snapshot.formatter_input
+  local deadline = vim.uv.hrtime() + TIMEOUT_MS * 1e6
+
+  for _, argv in ipairs(snapshot.pipeline) do
+    local output, reason =
+      run_formatter(argv, text, snapshot.filename, snapshot.cwd, deadline)
+
+    if not output then
+      return nil, argv[1], reason
+    end
+
+    if would_erase_non_whitespace(text, output) then
+      return nil, argv[1], "returned only whitespace for non-whitespace input"
+    end
+
+    text = output
+  end
+
+  return text
 end
 
 local function apply_formatted_lines(bufnr, old_lines, new_lines)
@@ -159,70 +247,44 @@ local function apply_formatted_lines(bufnr, old_lines, new_lines)
   end)
 end
 
-local function format(bufnr)
-  local bo = vim.bo[bufnr]
-  local pipeline = pipelines_by_ft[bo.filetype]
+local function format_buffer(bufnr)
+  local snapshot = capture_buffer_snapshot(bufnr)
 
-  if not pipeline or bo.buftype ~= "" or not bo.modifiable or bo.binary then
+  if not snapshot then
     return
   end
 
-  local state = {
-    tick = vim.api.nvim_buf_get_changedtick(bufnr),
-    name = vim.api.nvim_buf_get_name(bufnr),
-    filetype = bo.filetype,
-  }
-  local cwd = state.name == "" and vim.fn.getcwd() or vim.fs.dirname(state.name)
-  local filename = state.name ~= "" and state.name
-    or ("%s/unnamed.%s"):format(cwd, state.filetype)
-  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-  local text = table.concat(lines, "\n") .. "\n"
-  local deadline = vim.uv.hrtime() + TIMEOUT_MS * 1e6
+  local formatted_text, failed_command, failure_reason = run_pipeline(snapshot)
 
-  for _, argv in ipairs(pipeline) do
-    local output, reason =
-      run_formatter(argv, text, filename, cwd, deadline)
-
-    if not output then
-      fail(argv[1], reason)
-      return
-    end
-
-    if output:match("^%s*$") and not text:match("^%s*$") then
-      fail(argv[1], "returned no output")
-      return
-    end
-
-    text = output
-  end
-
-  if not unchanged(bufnr, state) then
-    fail(pipeline[1][1], "buffer changed while formatting; discarded output")
+  if not formatted_text then
+    notify_formatter_failure(failed_command, failure_reason)
     return
   end
 
-  local new_lines = vim.split(text, "\r?\n")
-
-  if #new_lines > 1 and new_lines[#new_lines] == "" then
-    new_lines[#new_lines] = nil
+  if not buffer_matches_snapshot(snapshot) then
+    notify_orchestration_warning(
+      "buffer changed while formatting; discarded output"
+    )
+    return
   end
 
-  apply_formatted_lines(bufnr, lines, new_lines)
+  local formatted_lines = formatter_output_to_buffer_lines(formatted_text)
+  apply_formatted_lines(snapshot.bufnr, snapshot.lines, formatted_lines)
 end
 
 vim.api.nvim_create_autocmd("BufWritePre", {
   group = group,
   callback = function(event)
-    if formatting[event.buf] then
+    if formats_in_progress[event.buf] then
       return
     end
 
-    formatting[event.buf] = true
-    local ok, err = xpcall(format, debug.traceback, event.buf)
-    formatting[event.buf] = nil
+    formats_in_progress[event.buf] = true
+    local ok, err = xpcall(format_buffer, debug.traceback, event.buf)
+    formats_in_progress[event.buf] = nil
 
     if not ok then
-      vim.notify("formatter failed unexpectedly: " .. err, vim.log.levels.WARN)
+      notify_orchestration_warning("unexpected error: " .. err)
     end
   end,
 })
@@ -239,16 +301,10 @@ local function compile_entry(entry)
       type(entry) == "table" and vim.islist(entry),
       "formatter must be a string or argv list"
     )
-    assert(
-      type(entry[1]) == "string",
-      "formatter argv must start with a name"
-    )
+    assert(type(entry[1]) == "string", "formatter argv must start with a name")
 
     for _, arg in ipairs(entry) do
-      assert(
-        type(arg) == "string",
-        "formatter argv must contain only strings"
-      )
+      assert(type(arg) == "string", "formatter argv must contain only strings")
       argv[#argv + 1] = arg
     end
   end
