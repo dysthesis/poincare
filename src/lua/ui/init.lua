@@ -9,3 +9,5 @@ wo.relativenumber = true
 opt.colorcolumn = "80"
 
 opt.statusline = "%{%v:lua.require'ui.statusline'.render()%}"
+
+require("ui.splits").setup()
