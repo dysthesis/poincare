@@ -4,6 +4,7 @@ local test_file = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p")
 local root = vim.fs.dirname(vim.fs.dirname(test_file))
 
 local register = dofile(root .. "/src/lua/lang/modules/formatters.lua")
+local lua_spec = dofile(root .. "/src/lua/lang/specs/lua.lua")
 local original_notify = vim.notify
 vim.notify = function() end
 
@@ -579,18 +580,18 @@ T["a hidden target uses its own undo history"] = function()
   assert_lines(target, target_before, "hidden target format undoes once")
 end
 
-T["stylua uses its default stdin invocation"] = function()
+T["Lua spec configures StyLua for stdin"] = function()
   if vim.fn.executable("stylua") ~= 1 then
     MiniTest.skip("stylua is not installed")
   end
 
-  local bufnr = case("lua", { "local x  =   1" }, "stylua")
+  local bufnr = case("lua", { "local x  =   1" }, lua_spec.formatters)
 
   write(bufnr, dir .. "/real.lua")
   assert_lines(
     bufnr,
     { "local x = 1" },
-    "stylua formats through its default arguments"
+    "the Lua formatter command formats through stdin"
   )
   assert_file(dir .. "/real.lua", "local x = 1\n", "stylua output is written")
 end

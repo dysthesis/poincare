@@ -1,6 +1,5 @@
 ---A complete formatter command. The first item is the executable name.
----`$FILENAME` is replaced just before execution. Formatter-specific stdin
----arguments are appended to a copied command after any custom arguments.
+---`$FILENAME` is replaced just before execution.
 ---@alias FormatterArgv string[]
 
 ---A formatter executable name, or a complete argv command.
@@ -11,17 +10,6 @@
 
 local FILENAME_PLACEHOLDER = "$FILENAME"
 local DIAGNOSTIC_MAX_LENGTH = 160
-
----@type table<string, FormatterArgv>
-local STDIN_ARGS_BY_FORMATTER = {
-  stylua = {
-    "--search-parent-directories",
-    "--respect-ignores",
-    "--stdin-filepath",
-    FILENAME_PLACEHOLDER,
-    "-",
-  },
-}
 
 local TIMEOUT_MS = 1000
 local pipelines_by_ft = {}
@@ -324,7 +312,6 @@ local function compile_entry(entry)
     end
   end
 
-  vim.list_extend(argv, STDIN_ARGS_BY_FORMATTER[argv[1]] or {})
   return argv
 end
 
@@ -358,8 +345,7 @@ local function compile(spec)
   return pipeline
 end
 
----Register an ordered formatter pipeline for a language. Nested argv commands
----put custom arguments before any formatter-specific stdin arguments.
+---Register an ordered formatter pipeline for a language.
 ---@param lang { filetypes: string[] }
 ---@param spec FormatterSpec
 return function(lang, spec)
