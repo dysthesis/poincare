@@ -1,7 +1,1 @@
-line_endings = "Unix"
-indent_type = "Spaces"
-indent_width = 2
-quote_style = "AutoPreferSingle"
-call_parentheses = "NoSingleTable"
-
-# collapse_simple_statement = "Never"
+/nix/store/g3fhpjlq77ka3rszwqlk9ha6ha990rx6-stylua.toml

@@ -1,0 +1,10 @@
+{
+  "name": "startup",
+  "description": "Packaged headless startup and orderly shutdown",
+  "steps": [
+    {
+      "name": "config-loaded",
+      "lua": "return function() assert(package.loaded['completion'], 'completion config was not loaded'); assert(vim.o.statusline:find('ui.statusline', 1, true), 'configured statusline was not installed') end"
+    }
+  ]
+}
