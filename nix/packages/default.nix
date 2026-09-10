@@ -67,6 +67,7 @@
     mini-pick
     mini-extra
     mini-surround
+    mini-pairs
     nvim-lint
   ];
 in

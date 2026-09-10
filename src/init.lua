@@ -1,5 +1,4 @@
 local o, g = vim.o, vim.g
-
 vim.schedule(function() end)
 
 o.pumheight = 10 -- max height of completion menu
@@ -44,3 +43,4 @@ require("lang").setup()
 require("lsp")
 require("completion")
 require("surround")
+require("autopair")
