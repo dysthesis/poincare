@@ -1,9 +1,23 @@
-local DEFAULT_ARGS = {
+---A complete formatter command. The first item is the executable name.
+---`$FILENAME` is replaced just before execution. Formatter-specific stdin
+---arguments are appended to a copied command after any custom arguments.
+---@alias FormatterArgv string[]
+
+---A formatter executable name, or a complete argv command.
+---@alias FormatterCommand string|FormatterArgv
+
+---One formatter executable name, or an ordered formatter pipeline.
+---@alias FormatterSpec string|FormatterCommand[]
+
+local FILENAME_PLACEHOLDER = "$FILENAME"
+
+---@type table<string, FormatterArgv>
+local STDIN_ARGS_BY_FORMATTER = {
   stylua = {
     "--search-parent-directories",
     "--respect-ignores",
     "--stdin-filepath",
-    "$FILENAME",
+    FILENAME_PLACEHOLDER,
     "-",
   },
 }
@@ -33,7 +47,7 @@ local function run(argv, text, filename, cwd, deadline)
   local cmd = {}
 
   for i, arg in ipairs(argv) do
-    cmd[i] = arg == "$FILENAME" and filename or arg
+    cmd[i] = arg == FILENAME_PLACEHOLDER and filename or arg
   end
 
   local stdout, stderr = {}, {}
@@ -215,39 +229,54 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   end,
 })
 
+---@param entry FormatterCommand
+---@return FormatterArgv
+local function compile_entry(entry)
+  local argv = {}
+
+  if type(entry) == "string" then
+    argv[1] = entry
+  else
+    assert(
+      type(entry) == "table" and vim.islist(entry),
+      "formatter must be a string or argv list"
+    )
+    assert(
+      type(entry[1]) == "string",
+      "formatter argv must start with a name"
+    )
+
+    for _, arg in ipairs(entry) do
+      assert(
+        type(arg) == "string",
+        "formatter argv must contain only strings"
+      )
+      argv[#argv + 1] = arg
+    end
+  end
+
+  vim.list_extend(argv, STDIN_ARGS_BY_FORMATTER[argv[1]] or {})
+  return argv
+end
+
+---@param spec FormatterSpec
+---@return FormatterArgv[]
 local function compile(spec)
   if type(spec) == "string" then
     spec = { spec }
+  else
+    assert(
+      type(spec) == "table" and vim.islist(spec),
+      "formatters must be a string or list"
+    )
   end
 
-  assert(type(spec) == "table", "formatters must be a string or list")
   local pipeline = {}
 
   for _, entry in ipairs(spec) do
-    local argv = {}
+    local argv = compile_entry(entry)
 
-    if type(entry) == "string" then
-      argv[1] = entry
-    else
-      assert(type(entry) == "table", "formatter must be a string or argv table")
-      assert(
-        type(entry[1]) == "string",
-        "formatter argv must start with a name"
-      )
-
-      for _, arg in ipairs(entry) do
-        assert(
-          type(arg) == "string",
-          "formatter argv must contain only strings"
-        )
-        argv[#argv + 1] = arg
-      end
-    end
-
-    -- simplification: only shipped tools inherit stdin arguments; other commands
-    -- must encode their stdin/stdout mode in argv. Add a registry if this grows.
     if vim.fn.executable(argv[1]) == 1 then
-      vim.list_extend(argv, DEFAULT_ARGS[argv[1]] or {})
       pipeline[#pipeline + 1] = argv
     else
       vim.notify(
@@ -260,11 +289,15 @@ local function compile(spec)
   return pipeline
 end
 
--- Register (language, ordered formatter list); nested argv leaves put custom
--- arguments before any defaults.
+---Register an ordered formatter pipeline for a language. Nested argv commands
+---put custom arguments before any formatter-specific stdin arguments.
+---@param lang { filetypes: string[] }
+---@param spec FormatterSpec
 return function(lang, spec)
   assert(
-    type(lang) == "table" and type(lang.filetypes) == "table",
+    type(lang) == "table"
+      and type(lang.filetypes) == "table"
+      and vim.islist(lang.filetypes),
     "lang.filetypes must be a list"
   )
   local pipeline = compile(spec)

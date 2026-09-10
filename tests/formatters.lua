@@ -205,6 +205,52 @@ T["argv is copied and filenames bypass shell interpolation"] = function()
   assert_lines(bufnr, { "safe name" }, "a spaced filename is passed verbatim")
 end
 
+T["map and sparse formatter configurations are rejected"] = function()
+  local invalid = {
+    {
+      name = "map top-level spec",
+      lang = { filetypes = { "invalid-spec-map" } },
+      spec = { formatter = "cat" },
+    },
+    {
+      name = "sparse top-level spec",
+      lang = { filetypes = { "invalid-spec-sparse" } },
+      spec = { [1] = "cat", [3] = "cat" },
+    },
+    {
+      name = "map argv",
+      lang = { filetypes = { "invalid-argv-map" } },
+      spec = { { "cat", ignored = "argument" } },
+    },
+    {
+      name = "sparse argv",
+      lang = { filetypes = { "invalid-argv-sparse" } },
+      spec = { { [1] = "cat", [3] = "argument" } },
+    },
+    {
+      name = "map filetypes",
+      lang = { filetypes = { named = "invalid-filetype-map" } },
+      spec = "cat",
+    },
+    {
+      name = "sparse filetypes",
+      lang = {
+        filetypes = {
+          [1] = "invalid-filetype-sparse-first",
+          [3] = "invalid-filetype-sparse-third",
+        },
+      },
+      spec = "cat",
+    },
+  }
+
+  for _, configuration in ipairs(invalid) do
+    local ok = pcall(register, configuration.lang, configuration.spec)
+
+    assert(not ok, configuration.name .. " was accepted")
+  end
+end
+
 T["diff hunks preserve positions and form one undo step"] = function()
   local before = { "alpha", "bravo", "change", "delta", "echo" }
   local path = dir .. "/diff.txt"
