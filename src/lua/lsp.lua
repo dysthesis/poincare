@@ -8,6 +8,7 @@ autocmd("LspAttach", {
   callback = function(event)
     local bufnr = event.buf
     vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+    vim.bo[bufnr].omnifunc = "v:lua.MiniCompletion.completefunc_lsp"
 
     local map = vim.keymap.set
     local opts = { buffer = bufnr }
