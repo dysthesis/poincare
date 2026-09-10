@@ -454,10 +454,12 @@ T["concurrent edits win and window changes remain safe"] = function()
     { "sh", "-c", "sleep 0.2; tr a-z A-Z" },
   })
   local other = vim.api.nvim_create_buf(true, false)
-  local jobwait = vim.fn.jobwait
+  local system = vim.system
   local fired = false
 
-  vim.fn.jobwait = function(...)
+  vim.system = function(...)
+    local process = system(...)
+
     if not fired then
       fired = true
       vim.schedule(function()
@@ -469,14 +471,14 @@ T["concurrent edits win and window changes remain safe"] = function()
       end))
     end
 
-    return jobwait(...)
+    return process
   end
   vim.api.nvim_set_current_buf(bufnr)
   vim.v.errmsg = ""
   local ok, err =
     pcall(vim.api.nvim_exec_autocmds, "BufWritePre", { buffer = bufnr })
 
-  vim.fn.jobwait = jobwait
+  vim.system = system
   assert(ok, err)
   assert(vim.v.errmsg == "", "race raised a callback error: " .. vim.v.errmsg)
   assert_lines(
@@ -494,10 +496,12 @@ T["recursive write events do not start another run"] = function()
   local bufnr = case("nested", { "once" }, {
     { "sh", "-c", "sleep 0.25; sed 's/$/ formatted/'" },
   })
-  local jobwait = vim.fn.jobwait
+  local system = vim.system
   local fired = false
 
-  vim.fn.jobwait = function(...)
+  vim.system = function(...)
+    local process = system(...)
+
     if not fired then
       fired = true
       local completed = false
@@ -511,7 +515,7 @@ T["recursive write events do not start another run"] = function()
       end))
     end
 
-    return jobwait(...)
+    return process
   end
   local started = vim.uv.hrtime()
 
@@ -520,7 +524,7 @@ T["recursive write events do not start another run"] = function()
     pcall(vim.api.nvim_exec_autocmds, "BufWritePre", { buffer = bufnr })
   local elapsed = (vim.uv.hrtime() - started) / 1e9
 
-  vim.fn.jobwait = jobwait
+  vim.system = system
   assert(ok, err)
   assert(
     vim.v.errmsg == "",

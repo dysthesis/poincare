@@ -32,73 +32,70 @@ local function fail(name, why)
   vim.notify(("formatter %q failed: %s"):format(name, why), vim.log.levels.WARN)
 end
 
-local function output_text(lines)
-  for _, line in ipairs(lines) do
-    -- Buffered job channels encode NUL bytes as embedded newlines in an item.
-    if line:find("\n", 1, true) then
-      return nil, "returned a NUL byte"
-    end
-  end
+local function first_diagnostic(text)
+  local line = text and text:match("%S[^\r\n]*")
 
-  return table.concat(lines, "\n")
+  return line and line:sub(1, 160)
 end
 
-local function run(argv, text, filename, cwd, deadline)
+local function process_failure(reason, detail)
+  local line = first_diagnostic(detail)
+
+  return line and ("%s: %s"):format(reason, line) or reason
+end
+
+local function validate_output(text)
+  if text:find("\0", 1, true) then
+    return nil, "returned a NUL byte"
+  end
+
+  return text
+end
+
+local function run_formatter(argv, text, filename, cwd, deadline)
   local cmd = {}
 
   for i, arg in ipairs(argv) do
     cmd[i] = arg == FILENAME_PLACEHOLDER and filename or arg
   end
 
-  local stdout, stderr = {}, {}
-  local id = vim.fn.jobstart(cmd, {
-    cwd = cwd,
-    stdout_buffered = true,
-    stderr_buffered = true,
-    on_stdout = function(_, data)
-      stdout = data or {}
-    end,
-    on_stderr = function(_, data)
-      stderr = data or {}
-    end,
-  })
-
-  if id <= 0 then
-    return nil, id == 0 and "invalid arguments" or "could not start"
-  end
-
-  local sent = pcall(vim.fn.chansend, id, text)
-  pcall(vim.fn.chanclose, id, "stdin")
-
-  if not sent then
-    vim.fn.jobstop(id)
-    return nil, "could not write stdin"
-  end
-
   local remaining = math.ceil((deadline - vim.uv.hrtime()) / 1e6)
 
   if remaining <= 0 then
-    vim.fn.jobstop(id)
     return nil, "timed out"
   end
 
-  local status = vim.fn.jobwait({ id }, remaining)[1]
+  local ok, process = pcall(vim.system, cmd, {
+    cwd = cwd,
+    stdin = text,
+  })
 
-  if status < 0 then
-    vim.fn.jobstop(id)
-    return nil, status == -1 and "timed out" or "wait interrupted"
+  if not ok then
+    return nil, process_failure("could not start", process)
   end
 
-  if status ~= 0 then
-    local message = output_text(stderr)
-    local line = message and message:match("%S[^\r\n]*")
+  remaining = math.ceil((deadline - vim.uv.hrtime()) / 1e6)
+  local expired = remaining <= 0
+  local result = process:wait(math.max(remaining, 1))
 
+  if expired or (result.code == 124 and result.signal == 9) then
+    return nil, process_failure("timed out", result.stderr)
+  end
+
+  if result.signal ~= 0 then
     return nil,
-      line and ("exit %d: %s"):format(status, line:sub(1, 160))
-        or ("exit %d"):format(status)
+      process_failure(
+        ("terminated by signal %d"):format(result.signal),
+        result.stderr
+      )
   end
 
-  return output_text(stdout)
+  if result.code ~= 0 then
+    return nil,
+      process_failure(("exit %d"):format(result.code), result.stderr)
+  end
+
+  return validate_output(result.stdout or "")
 end
 
 local function unchanged(bufnr, state)
@@ -183,7 +180,8 @@ local function format(bufnr)
   local deadline = vim.uv.hrtime() + TIMEOUT_MS * 1e6
 
   for _, argv in ipairs(pipeline) do
-    local output, reason = run(argv, text, filename, cwd, deadline)
+    local output, reason =
+      run_formatter(argv, text, filename, cwd, deadline)
 
     if not output then
       fail(argv[1], reason)
