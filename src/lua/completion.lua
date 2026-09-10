@@ -1,6 +1,4 @@
-require("lz.n").load({
-  "mini.completion",
-  event = { "InsertEnter", "CmdlineEnter" },
+require("lz.n").load({ "mini.completion", event = { "InsertEnter", "CmdlineEnter" },
   after = function()
     vim.o.pumborder = "rounded"
     vim.opt.completeopt = { "menuone", "noinsert", "fuzzy" }

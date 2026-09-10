@@ -9,6 +9,8 @@
   lazyPlugins = with pkgs.vimPlugins; [
     mini-completion
     mini-icons
+    mini-pick
+    mini-extra
   ];
 in
   rec {
