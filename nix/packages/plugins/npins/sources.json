@@ -1,5 +1,21 @@
 {
   "pins": {
+    "ferris.nvim": {
+      "type": "GitRelease",
+      "repository": {
+        "type": "GitHub",
+        "owner": "vxpm",
+        "repo": "ferris.nvim"
+      },
+      "pre_releases": false,
+      "version_upper_bound": null,
+      "release_prefix": null,
+      "submodules": false,
+      "version": "0.5.0",
+      "revision": "275865530d753a205740804f1ce163af2322db57",
+      "url": "https://api.github.com/repos/vxpm/ferris.nvim/tarball/refs/tags/0.5.0",
+      "hash": "sha256-6wQi4yurKTSPxYDxKnQJlVMLI41RB9Kj8htlRNeiF0I="
+    },
     "minimal.nvim": {
       "type": "Git",
       "repository": {

@@ -3,9 +3,10 @@
   lib,
   inputs,
   ...
-}: let
-  wrapper = pkgs.callPackage ./wrapper.nix {inherit lib;};
-  extraPlugins = import ./plugins {inherit pkgs lib;};
+}:
+let
+  wrapper = pkgs.callPackage ./wrapper.nix { inherit lib; };
+  extraPlugins = import ./plugins { inherit pkgs lib; };
   leanTreeSitterGrammar = pkgs.tree-sitter.builtGrammars.tree-sitter-lean.overrideAttrs (_: {
     version = "0.2.0-unstable-2026-05-30";
     src = pkgs.fetchFromGitHub {
@@ -16,7 +17,7 @@
     };
   });
 
-  leanTreeSitterRuntime = pkgs.runCommand "nvim-treesitter-lean" {} ''
+  leanTreeSitterRuntime = pkgs.runCommand "nvim-treesitter-lean" { } ''
     mkdir -p "$out/parser" "$out/queries/lean"
     ln -s ${leanTreeSitterGrammar}/parser "$out/parser/lean.so"
     for query in ${leanTreeSitterGrammar}/queries/*.scm; do
@@ -24,10 +25,12 @@
     done
   '';
 
-  treesitterParsers = let
-    p = pkgs.vimPlugins.nvim-treesitter-parsers;
-  in
-    with p; [
+  treesitterParsers =
+    let
+      p = pkgs.vimPlugins.nvim-treesitter-parsers;
+    in
+    with p;
+    [
       markdown
       rust
       go
@@ -44,15 +47,15 @@
       p.python
     ];
 
-  treesitterQueries =
-    map (parser: parser.associatedQuery) treesitterParsers;
+  treesitterQueries = map (parser: parser.associatedQuery) treesitterParsers;
 
-  eagerPlugins = with pkgs.vimPlugins;
+  eagerPlugins =
+    with pkgs.vimPlugins;
     [
       extraPlugins.minimal-nvim
 
       (nvim-treesitter-textobjects.overrideAttrs (_: {
-        dependencies = [];
+        dependencies = [ ];
       }))
 
       leanTreeSitterRuntime
@@ -69,11 +72,12 @@
     mini-surround
     mini-pairs
     nvim-lint
+    extraPlugins.ferris-nvim
   ];
 in
-  rec {
-    poincare = wrapper.override {inherit eagerPlugins lazyPlugins;};
-    default = poincare;
-  }
-  # Pass through the derivation for the npins plugins
-  // extraPlugins
+rec {
+  poincare = wrapper.override { inherit eagerPlugins lazyPlugins; };
+  default = poincare;
+}
+# Pass through the derivation for the npins plugins
+// extraPlugins
