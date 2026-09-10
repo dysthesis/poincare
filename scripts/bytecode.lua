@@ -38,15 +38,31 @@ end
 local manifest = vim.json.decode(manifest_file:read("*a"))
 manifest_file:close()
 
-local function prototype(fn)
+local function json_info(fn)
   local info = jutil.funcinfo(fn)
+  local result = {}
+  for key, value in pairs(info) do
+    if type(value) == "string" or type(value) == "number" or type(value) == "boolean" then
+      result[key] = value
+    end
+  end
+  return result
+end
+
+local function prototype(fn, id, parent_id, gcconst_index)
+  local info = json_info(fn)
   local instructions = {}
   for pc = 1, info.bytecodes - 1 do
     local instruction, mode = jutil.funcbc(fn, pc)
     local opcode_id = bit.band(instruction, 0xff)
+    local word = instruction < 0 and instruction + 2 ^ 32 or instruction
     local item = {
       pc = pc,
       opcode = opcode_names[opcode_id + 1],
+      opcode_id = opcode_id,
+      word = word,
+      mode = mode,
+      line = jutil.funcinfo(fn, pc).currentline or vim.NIL,
     }
     if bit.band(bit.rshift(mode, 7), 15) == jump_mode then
       local operand = bit.band(bit.rshift(instruction, 16), 0xffff)
@@ -56,46 +72,49 @@ local function prototype(fn)
   end
 
   return {
-    info = {
-      bytecodes = info.bytecodes,
-      gcconsts = info.gcconsts,
-      nconsts = info.nconsts,
-      params = info.params,
-      stackslots = info.stackslots,
-      upvalues = info.upvalues,
-      isvararg = info.isvararg,
-    },
+    id = id,
+    parent_id = parent_id == nil and vim.NIL or parent_id,
+    gcconst_index = gcconst_index == nil and vim.NIL or gcconst_index,
+    info = info,
     instructions = instructions,
   }
 end
 
-local function prototypes(fn, result)
+local function prototypes(fn, result, parent_id, gcconst_index)
   local info = jutil.funcinfo(fn)
-  result[#result + 1] = prototype(fn)
+  local id = #result
+  result[#result + 1] = prototype(fn, id, parent_id, gcconst_index)
   for index = 1, info.gcconsts do
     local constant = jutil.funck(fn, -index)
     if type(constant) == "proto" then
-      prototypes(constant, result)
+      prototypes(constant, result, id, index)
     end
   end
+end
+
+local function hex(value)
+  return (value:gsub(".", function(byte)
+    return string.format("%02x", string.byte(byte))
+  end))
 end
 
 local sources = {}
 for _, source in ipairs(manifest.sources) do
   local item = { id = source.id }
-  local ok, result, compile_error = pcall(function()
+  local ok, result, detail = pcall(function()
     local chunk, load_error = loadfile(source.path)
     if not chunk then
       return nil, load_error
     end
     local found = {}
     prototypes(chunk, found)
-    return found
+    return found, hex(string.dump(chunk))
   end)
   if ok and result then
     item.prototypes = result
+    item.bytecode_dump = detail
   else
-    item.error = tostring(ok and compile_error or result)
+    item.error = tostring(ok and detail or result)
   end
   sources[#sources + 1] = item
 end

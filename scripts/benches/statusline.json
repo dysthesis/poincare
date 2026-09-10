@@ -1,0 +1,11 @@
+{
+  "name": "statusline",
+  "description": "First synchronous statusline render return; asynchronous VCS completion excluded",
+  "setup": "return function() vim.g.actual_curwin=vim.fn.win_getid() end",
+  "steps": [
+    {
+      "name": "first-render-return",
+      "lua": "return function(bench) local value=bench.span('render', require('ui.statusline').render); assert(type(value)=='string' and #value>0, 'statusline did not render synchronously') end"
+    }
+  ]
+}

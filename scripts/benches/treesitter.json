@@ -1,0 +1,11 @@
+{
+  "name": "treesitter",
+  "description": "Synchronous Lua parser creation and deterministic scratch-buffer parse",
+  "setup": "return function() local b=vim.api.nvim_create_buf(false,true); vim.api.nvim_set_current_buf(b); vim.api.nvim_buf_set_lines(b,0,-1,false,{'local function add(a, b)','  return a + b','end','return add(20, 22)'}) end",
+  "steps": [
+    {
+      "name": "lua-parse",
+      "lua": "return function(bench) local parser=bench.span('get_parser', vim.treesitter.get_parser, 0, 'lua'); local trees=bench.span('parse', function() return parser:parse(true) end); assert(#trees > 0 and trees[1]:root():type() == 'chunk', 'Lua syntax tree was not produced') end"
+    }
+  ]
+}

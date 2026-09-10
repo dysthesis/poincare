@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from scripts import size_note
+from scripts import pipeline
 
 
 def git(root: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
@@ -34,7 +34,7 @@ class RecordTests(unittest.TestCase):
             (root / "flake.nix").write_text("{}\n")
             analyser = scripts / "size.py"
             measurement = {
-                "format": size_note.MEASUREMENT_FORMAT,
+                "format": pipeline.OUTPUT_FORMAT,
                 "runtime": {},
                 "vm": {},
                 "source_count": 1,
@@ -49,18 +49,18 @@ class RecordTests(unittest.TestCase):
             git(root, "commit", "--quiet", "-m", "fixture")
             analyser.write_text("raise RuntimeError('working tree was analysed')\n")
 
-            size_note.record("HEAD", root=root, change_id="test-change-id")
+            pipeline.record("HEAD", root=root, change_id="test-change-id")
 
             note = json.loads(
                 git(
                     root,
                     "notes",
-                    f"--ref={size_note.NOTES_REF}",
+                    f"--ref={pipeline.NOTES_REF}",
                     "show",
                     "HEAD",
                 ).stdout
             )
-            self.assertEqual(note["format"], size_note.NOTE_FORMAT)
+            self.assertEqual(note["format"], pipeline.SIZE_KIND.note_format)
             self.assertEqual(note["analyser_commit"], note["commit"])
             self.assertIsNone(note["error"])
             self.assertEqual(note["jj_change_id"], "test-change-id")
@@ -81,9 +81,10 @@ class InstallTests(unittest.TestCase):
                 git(repository, "config", "user.email", "size@example.invalid")
                 scripts = repository / "scripts"
                 scripts.mkdir()
-                shutil.copy(Path(size_note.__file__), scripts / "size_note.py")
+                shutil.copy(Path(__file__).with_name("size_note.py"), scripts / "size_note.py")
+                shutil.copy(Path(pipeline.__file__), scripts / "pipeline.py")
                 measurement = {
-                    "format": size_note.MEASUREMENT_FORMAT,
+                    "format": pipeline.OUTPUT_FORMAT,
                     "runtime": {},
                     "vm": {},
                     "source_count": 1,
@@ -127,7 +128,7 @@ class InstallTests(unittest.TestCase):
                     cwd=repository,
                     check=True,
                 )
-                size_note.install(root=repository)
+                pipeline.install(root=repository)
                 (repository / "flake.nix").write_text("{}\n")
                 tracked.write_text("after\n")
 
@@ -154,7 +155,7 @@ class InstallTests(unittest.TestCase):
                     git(
                         repository,
                         "notes",
-                        f"--ref={size_note.NOTES_REF}",
+                            f"--ref={pipeline.NOTES_REF}",
                         "show",
                         commit,
                     ).stdout
@@ -166,7 +167,7 @@ class InstallTests(unittest.TestCase):
                 self.assertTrue(note["jj_change_id"])
 
                 initial = git(repository, "rev-parse", f"{commit}^").stdout.strip()
-                size_note.backfill(
+                pipeline.backfill(
                     initial,
                     commit,
                     root=repository,
@@ -178,7 +179,7 @@ class InstallTests(unittest.TestCase):
                     git(
                         repository,
                         "notes",
-                        f"--ref={size_note.NOTES_REF}",
+                        f"--ref={pipeline.NOTES_REF}",
                         "show",
                         initial,
                     ).stdout

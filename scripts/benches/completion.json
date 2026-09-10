@@ -1,0 +1,10 @@
+{
+  "name": "completion",
+  "description": "First synchronous InsertEnter completion activation",
+  "steps": [
+    {
+      "name": "first-insert-enter",
+      "lua": "return function(bench) bench.span('InsertEnter autocmd', function() vim.api.nvim_exec_autocmds('InsertEnter', {}) end); assert(package.loaded['mini.completion'], 'mini.completion was not activated') end"
+    }
+  ]
+}
