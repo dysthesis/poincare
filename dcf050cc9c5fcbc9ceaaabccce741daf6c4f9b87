@@ -1,0 +1,2216 @@
+{
+  "analyser_commit": "d9ccb1a3ebeb62b72e9c09756d1bf8c3679b05f8",
+  "commit": "dcf050cc9c5fcbc9ceaaabccce741daf6c4f9b87",
+  "error": null,
+  "format": "poincare-size-note/v2",
+  "jj_change_id": "ykwowolwnnpsvppkkxzqnotpktltzvyx",
+  "measurement": {
+    "format": "poincare-size/v1",
+    "metrics": [
+      "bytecodes",
+      "functions",
+      "decisions",
+      "calls",
+      "closures",
+      "tables",
+      "global_reads",
+      "global_writes",
+      "upvalue_reads",
+      "upvalue_writes"
+    ],
+    "runtime": {
+      "arch": "x64",
+      "os": "Linux",
+      "version": "LuaJIT 2.1.1785763465"
+    },
+    "source_count": 41,
+    "tree": {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [],
+              "name": "init.lua",
+              "own": {
+                "bytecodes": 46,
+                "calls": 8,
+                "closures": 1,
+                "decisions": 0,
+                "functions": 2,
+                "global_reads": 12,
+                "global_writes": 0,
+                "tables": 0,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              },
+              "total": {
+                "bytecodes": 46,
+                "calls": 8,
+                "closures": 1,
+                "decisions": 0,
+                "functions": 2,
+                "global_reads": 12,
+                "global_writes": 0,
+                "tables": 0,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              }
+            },
+            {
+              "children": [
+                {
+                  "children": [],
+                  "name": "lua-language-server.lua",
+                  "own": {
+                    "bytecodes": 32,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 1,
+                    "global_reads": 1,
+                    "global_writes": 0,
+                    "tables": 14,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 32,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 1,
+                    "global_reads": 1,
+                    "global_writes": 0,
+                    "tables": 14,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  }
+                },
+                {
+                  "children": [],
+                  "name": "nil.lua",
+                  "own": {
+                    "bytecodes": 8,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 1,
+                    "global_reads": 0,
+                    "global_writes": 0,
+                    "tables": 4,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 8,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 1,
+                    "global_reads": 0,
+                    "global_writes": 0,
+                    "tables": 4,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  }
+                }
+              ],
+              "name": "lsp",
+              "own": {
+                "bytecodes": 0,
+                "calls": 0,
+                "closures": 0,
+                "decisions": 0,
+                "functions": 0,
+                "global_reads": 0,
+                "global_writes": 0,
+                "tables": 0,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              },
+              "total": {
+                "bytecodes": 40,
+                "calls": 0,
+                "closures": 0,
+                "decisions": 0,
+                "functions": 2,
+                "global_reads": 1,
+                "global_writes": 0,
+                "tables": 18,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              }
+            },
+            {
+              "children": [
+                {
+                  "children": [],
+                  "name": "completion.lua",
+                  "own": {
+                    "bytecodes": 45,
+                    "calls": 7,
+                    "closures": 1,
+                    "decisions": 0,
+                    "functions": 2,
+                    "global_reads": 6,
+                    "global_writes": 0,
+                    "tables": 8,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 45,
+                    "calls": 7,
+                    "closures": 1,
+                    "decisions": 0,
+                    "functions": 2,
+                    "global_reads": 6,
+                    "global_writes": 0,
+                    "tables": 8,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  }
+                },
+                {
+                  "children": [],
+                  "name": "icons.lua",
+                  "own": {
+                    "bytecodes": 15,
+                    "calls": 4,
+                    "closures": 1,
+                    "decisions": 0,
+                    "functions": 2,
+                    "global_reads": 2,
+                    "global_writes": 0,
+                    "tables": 1,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 15,
+                    "calls": 4,
+                    "closures": 1,
+                    "decisions": 0,
+                    "functions": 2,
+                    "global_reads": 2,
+                    "global_writes": 0,
+                    "tables": 1,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  }
+                },
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "name": "init.lua",
+                      "own": {
+                        "bytecodes": 78,
+                        "calls": 13,
+                        "closures": 2,
+                        "decisions": 6,
+                        "functions": 3,
+                        "global_reads": 6,
+                        "global_writes": 0,
+                        "tables": 3,
+                        "upvalue_reads": 2,
+                        "upvalue_writes": 0
+                      },
+                      "total": {
+                        "bytecodes": 78,
+                        "calls": 13,
+                        "closures": 2,
+                        "decisions": 6,
+                        "functions": 3,
+                        "global_reads": 6,
+                        "global_writes": 0,
+                        "tables": 3,
+                        "upvalue_reads": 2,
+                        "upvalue_writes": 0
+                      }
+                    },
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "name": "formatters.lua",
+                          "own": {
+                            "bytecodes": 862,
+                            "calls": 110,
+                            "closures": 30,
+                            "decisions": 72,
+                            "functions": 31,
+                            "global_reads": 68,
+                            "global_writes": 0,
+                            "tables": 16,
+                            "upvalue_reads": 54,
+                            "upvalue_writes": 4
+                          },
+                          "total": {
+                            "bytecodes": 862,
+                            "calls": 110,
+                            "closures": 30,
+                            "decisions": 72,
+                            "functions": 31,
+                            "global_reads": 68,
+                            "global_writes": 0,
+                            "tables": 16,
+                            "upvalue_reads": 54,
+                            "upvalue_writes": 4
+                          }
+                        },
+                        {
+                          "children": [],
+                          "name": "linters.lua",
+                          "own": {
+                            "bytecodes": 320,
+                            "calls": 45,
+                            "closures": 11,
+                            "decisions": 20,
+                            "functions": 12,
+                            "global_reads": 29,
+                            "global_writes": 0,
+                            "tables": 11,
+                            "upvalue_reads": 27,
+                            "upvalue_writes": 0
+                          },
+                          "total": {
+                            "bytecodes": 320,
+                            "calls": 45,
+                            "closures": 11,
+                            "decisions": 20,
+                            "functions": 12,
+                            "global_reads": 29,
+                            "global_writes": 0,
+                            "tables": 11,
+                            "upvalue_reads": 27,
+                            "upvalue_writes": 0
+                          }
+                        },
+                        {
+                          "children": [],
+                          "name": "lsp.lua",
+                          "own": {
+                            "bytecodes": 113,
+                            "calls": 19,
+                            "closures": 2,
+                            "decisions": 8,
+                            "functions": 3,
+                            "global_reads": 16,
+                            "global_writes": 0,
+                            "tables": 1,
+                            "upvalue_reads": 1,
+                            "upvalue_writes": 0
+                          },
+                          "total": {
+                            "bytecodes": 113,
+                            "calls": 19,
+                            "closures": 2,
+                            "decisions": 8,
+                            "functions": 3,
+                            "global_reads": 16,
+                            "global_writes": 0,
+                            "tables": 1,
+                            "upvalue_reads": 1,
+                            "upvalue_writes": 0
+                          }
+                        }
+                      ],
+                      "name": "modules",
+                      "own": {
+                        "bytecodes": 0,
+                        "calls": 0,
+                        "closures": 0,
+                        "decisions": 0,
+                        "functions": 0,
+                        "global_reads": 0,
+                        "global_writes": 0,
+                        "tables": 0,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      },
+                      "total": {
+                        "bytecodes": 1295,
+                        "calls": 174,
+                        "closures": 43,
+                        "decisions": 100,
+                        "functions": 46,
+                        "global_reads": 113,
+                        "global_writes": 0,
+                        "tables": 28,
+                        "upvalue_reads": 82,
+                        "upvalue_writes": 4
+                      }
+                    },
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "name": "lua.lua",
+                          "own": {
+                            "bytecodes": 6,
+                            "calls": 0,
+                            "closures": 0,
+                            "decisions": 0,
+                            "functions": 1,
+                            "global_reads": 0,
+                            "global_writes": 0,
+                            "tables": 3,
+                            "upvalue_reads": 0,
+                            "upvalue_writes": 0
+                          },
+                          "total": {
+                            "bytecodes": 6,
+                            "calls": 0,
+                            "closures": 0,
+                            "decisions": 0,
+                            "functions": 1,
+                            "global_reads": 0,
+                            "global_writes": 0,
+                            "tables": 3,
+                            "upvalue_reads": 0,
+                            "upvalue_writes": 0
+                          }
+                        },
+                        {
+                          "children": [],
+                          "name": "nix.lua",
+                          "own": {
+                            "bytecodes": 8,
+                            "calls": 0,
+                            "closures": 0,
+                            "decisions": 0,
+                            "functions": 1,
+                            "global_reads": 0,
+                            "global_writes": 0,
+                            "tables": 4,
+                            "upvalue_reads": 0,
+                            "upvalue_writes": 0
+                          },
+                          "total": {
+                            "bytecodes": 8,
+                            "calls": 0,
+                            "closures": 0,
+                            "decisions": 0,
+                            "functions": 1,
+                            "global_reads": 0,
+                            "global_writes": 0,
+                            "tables": 4,
+                            "upvalue_reads": 0,
+                            "upvalue_writes": 0
+                          }
+                        }
+                      ],
+                      "name": "specs",
+                      "own": {
+                        "bytecodes": 0,
+                        "calls": 0,
+                        "closures": 0,
+                        "decisions": 0,
+                        "functions": 0,
+                        "global_reads": 0,
+                        "global_writes": 0,
+                        "tables": 0,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      },
+                      "total": {
+                        "bytecodes": 14,
+                        "calls": 0,
+                        "closures": 0,
+                        "decisions": 0,
+                        "functions": 2,
+                        "global_reads": 0,
+                        "global_writes": 0,
+                        "tables": 7,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      }
+                    }
+                  ],
+                  "name": "lang",
+                  "own": {
+                    "bytecodes": 0,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 0,
+                    "global_reads": 0,
+                    "global_writes": 0,
+                    "tables": 0,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 1387,
+                    "calls": 187,
+                    "closures": 45,
+                    "decisions": 106,
+                    "functions": 51,
+                    "global_reads": 119,
+                    "global_writes": 0,
+                    "tables": 38,
+                    "upvalue_reads": 84,
+                    "upvalue_writes": 4
+                  }
+                },
+                {
+                  "children": [],
+                  "name": "lsp.lua",
+                  "own": {
+                    "bytecodes": 142,
+                    "calls": 16,
+                    "closures": 3,
+                    "decisions": 0,
+                    "functions": 4,
+                    "global_reads": 14,
+                    "global_writes": 0,
+                    "tables": 8,
+                    "upvalue_reads": 2,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 142,
+                    "calls": 16,
+                    "closures": 3,
+                    "decisions": 0,
+                    "functions": 4,
+                    "global_reads": 14,
+                    "global_writes": 0,
+                    "tables": 8,
+                    "upvalue_reads": 2,
+                    "upvalue_writes": 0
+                  }
+                },
+                {
+                  "children": [],
+                  "name": "picker.lua",
+                  "own": {
+                    "bytecodes": 173,
+                    "calls": 24,
+                    "closures": 7,
+                    "decisions": 2,
+                    "functions": 8,
+                    "global_reads": 10,
+                    "global_writes": 0,
+                    "tables": 17,
+                    "upvalue_reads": 5,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 173,
+                    "calls": 24,
+                    "closures": 7,
+                    "decisions": 2,
+                    "functions": 8,
+                    "global_reads": 10,
+                    "global_writes": 0,
+                    "tables": 17,
+                    "upvalue_reads": 5,
+                    "upvalue_writes": 0
+                  }
+                },
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "name": "init.lua",
+                      "own": {
+                        "bytecodes": 27,
+                        "calls": 3,
+                        "closures": 0,
+                        "decisions": 0,
+                        "functions": 1,
+                        "global_reads": 5,
+                        "global_writes": 0,
+                        "tables": 0,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      },
+                      "total": {
+                        "bytecodes": 27,
+                        "calls": 3,
+                        "closures": 0,
+                        "decisions": 0,
+                        "functions": 1,
+                        "global_reads": 5,
+                        "global_writes": 0,
+                        "tables": 0,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      }
+                    },
+                    {
+                      "children": [],
+                      "name": "splits.lua",
+                      "own": {
+                        "bytecodes": 465,
+                        "calls": 59,
+                        "closures": 15,
+                        "decisions": 39,
+                        "functions": 16,
+                        "global_reads": 31,
+                        "global_writes": 0,
+                        "tables": 16,
+                        "upvalue_reads": 42,
+                        "upvalue_writes": 1
+                      },
+                      "total": {
+                        "bytecodes": 465,
+                        "calls": 59,
+                        "closures": 15,
+                        "decisions": 39,
+                        "functions": 16,
+                        "global_reads": 31,
+                        "global_writes": 0,
+                        "tables": 16,
+                        "upvalue_reads": 42,
+                        "upvalue_writes": 1
+                      }
+                    },
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "name": "diagnostic.lua",
+                          "own": {
+                            "bytecodes": 165,
+                            "calls": 15,
+                            "closures": 3,
+                            "decisions": 8,
+                            "functions": 4,
+                            "global_reads": 12,
+                            "global_writes": 0,
+                            "tables": 29,
+                            "upvalue_reads": 7,
+                            "upvalue_writes": 0
+                          },
+                          "total": {
+                            "bytecodes": 165,
+                            "calls": 15,
+                            "closures": 3,
+                            "decisions": 8,
+                            "functions": 4,
+                            "global_reads": 12,
+                            "global_writes": 0,
+                            "tables": 29,
+                            "upvalue_reads": 7,
+                            "upvalue_writes": 0
+                          }
+                        },
+                        {
+                          "children": [],
+                          "name": "ft.lua",
+                          "own": {
+                            "bytecodes": 38,
+                            "calls": 1,
+                            "closures": 1,
+                            "decisions": 2,
+                            "functions": 2,
+                            "global_reads": 2,
+                            "global_writes": 0,
+                            "tables": 10,
+                            "upvalue_reads": 1,
+                            "upvalue_writes": 0
+                          },
+                          "total": {
+                            "bytecodes": 38,
+                            "calls": 1,
+                            "closures": 1,
+                            "decisions": 2,
+                            "functions": 2,
+                            "global_reads": 2,
+                            "global_writes": 0,
+                            "tables": 10,
+                            "upvalue_reads": 1,
+                            "upvalue_writes": 0
+                          }
+                        },
+                        {
+                          "children": [],
+                          "name": "init.lua",
+                          "own": {
+                            "bytecodes": 197,
+                            "calls": 35,
+                            "closures": 7,
+                            "decisions": 9,
+                            "functions": 8,
+                            "global_reads": 23,
+                            "global_writes": 0,
+                            "tables": 8,
+                            "upvalue_reads": 12,
+                            "upvalue_writes": 0
+                          },
+                          "total": {
+                            "bytecodes": 197,
+                            "calls": 35,
+                            "closures": 7,
+                            "decisions": 9,
+                            "functions": 8,
+                            "global_reads": 23,
+                            "global_writes": 0,
+                            "tables": 8,
+                            "upvalue_reads": 12,
+                            "upvalue_writes": 0
+                          }
+                        },
+                        {
+                          "children": [],
+                          "name": "mode.lua",
+                          "own": {
+                            "bytecodes": 29,
+                            "calls": 1,
+                            "closures": 1,
+                            "decisions": 1,
+                            "functions": 2,
+                            "global_reads": 1,
+                            "global_writes": 0,
+                            "tables": 7,
+                            "upvalue_reads": 1,
+                            "upvalue_writes": 0
+                          },
+                          "total": {
+                            "bytecodes": 29,
+                            "calls": 1,
+                            "closures": 1,
+                            "decisions": 1,
+                            "functions": 2,
+                            "global_reads": 1,
+                            "global_writes": 0,
+                            "tables": 7,
+                            "upvalue_reads": 1,
+                            "upvalue_writes": 0
+                          }
+                        },
+                        {
+                          "children": [],
+                          "name": "name.lua",
+                          "own": {
+                            "bytecodes": 67,
+                            "calls": 5,
+                            "closures": 1,
+                            "decisions": 3,
+                            "functions": 2,
+                            "global_reads": 7,
+                            "global_writes": 0,
+                            "tables": 9,
+                            "upvalue_reads": 0,
+                            "upvalue_writes": 0
+                          },
+                          "total": {
+                            "bytecodes": 67,
+                            "calls": 5,
+                            "closures": 1,
+                            "decisions": 3,
+                            "functions": 2,
+                            "global_reads": 7,
+                            "global_writes": 0,
+                            "tables": 9,
+                            "upvalue_reads": 0,
+                            "upvalue_writes": 0
+                          }
+                        },
+                        {
+                          "children": [],
+                          "name": "pos.lua",
+                          "own": {
+                            "bytecodes": 55,
+                            "calls": 5,
+                            "closures": 1,
+                            "decisions": 1,
+                            "functions": 2,
+                            "global_reads": 5,
+                            "global_writes": 0,
+                            "tables": 9,
+                            "upvalue_reads": 0,
+                            "upvalue_writes": 0
+                          },
+                          "total": {
+                            "bytecodes": 55,
+                            "calls": 5,
+                            "closures": 1,
+                            "decisions": 1,
+                            "functions": 2,
+                            "global_reads": 5,
+                            "global_writes": 0,
+                            "tables": 9,
+                            "upvalue_reads": 0,
+                            "upvalue_writes": 0
+                          }
+                        },
+                        {
+                          "children": [],
+                          "name": "project.lua",
+                          "own": {
+                            "bytecodes": 39,
+                            "calls": 3,
+                            "closures": 1,
+                            "decisions": 1,
+                            "functions": 2,
+                            "global_reads": 3,
+                            "global_writes": 0,
+                            "tables": 10,
+                            "upvalue_reads": 0,
+                            "upvalue_writes": 0
+                          },
+                          "total": {
+                            "bytecodes": 39,
+                            "calls": 3,
+                            "closures": 1,
+                            "decisions": 1,
+                            "functions": 2,
+                            "global_reads": 3,
+                            "global_writes": 0,
+                            "tables": 10,
+                            "upvalue_reads": 0,
+                            "upvalue_writes": 0
+                          }
+                        },
+                        {
+                          "children": [],
+                          "name": "vc.lua",
+                          "own": {
+                            "bytecodes": 353,
+                            "calls": 31,
+                            "closures": 12,
+                            "decisions": 28,
+                            "functions": 13,
+                            "global_reads": 15,
+                            "global_writes": 0,
+                            "tables": 29,
+                            "upvalue_reads": 27,
+                            "upvalue_writes": 0
+                          },
+                          "total": {
+                            "bytecodes": 353,
+                            "calls": 31,
+                            "closures": 12,
+                            "decisions": 28,
+                            "functions": 13,
+                            "global_reads": 15,
+                            "global_writes": 0,
+                            "tables": 29,
+                            "upvalue_reads": 27,
+                            "upvalue_writes": 0
+                          }
+                        }
+                      ],
+                      "name": "statusline",
+                      "own": {
+                        "bytecodes": 0,
+                        "calls": 0,
+                        "closures": 0,
+                        "decisions": 0,
+                        "functions": 0,
+                        "global_reads": 0,
+                        "global_writes": 0,
+                        "tables": 0,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      },
+                      "total": {
+                        "bytecodes": 943,
+                        "calls": 96,
+                        "closures": 27,
+                        "decisions": 53,
+                        "functions": 35,
+                        "global_reads": 68,
+                        "global_writes": 0,
+                        "tables": 111,
+                        "upvalue_reads": 48,
+                        "upvalue_writes": 0
+                      }
+                    }
+                  ],
+                  "name": "ui",
+                  "own": {
+                    "bytecodes": 0,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 0,
+                    "global_reads": 0,
+                    "global_writes": 0,
+                    "tables": 0,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 1435,
+                    "calls": 158,
+                    "closures": 42,
+                    "decisions": 92,
+                    "functions": 52,
+                    "global_reads": 104,
+                    "global_writes": 0,
+                    "tables": 127,
+                    "upvalue_reads": 90,
+                    "upvalue_writes": 1
+                  }
+                }
+              ],
+              "name": "lua",
+              "own": {
+                "bytecodes": 0,
+                "calls": 0,
+                "closures": 0,
+                "decisions": 0,
+                "functions": 0,
+                "global_reads": 0,
+                "global_writes": 0,
+                "tables": 0,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              },
+              "total": {
+                "bytecodes": 3197,
+                "calls": 396,
+                "closures": 99,
+                "decisions": 200,
+                "functions": 119,
+                "global_reads": 255,
+                "global_writes": 0,
+                "tables": 199,
+                "upvalue_reads": 181,
+                "upvalue_writes": 5
+              }
+            }
+          ],
+          "name": "config",
+          "own": {
+            "bytecodes": 0,
+            "calls": 0,
+            "closures": 0,
+            "decisions": 0,
+            "functions": 0,
+            "global_reads": 0,
+            "global_writes": 0,
+            "tables": 0,
+            "upvalue_reads": 0,
+            "upvalue_writes": 0
+          },
+          "total": {
+            "bytecodes": 3283,
+            "calls": 404,
+            "closures": 100,
+            "decisions": 200,
+            "functions": 123,
+            "global_reads": 268,
+            "global_writes": 0,
+            "tables": 217,
+            "upvalue_reads": 181,
+            "upvalue_writes": 5
+          }
+        },
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [
+                            {
+                              "children": [
+                                {
+                                  "children": [],
+                                  "name": "cmd.lua",
+                                  "own": {
+                                    "bytecodes": 248,
+                                    "calls": 29,
+                                    "closures": 12,
+                                    "decisions": 16,
+                                    "functions": 13,
+                                    "global_reads": 20,
+                                    "global_writes": 0,
+                                    "tables": 9,
+                                    "upvalue_reads": 17,
+                                    "upvalue_writes": 0
+                                  },
+                                  "total": {
+                                    "bytecodes": 248,
+                                    "calls": 29,
+                                    "closures": 12,
+                                    "decisions": 16,
+                                    "functions": 13,
+                                    "global_reads": 20,
+                                    "global_writes": 0,
+                                    "tables": 9,
+                                    "upvalue_reads": 17,
+                                    "upvalue_writes": 0
+                                  }
+                                },
+                                {
+                                  "children": [],
+                                  "name": "colorscheme.lua",
+                                  "own": {
+                                    "bytecodes": 122,
+                                    "calls": 18,
+                                    "closures": 8,
+                                    "decisions": 5,
+                                    "functions": 9,
+                                    "global_reads": 10,
+                                    "global_writes": 0,
+                                    "tables": 4,
+                                    "upvalue_reads": 11,
+                                    "upvalue_writes": 0
+                                  },
+                                  "total": {
+                                    "bytecodes": 122,
+                                    "calls": 18,
+                                    "closures": 8,
+                                    "decisions": 5,
+                                    "functions": 9,
+                                    "global_reads": 10,
+                                    "global_writes": 0,
+                                    "tables": 4,
+                                    "upvalue_reads": 11,
+                                    "upvalue_writes": 0
+                                  }
+                                },
+                                {
+                                  "children": [],
+                                  "name": "event.lua",
+                                  "own": {
+                                    "bytecodes": 459,
+                                    "calls": 54,
+                                    "closures": 20,
+                                    "decisions": 33,
+                                    "functions": 21,
+                                    "global_reads": 39,
+                                    "global_writes": 0,
+                                    "tables": 19,
+                                    "upvalue_reads": 33,
+                                    "upvalue_writes": 1
+                                  },
+                                  "total": {
+                                    "bytecodes": 459,
+                                    "calls": 54,
+                                    "closures": 20,
+                                    "decisions": 33,
+                                    "functions": 21,
+                                    "global_reads": 39,
+                                    "global_writes": 0,
+                                    "tables": 19,
+                                    "upvalue_reads": 33,
+                                    "upvalue_writes": 1
+                                  }
+                                },
+                                {
+                                  "children": [],
+                                  "name": "ft.lua",
+                                  "own": {
+                                    "bytecodes": 77,
+                                    "calls": 11,
+                                    "closures": 5,
+                                    "decisions": 4,
+                                    "functions": 6,
+                                    "global_reads": 6,
+                                    "global_writes": 0,
+                                    "tables": 3,
+                                    "upvalue_reads": 5,
+                                    "upvalue_writes": 0
+                                  },
+                                  "total": {
+                                    "bytecodes": 77,
+                                    "calls": 11,
+                                    "closures": 5,
+                                    "decisions": 4,
+                                    "functions": 6,
+                                    "global_reads": 6,
+                                    "global_writes": 0,
+                                    "tables": 3,
+                                    "upvalue_reads": 5,
+                                    "upvalue_writes": 0
+                                  }
+                                },
+                                {
+                                  "children": [],
+                                  "name": "init.lua",
+                                  "own": {
+                                    "bytecodes": 312,
+                                    "calls": 45,
+                                    "closures": 20,
+                                    "decisions": 14,
+                                    "functions": 21,
+                                    "global_reads": 30,
+                                    "global_writes": 0,
+                                    "tables": 4,
+                                    "upvalue_reads": 21,
+                                    "upvalue_writes": 0
+                                  },
+                                  "total": {
+                                    "bytecodes": 312,
+                                    "calls": 45,
+                                    "closures": 20,
+                                    "decisions": 14,
+                                    "functions": 21,
+                                    "global_reads": 30,
+                                    "global_writes": 0,
+                                    "tables": 4,
+                                    "upvalue_reads": 21,
+                                    "upvalue_writes": 0
+                                  }
+                                },
+                                {
+                                  "children": [],
+                                  "name": "keys.lua",
+                                  "own": {
+                                    "bytecodes": 396,
+                                    "calls": 51,
+                                    "closures": 17,
+                                    "decisions": 28,
+                                    "functions": 18,
+                                    "global_reads": 25,
+                                    "global_writes": 0,
+                                    "tables": 12,
+                                    "upvalue_reads": 41,
+                                    "upvalue_writes": 1
+                                  },
+                                  "total": {
+                                    "bytecodes": 396,
+                                    "calls": 51,
+                                    "closures": 17,
+                                    "decisions": 28,
+                                    "functions": 18,
+                                    "global_reads": 25,
+                                    "global_writes": 0,
+                                    "tables": 12,
+                                    "upvalue_reads": 41,
+                                    "upvalue_writes": 1
+                                  }
+                                },
+                                {
+                                  "children": [],
+                                  "name": "lazy.lua",
+                                  "own": {
+                                    "bytecodes": 40,
+                                    "calls": 6,
+                                    "closures": 4,
+                                    "decisions": 1,
+                                    "functions": 5,
+                                    "global_reads": 3,
+                                    "global_writes": 0,
+                                    "tables": 1,
+                                    "upvalue_reads": 3,
+                                    "upvalue_writes": 0
+                                  },
+                                  "total": {
+                                    "bytecodes": 40,
+                                    "calls": 6,
+                                    "closures": 4,
+                                    "decisions": 1,
+                                    "functions": 5,
+                                    "global_reads": 3,
+                                    "global_writes": 0,
+                                    "tables": 1,
+                                    "upvalue_reads": 3,
+                                    "upvalue_writes": 0
+                                  }
+                                },
+                                {
+                                  "children": [],
+                                  "name": "state.lua",
+                                  "own": {
+                                    "bytecodes": 150,
+                                    "calls": 15,
+                                    "closures": 11,
+                                    "decisions": 10,
+                                    "functions": 12,
+                                    "global_reads": 8,
+                                    "global_writes": 0,
+                                    "tables": 5,
+                                    "upvalue_reads": 19,
+                                    "upvalue_writes": 0
+                                  },
+                                  "total": {
+                                    "bytecodes": 150,
+                                    "calls": 15,
+                                    "closures": 11,
+                                    "decisions": 10,
+                                    "functions": 12,
+                                    "global_reads": 8,
+                                    "global_writes": 0,
+                                    "tables": 5,
+                                    "upvalue_reads": 19,
+                                    "upvalue_writes": 0
+                                  }
+                                }
+                              ],
+                              "name": "handler",
+                              "own": {
+                                "bytecodes": 0,
+                                "calls": 0,
+                                "closures": 0,
+                                "decisions": 0,
+                                "functions": 0,
+                                "global_reads": 0,
+                                "global_writes": 0,
+                                "tables": 0,
+                                "upvalue_reads": 0,
+                                "upvalue_writes": 0
+                              },
+                              "total": {
+                                "bytecodes": 1804,
+                                "calls": 229,
+                                "closures": 97,
+                                "decisions": 111,
+                                "functions": 105,
+                                "global_reads": 141,
+                                "global_writes": 0,
+                                "tables": 57,
+                                "upvalue_reads": 150,
+                                "upvalue_writes": 2
+                              }
+                            },
+                            {
+                              "children": [],
+                              "name": "init.lua",
+                              "own": {
+                                "bytecodes": 177,
+                                "calls": 29,
+                                "closures": 8,
+                                "decisions": 7,
+                                "functions": 9,
+                                "global_reads": 16,
+                                "global_writes": 0,
+                                "tables": 8,
+                                "upvalue_reads": 14,
+                                "upvalue_writes": 0
+                              },
+                              "total": {
+                                "bytecodes": 177,
+                                "calls": 29,
+                                "closures": 8,
+                                "decisions": 7,
+                                "functions": 9,
+                                "global_reads": 16,
+                                "global_writes": 0,
+                                "tables": 8,
+                                "upvalue_reads": 14,
+                                "upvalue_writes": 0
+                              }
+                            },
+                            {
+                              "children": [],
+                              "name": "loader.lua",
+                              "own": {
+                                "bytecodes": 331,
+                                "calls": 48,
+                                "closures": 15,
+                                "decisions": 27,
+                                "functions": 16,
+                                "global_reads": 37,
+                                "global_writes": 0,
+                                "tables": 4,
+                                "upvalue_reads": 14,
+                                "upvalue_writes": 0
+                              },
+                              "total": {
+                                "bytecodes": 331,
+                                "calls": 48,
+                                "closures": 15,
+                                "decisions": 27,
+                                "functions": 16,
+                                "global_reads": 37,
+                                "global_writes": 0,
+                                "tables": 4,
+                                "upvalue_reads": 14,
+                                "upvalue_writes": 0
+                              }
+                            },
+                            {
+                              "children": [],
+                              "name": "meta.lua",
+                              "own": {
+                                "bytecodes": 11,
+                                "calls": 1,
+                                "closures": 0,
+                                "decisions": 0,
+                                "functions": 1,
+                                "global_reads": 3,
+                                "global_writes": 0,
+                                "tables": 1,
+                                "upvalue_reads": 0,
+                                "upvalue_writes": 0
+                              },
+                              "total": {
+                                "bytecodes": 11,
+                                "calls": 1,
+                                "closures": 0,
+                                "decisions": 0,
+                                "functions": 1,
+                                "global_reads": 3,
+                                "global_writes": 0,
+                                "tables": 1,
+                                "upvalue_reads": 0,
+                                "upvalue_writes": 0
+                              }
+                            },
+                            {
+                              "children": [],
+                              "name": "spec.lua",
+                              "own": {
+                                "bytecodes": 415,
+                                "calls": 56,
+                                "closures": 16,
+                                "decisions": 31,
+                                "functions": 17,
+                                "global_reads": 41,
+                                "global_writes": 0,
+                                "tables": 3,
+                                "upvalue_reads": 21,
+                                "upvalue_writes": 0
+                              },
+                              "total": {
+                                "bytecodes": 415,
+                                "calls": 56,
+                                "closures": 16,
+                                "decisions": 31,
+                                "functions": 17,
+                                "global_reads": 41,
+                                "global_writes": 0,
+                                "tables": 3,
+                                "upvalue_reads": 21,
+                                "upvalue_writes": 0
+                              }
+                            }
+                          ],
+                          "name": "n",
+                          "own": {
+                            "bytecodes": 0,
+                            "calls": 0,
+                            "closures": 0,
+                            "decisions": 0,
+                            "functions": 0,
+                            "global_reads": 0,
+                            "global_writes": 0,
+                            "tables": 0,
+                            "upvalue_reads": 0,
+                            "upvalue_writes": 0
+                          },
+                          "total": {
+                            "bytecodes": 2738,
+                            "calls": 363,
+                            "closures": 136,
+                            "decisions": 176,
+                            "functions": 148,
+                            "global_reads": 238,
+                            "global_writes": 0,
+                            "tables": 73,
+                            "upvalue_reads": 199,
+                            "upvalue_writes": 2
+                          }
+                        }
+                      ],
+                      "name": "lz",
+                      "own": {
+                        "bytecodes": 0,
+                        "calls": 0,
+                        "closures": 0,
+                        "decisions": 0,
+                        "functions": 0,
+                        "global_reads": 0,
+                        "global_writes": 0,
+                        "tables": 0,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      },
+                      "total": {
+                        "bytecodes": 2738,
+                        "calls": 363,
+                        "closures": 136,
+                        "decisions": 176,
+                        "functions": 148,
+                        "global_reads": 238,
+                        "global_writes": 0,
+                        "tables": 73,
+                        "upvalue_reads": 199,
+                        "upvalue_writes": 2
+                      }
+                    }
+                  ],
+                  "name": "lua",
+                  "own": {
+                    "bytecodes": 0,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 0,
+                    "global_reads": 0,
+                    "global_writes": 0,
+                    "tables": 0,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 2738,
+                    "calls": 363,
+                    "closures": 136,
+                    "decisions": 176,
+                    "functions": 148,
+                    "global_reads": 238,
+                    "global_writes": 0,
+                    "tables": 73,
+                    "upvalue_reads": 199,
+                    "upvalue_writes": 2
+                  }
+                }
+              ],
+              "name": "lz.n",
+              "own": {
+                "bytecodes": 0,
+                "calls": 0,
+                "closures": 0,
+                "decisions": 0,
+                "functions": 0,
+                "global_reads": 0,
+                "global_writes": 0,
+                "tables": 0,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              },
+              "total": {
+                "bytecodes": 2738,
+                "calls": 363,
+                "closures": 136,
+                "decisions": 176,
+                "functions": 148,
+                "global_reads": 238,
+                "global_writes": 0,
+                "tables": 73,
+                "upvalue_reads": 199,
+                "upvalue_writes": 2
+              }
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "name": "completion.lua",
+                          "own": {
+                            "bytecodes": 5095,
+                            "calls": 512,
+                            "closures": 128,
+                            "decisions": 385,
+                            "functions": 129,
+                            "global_reads": 302,
+                            "global_writes": 0,
+                            "tables": 150,
+                            "upvalue_reads": 393,
+                            "upvalue_writes": 1
+                          },
+                          "total": {
+                            "bytecodes": 5095,
+                            "calls": 512,
+                            "closures": 128,
+                            "decisions": 385,
+                            "functions": 129,
+                            "global_reads": 302,
+                            "global_writes": 0,
+                            "tables": 150,
+                            "upvalue_reads": 393,
+                            "upvalue_writes": 1
+                          }
+                        }
+                      ],
+                      "name": "mini",
+                      "own": {
+                        "bytecodes": 0,
+                        "calls": 0,
+                        "closures": 0,
+                        "decisions": 0,
+                        "functions": 0,
+                        "global_reads": 0,
+                        "global_writes": 0,
+                        "tables": 0,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      },
+                      "total": {
+                        "bytecodes": 5095,
+                        "calls": 512,
+                        "closures": 128,
+                        "decisions": 385,
+                        "functions": 129,
+                        "global_reads": 302,
+                        "global_writes": 0,
+                        "tables": 150,
+                        "upvalue_reads": 393,
+                        "upvalue_writes": 1
+                      }
+                    }
+                  ],
+                  "name": "lua",
+                  "own": {
+                    "bytecodes": 0,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 0,
+                    "global_reads": 0,
+                    "global_writes": 0,
+                    "tables": 0,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 5095,
+                    "calls": 512,
+                    "closures": 128,
+                    "decisions": 385,
+                    "functions": 129,
+                    "global_reads": 302,
+                    "global_writes": 0,
+                    "tables": 150,
+                    "upvalue_reads": 393,
+                    "upvalue_writes": 1
+                  }
+                }
+              ],
+              "name": "mini.completion",
+              "own": {
+                "bytecodes": 0,
+                "calls": 0,
+                "closures": 0,
+                "decisions": 0,
+                "functions": 0,
+                "global_reads": 0,
+                "global_writes": 0,
+                "tables": 0,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              },
+              "total": {
+                "bytecodes": 5095,
+                "calls": 512,
+                "closures": 128,
+                "decisions": 385,
+                "functions": 129,
+                "global_reads": 302,
+                "global_writes": 0,
+                "tables": 150,
+                "upvalue_reads": 393,
+                "upvalue_writes": 1
+              }
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "name": "extra.lua",
+                          "own": {
+                            "bytecodes": 5968,
+                            "calls": 765,
+                            "closures": 172,
+                            "decisions": 403,
+                            "functions": 173,
+                            "global_reads": 463,
+                            "global_writes": 0,
+                            "tables": 256,
+                            "upvalue_reads": 329,
+                            "upvalue_writes": 3
+                          },
+                          "total": {
+                            "bytecodes": 5968,
+                            "calls": 765,
+                            "closures": 172,
+                            "decisions": 403,
+                            "functions": 173,
+                            "global_reads": 463,
+                            "global_writes": 0,
+                            "tables": 256,
+                            "upvalue_reads": 329,
+                            "upvalue_writes": 3
+                          }
+                        }
+                      ],
+                      "name": "mini",
+                      "own": {
+                        "bytecodes": 0,
+                        "calls": 0,
+                        "closures": 0,
+                        "decisions": 0,
+                        "functions": 0,
+                        "global_reads": 0,
+                        "global_writes": 0,
+                        "tables": 0,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      },
+                      "total": {
+                        "bytecodes": 5968,
+                        "calls": 765,
+                        "closures": 172,
+                        "decisions": 403,
+                        "functions": 173,
+                        "global_reads": 463,
+                        "global_writes": 0,
+                        "tables": 256,
+                        "upvalue_reads": 329,
+                        "upvalue_writes": 3
+                      }
+                    }
+                  ],
+                  "name": "lua",
+                  "own": {
+                    "bytecodes": 0,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 0,
+                    "global_reads": 0,
+                    "global_writes": 0,
+                    "tables": 0,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 5968,
+                    "calls": 765,
+                    "closures": 172,
+                    "decisions": 403,
+                    "functions": 173,
+                    "global_reads": 463,
+                    "global_writes": 0,
+                    "tables": 256,
+                    "upvalue_reads": 329,
+                    "upvalue_writes": 3
+                  }
+                }
+              ],
+              "name": "mini.extra",
+              "own": {
+                "bytecodes": 0,
+                "calls": 0,
+                "closures": 0,
+                "decisions": 0,
+                "functions": 0,
+                "global_reads": 0,
+                "global_writes": 0,
+                "tables": 0,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              },
+              "total": {
+                "bytecodes": 5968,
+                "calls": 765,
+                "closures": 172,
+                "decisions": 403,
+                "functions": 173,
+                "global_reads": 463,
+                "global_writes": 0,
+                "tables": 256,
+                "upvalue_reads": 329,
+                "upvalue_writes": 3
+              }
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "name": "icons.lua",
+                          "own": {
+                            "bytecodes": 4896,
+                            "calls": 169,
+                            "closures": 67,
+                            "decisions": 88,
+                            "functions": 68,
+                            "global_reads": 67,
+                            "global_writes": 0,
+                            "tables": 1256,
+                            "upvalue_reads": 124,
+                            "upvalue_writes": 0
+                          },
+                          "total": {
+                            "bytecodes": 4896,
+                            "calls": 169,
+                            "closures": 67,
+                            "decisions": 88,
+                            "functions": 68,
+                            "global_reads": 67,
+                            "global_writes": 0,
+                            "tables": 1256,
+                            "upvalue_reads": 124,
+                            "upvalue_writes": 0
+                          }
+                        }
+                      ],
+                      "name": "mini",
+                      "own": {
+                        "bytecodes": 0,
+                        "calls": 0,
+                        "closures": 0,
+                        "decisions": 0,
+                        "functions": 0,
+                        "global_reads": 0,
+                        "global_writes": 0,
+                        "tables": 0,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      },
+                      "total": {
+                        "bytecodes": 4896,
+                        "calls": 169,
+                        "closures": 67,
+                        "decisions": 88,
+                        "functions": 68,
+                        "global_reads": 67,
+                        "global_writes": 0,
+                        "tables": 1256,
+                        "upvalue_reads": 124,
+                        "upvalue_writes": 0
+                      }
+                    }
+                  ],
+                  "name": "lua",
+                  "own": {
+                    "bytecodes": 0,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 0,
+                    "global_reads": 0,
+                    "global_writes": 0,
+                    "tables": 0,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 4896,
+                    "calls": 169,
+                    "closures": 67,
+                    "decisions": 88,
+                    "functions": 68,
+                    "global_reads": 67,
+                    "global_writes": 0,
+                    "tables": 1256,
+                    "upvalue_reads": 124,
+                    "upvalue_writes": 0
+                  }
+                }
+              ],
+              "name": "mini.icons",
+              "own": {
+                "bytecodes": 0,
+                "calls": 0,
+                "closures": 0,
+                "decisions": 0,
+                "functions": 0,
+                "global_reads": 0,
+                "global_writes": 0,
+                "tables": 0,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              },
+              "total": {
+                "bytecodes": 4896,
+                "calls": 169,
+                "closures": 67,
+                "decisions": 88,
+                "functions": 68,
+                "global_reads": 67,
+                "global_writes": 0,
+                "tables": 1256,
+                "upvalue_reads": 124,
+                "upvalue_writes": 0
+              }
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [],
+                          "name": "pick.lua",
+                          "own": {
+                            "bytecodes": 9695,
+                            "calls": 1099,
+                            "closures": 270,
+                            "decisions": 719,
+                            "functions": 271,
+                            "global_reads": 618,
+                            "global_writes": 0,
+                            "tables": 296,
+                            "upvalue_reads": 658,
+                            "upvalue_writes": 8
+                          },
+                          "total": {
+                            "bytecodes": 9695,
+                            "calls": 1099,
+                            "closures": 270,
+                            "decisions": 719,
+                            "functions": 271,
+                            "global_reads": 618,
+                            "global_writes": 0,
+                            "tables": 296,
+                            "upvalue_reads": 658,
+                            "upvalue_writes": 8
+                          }
+                        }
+                      ],
+                      "name": "mini",
+                      "own": {
+                        "bytecodes": 0,
+                        "calls": 0,
+                        "closures": 0,
+                        "decisions": 0,
+                        "functions": 0,
+                        "global_reads": 0,
+                        "global_writes": 0,
+                        "tables": 0,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      },
+                      "total": {
+                        "bytecodes": 9695,
+                        "calls": 1099,
+                        "closures": 270,
+                        "decisions": 719,
+                        "functions": 271,
+                        "global_reads": 618,
+                        "global_writes": 0,
+                        "tables": 296,
+                        "upvalue_reads": 658,
+                        "upvalue_writes": 8
+                      }
+                    }
+                  ],
+                  "name": "lua",
+                  "own": {
+                    "bytecodes": 0,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 0,
+                    "global_reads": 0,
+                    "global_writes": 0,
+                    "tables": 0,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 9695,
+                    "calls": 1099,
+                    "closures": 270,
+                    "decisions": 719,
+                    "functions": 271,
+                    "global_reads": 618,
+                    "global_writes": 0,
+                    "tables": 296,
+                    "upvalue_reads": 658,
+                    "upvalue_writes": 8
+                  }
+                }
+              ],
+              "name": "mini.pick",
+              "own": {
+                "bytecodes": 0,
+                "calls": 0,
+                "closures": 0,
+                "decisions": 0,
+                "functions": 0,
+                "global_reads": 0,
+                "global_writes": 0,
+                "tables": 0,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              },
+              "total": {
+                "bytecodes": 9695,
+                "calls": 1099,
+                "closures": 270,
+                "decisions": 719,
+                "functions": 271,
+                "global_reads": 618,
+                "global_writes": 0,
+                "tables": 296,
+                "upvalue_reads": 658,
+                "upvalue_writes": 8
+              }
+            },
+            {
+              "children": [
+                {
+                  "children": [
+                    {
+                      "children": [],
+                      "name": "minimal.lua",
+                      "own": {
+                        "bytecodes": 3520,
+                        "calls": 6,
+                        "closures": 0,
+                        "decisions": 56,
+                        "functions": 1,
+                        "global_reads": 48,
+                        "global_writes": 0,
+                        "tables": 667,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      },
+                      "total": {
+                        "bytecodes": 3520,
+                        "calls": 6,
+                        "closures": 0,
+                        "decisions": 56,
+                        "functions": 1,
+                        "global_reads": 48,
+                        "global_writes": 0,
+                        "tables": 667,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      }
+                    }
+                  ],
+                  "name": "colors",
+                  "own": {
+                    "bytecodes": 0,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 0,
+                    "global_reads": 0,
+                    "global_writes": 0,
+                    "tables": 0,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 3520,
+                    "calls": 6,
+                    "closures": 0,
+                    "decisions": 56,
+                    "functions": 1,
+                    "global_reads": 48,
+                    "global_writes": 0,
+                    "tables": 667,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  }
+                },
+                {
+                  "children": [
+                    {
+                      "children": [
+                        {
+                          "children": [
+                            {
+                              "children": [],
+                              "name": "minimal.lua",
+                              "own": {
+                                "bytecodes": 93,
+                                "calls": 0,
+                                "closures": 0,
+                                "decisions": 1,
+                                "functions": 1,
+                                "global_reads": 1,
+                                "global_writes": 0,
+                                "tables": 20,
+                                "upvalue_reads": 0,
+                                "upvalue_writes": 0
+                              },
+                              "total": {
+                                "bytecodes": 93,
+                                "calls": 0,
+                                "closures": 0,
+                                "decisions": 1,
+                                "functions": 1,
+                                "global_reads": 1,
+                                "global_writes": 0,
+                                "tables": 20,
+                                "upvalue_reads": 0,
+                                "upvalue_writes": 0
+                              }
+                            }
+                          ],
+                          "name": "themes",
+                          "own": {
+                            "bytecodes": 0,
+                            "calls": 0,
+                            "closures": 0,
+                            "decisions": 0,
+                            "functions": 0,
+                            "global_reads": 0,
+                            "global_writes": 0,
+                            "tables": 0,
+                            "upvalue_reads": 0,
+                            "upvalue_writes": 0
+                          },
+                          "total": {
+                            "bytecodes": 93,
+                            "calls": 0,
+                            "closures": 0,
+                            "decisions": 1,
+                            "functions": 1,
+                            "global_reads": 1,
+                            "global_writes": 0,
+                            "tables": 20,
+                            "upvalue_reads": 0,
+                            "upvalue_writes": 0
+                          }
+                        }
+                      ],
+                      "name": "lualine",
+                      "own": {
+                        "bytecodes": 0,
+                        "calls": 0,
+                        "closures": 0,
+                        "decisions": 0,
+                        "functions": 0,
+                        "global_reads": 0,
+                        "global_writes": 0,
+                        "tables": 0,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      },
+                      "total": {
+                        "bytecodes": 93,
+                        "calls": 0,
+                        "closures": 0,
+                        "decisions": 1,
+                        "functions": 1,
+                        "global_reads": 1,
+                        "global_writes": 0,
+                        "tables": 20,
+                        "upvalue_reads": 0,
+                        "upvalue_writes": 0
+                      }
+                    }
+                  ],
+                  "name": "lua",
+                  "own": {
+                    "bytecodes": 0,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 0,
+                    "functions": 0,
+                    "global_reads": 0,
+                    "global_writes": 0,
+                    "tables": 0,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  },
+                  "total": {
+                    "bytecodes": 93,
+                    "calls": 0,
+                    "closures": 0,
+                    "decisions": 1,
+                    "functions": 1,
+                    "global_reads": 1,
+                    "global_writes": 0,
+                    "tables": 20,
+                    "upvalue_reads": 0,
+                    "upvalue_writes": 0
+                  }
+                }
+              ],
+              "name": "minimal-nvim",
+              "own": {
+                "bytecodes": 0,
+                "calls": 0,
+                "closures": 0,
+                "decisions": 0,
+                "functions": 0,
+                "global_reads": 0,
+                "global_writes": 0,
+                "tables": 0,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              },
+              "total": {
+                "bytecodes": 3613,
+                "calls": 6,
+                "closures": 0,
+                "decisions": 57,
+                "functions": 2,
+                "global_reads": 49,
+                "global_writes": 0,
+                "tables": 687,
+                "upvalue_reads": 0,
+                "upvalue_writes": 0
+              }
+            }
+          ],
+          "name": "plugins",
+          "own": {
+            "bytecodes": 0,
+            "calls": 0,
+            "closures": 0,
+            "decisions": 0,
+            "functions": 0,
+            "global_reads": 0,
+            "global_writes": 0,
+            "tables": 0,
+            "upvalue_reads": 0,
+            "upvalue_writes": 0
+          },
+          "total": {
+            "bytecodes": 32005,
+            "calls": 2914,
+            "closures": 773,
+            "decisions": 1828,
+            "functions": 791,
+            "global_reads": 1737,
+            "global_writes": 0,
+            "tables": 2718,
+            "upvalue_reads": 1703,
+            "upvalue_writes": 14
+          }
+        }
+      ],
+      "name": "poincare",
+      "own": {
+        "bytecodes": 0,
+        "calls": 0,
+        "closures": 0,
+        "decisions": 0,
+        "functions": 0,
+        "global_reads": 0,
+        "global_writes": 0,
+        "tables": 0,
+        "upvalue_reads": 0,
+        "upvalue_writes": 0
+      },
+      "total": {
+        "bytecodes": 35288,
+        "calls": 3318,
+        "closures": 873,
+        "decisions": 2028,
+        "functions": 914,
+        "global_reads": 2005,
+        "global_writes": 0,
+        "tables": 2935,
+        "upvalue_reads": 1884,
+        "upvalue_writes": 19
+      }
+    },
+    "vm": {
+      "jump_bias": 32767,
+      "jump_mode": 13,
+      "opcode_bits": 8,
+      "opcode_width": 6,
+      "opcodes": [
+        "ISLT",
+        "ISGE",
+        "ISLE",
+        "ISGT",
+        "ISEQV",
+        "ISNEV",
+        "ISEQS",
+        "ISNES",
+        "ISEQN",
+        "ISNEN",
+        "ISEQP",
+        "ISNEP",
+        "ISTC",
+        "ISFC",
+        "IST",
+        "ISF",
+        "ISTYPE",
+        "ISNUM",
+        "MOV",
+        "NOT",
+        "UNM",
+        "LEN",
+        "ADDVN",
+        "SUBVN",
+        "MULVN",
+        "DIVVN",
+        "MODVN",
+        "ADDNV",
+        "SUBNV",
+        "MULNV",
+        "DIVNV",
+        "MODNV",
+        "ADDVV",
+        "SUBVV",
+        "MULVV",
+        "DIVVV",
+        "MODVV",
+        "POW",
+        "CAT",
+        "KSTR",
+        "KCDATA",
+        "KSHORT",
+        "KNUM",
+        "KPRI",
+        "KNIL",
+        "UGET",
+        "USETV",
+        "USETS",
+        "USETN",
+        "USETP",
+        "UCLO",
+        "FNEW",
+        "TNEW",
+        "TDUP",
+        "GGET",
+        "GSET",
+        "TGETV",
+        "TGETS",
+        "TGETB",
+        "TGETR",
+        "TSETV",
+        "TSETS",
+        "TSETB",
+        "TSETM",
+        "TSETR",
+        "CALLM",
+        "CALL",
+        "CALLMT",
+        "CALLT",
+        "ITERC",
+        "ITERN",
+        "VARG",
+        "ISNEXT",
+        "RETM",
+        "RET",
+        "RET0",
+        "RET1",
+        "FORI",
+        "JFORI",
+        "FORL",
+        "IFORL",
+        "JFORL",
+        "ITERL",
+        "IITERL",
+        "JITERL",
+        "LOOP",
+        "ILOOP",
+        "JLOOP",
+        "JMP",
+        "BNOT",
+        "BAND",
+        "BOR",
+        "BXOR",
+        "BSHL",
+        "BSHR",
+        "BSAR",
+        "FUNCF",
+        "IFUNCF",
+        "JFUNCF",
+        "FUNCV",
+        "IFUNCV",
+        "JFUNCV",
+        "FUNCC",
+        "FUNCCW"
+      ]
+    }
+  }
+}
