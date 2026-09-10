@@ -12,7 +12,7 @@ M.hl_groups = {
   },
 
   VcDirty = {
-    fg = { group = "DiagnosticWarn", attr = "fg" },
+    fg = { group = "DiagnosticInfo", attr = "fg" },
     bg = { group = "StatusLine", attr = "bg" },
   },
 }
