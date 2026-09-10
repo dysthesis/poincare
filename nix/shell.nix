@@ -31,6 +31,7 @@ in {
       statix
       deadnix
       alejandra
+      nixfmt
 
       # Python for dev scripts
       (python3.withPackages (p: with p; [rich]))

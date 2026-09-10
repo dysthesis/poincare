@@ -15,6 +15,7 @@
       hash = "sha256-UE+i/qnnRzulS9RDpevqvyoPTBZXVuwcLkFoWV2z8BM=";
     };
   });
+
   leanTreeSitterRuntime = pkgs.runCommand "nvim-treesitter-lean" {} ''
     mkdir -p "$out/parser" "$out/queries/lean"
     ln -s ${leanTreeSitterGrammar}/parser "$out/parser/lean.so"
@@ -22,35 +23,48 @@
       ln -s "$query" "$out/queries/lean/$(basename "$query")"
     done
   '';
-  eagerPlugins = with pkgs.vimPlugins; [
-    extraPlugins.minimal-nvim
-    lz-n
-    (nvim-treesitter.withPlugins (
-      p:
-        with p; [
-          markdown
-          rust
-          go
-          zig
-          c
-          (nix.overrideAttrs (_: {
-            src = inputs.tree-sitter-nix;
-            version = "0.0.0+rev=${inputs.tree-sitter-nix.shortRev}";
-          }))
-          lua
-          just
-          python
-        ]
-    ))
-    leanTreeSitterRuntime
-  ];
+
+  treesitterParsers = let
+    p = pkgs.vimPlugins.nvim-treesitter-parsers;
+  in
+    with p; [
+      markdown
+      rust
+      go
+      zig
+      c
+
+      (nix.overrideAttrs (_: {
+        src = inputs.tree-sitter-nix;
+        version = "0.0.0+rev=${inputs.tree-sitter-nix.shortRev}";
+      }))
+
+      p.lua
+      p.just
+      p.python
+    ];
+
+  treesitterQueries =
+    map (parser: parser.associatedQuery) treesitterParsers;
+
+  eagerPlugins = with pkgs.vimPlugins;
+    [
+      extraPlugins.minimal-nvim
+
+      nvim-treesitter-textobjects
+      leanTreeSitterRuntime
+      lz-n
+    ]
+    ++ treesitterParsers
+    ++ treesitterQueries;
+
   lazyPlugins = with pkgs.vimPlugins; [
     mini-completion
     mini-icons
     mini-pick
     mini-extra
+    mini-surround
     nvim-lint
-    nvim-treesitter-textobjects
   ];
 in
   rec {

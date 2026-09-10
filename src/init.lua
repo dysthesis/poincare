@@ -1,8 +1,6 @@
 local o, g = vim.o, vim.g
 
-vim.schedule(function()
-  o.clipboard = "unnamedplus"
-end)
+vim.schedule(function() end)
 
 o.pumheight = 10 -- max height of completion menu
 o.tabstop = 2

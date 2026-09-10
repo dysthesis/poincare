@@ -1,22 +1,17 @@
-require("lz.n").load({
-  "nvim-treesitter",
-  lazy = false,
-  load = function(self)
-    vim.cmd.packadd(self)
-    vim.cmd.packadd("nvim-treesitter-textobjects")
+-- Enable treesitter highlighting everywhere except LaTeX (upstream queries
+-- are still experimental there).
+vim.api.nvim_create_autocmd("FileType", {
+  callback = function(event)
+    if event.match ~= "latex" then
+      pcall(vim.treesitter.start, event.buf, event.match)
+    end
   end,
-  after = function()
-    -- Enable treesitter highlighting everywhere except LaTeX (upstream queries
-    -- are still experimental there).
-    vim.api.nvim_create_autocmd("FileType", {
-      callback = function(event)
-        if event.match ~= "latex" then
-          pcall(vim.treesitter.start, event.buf, event.match)
-        end
-      end,
-    })
+})
 
-    -- Textobjects configuration + keymaps
+require("lz.n").load({
+  "nvim-treesitter-textobjects",
+  event = "BufEnter",
+  after = function()
     require("nvim-treesitter-textobjects").setup({
       select = {
         lookahead = true,

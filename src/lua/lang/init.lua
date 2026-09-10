@@ -19,6 +19,26 @@ M.modules = discover("lua/lang/modules/*.lua", "lang.modules")
 M.specs = discover("lua/lang/specs/*.lua", "lang.specs")
 
 function M.setup()
+  local diagnostic_text = {
+    spacing = 2,
+    source = "if_many",
+    virt_text_pos = "eol",
+  }
+
+  vim.diagnostic.config({
+    virtual_text = diagnostic_text,
+  })
+
+  local diagnostics_active = true
+  vim.keymap.set("n", "<leader>D", function()
+    diagnostics_active = not diagnostics_active
+    if diagnostics_active then
+      vim.diagnostic.show()
+    else
+      vim.diagnostic.hide()
+    end
+  end)
+
   for name, lang in pairs(M.specs) do
     lang.filetypes = lang.filetypes or { name }
 
@@ -31,4 +51,5 @@ function M.setup()
     end
   end
 end
+
 return M
