@@ -1,7 +1,11 @@
 require("lz.n").load({
   "mini.icons",
   lazy = false,
+
   after = function()
-    require("mini.icons").setup()
+    local icons = require("mini.icons")
+
+    icons.setup()
+    icons.tweak_lsp_kind("prepend")
   end,
 })
