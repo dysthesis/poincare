@@ -10,10 +10,10 @@
     ];
 
     # Eval the treefmt modules from ./nix/formatting.nix
-    treefmtEval =
-      eachSystem
-      ({pkgs, ...}:
-        inputs.treefmt-nix.lib.evalModule pkgs ./nix/formatting.nix);
+    treefmtEval = eachSystem (
+      {pkgs, ...}:
+        inputs.treefmt-nix.lib.evalModule pkgs ./nix/formatting.nix
+    );
 
     eachSystem = f:
       lib.genAttrs supportedSystems (
@@ -28,15 +28,17 @@
           }
       );
   in {
-    devShells = eachSystem ({
-      pkgs,
-      system,
-      ...
-    }:
-      import ./nix/shell.nix {
-        inherit pkgs self;
-        treefmt = treefmtEval.${system};
-      });
+    devShells = eachSystem (
+      {
+        pkgs,
+        system,
+        ...
+      }:
+        import ./nix/shell.nix {
+          inherit pkgs self;
+          treefmt = treefmtEval.${system};
+        }
+    );
     formatter = eachSystem ({system, ...}: treefmtEval.${system}.config.build.wrapper);
     packages = eachSystem ({pkgs, ...}: import ./nix/packages {inherit pkgs lib inputs;});
   };

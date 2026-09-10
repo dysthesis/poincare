@@ -510,7 +510,10 @@ T["recursive write events do not start another run"] = function()
   local elapsed = (vim.uv.hrtime() - started) / 1e9
 
   assert(ok, err)
-  assert(fired, "recursive write event did not run while formatting was pending")
+  assert(
+    fired,
+    "recursive write event did not run while formatting was pending"
+  )
   assert(
     vim.v.errmsg == "",
     "nested formatting raised a callback error: " .. vim.v.errmsg

@@ -25,22 +25,23 @@
   eagerPlugins = with pkgs.vimPlugins; [
     extraPlugins.minimal-nvim
     lz-n
-    nvim-treesitter-textobjects
-    (nvim-treesitter.withPlugins (p:
-      with p; [
-        markdown
-        rust
-        go
-        zig
-        c
-        (nix.overrideAttrs (_: {
-          src = inputs.tree-sitter-nix;
-          version = "0.0.0+rev=${inputs.tree-sitter-nix.shortRev}";
-        }))
-        lua
-        just
-        python
-      ]))
+    (nvim-treesitter.withPlugins (
+      p:
+        with p; [
+          markdown
+          rust
+          go
+          zig
+          c
+          (nix.overrideAttrs (_: {
+            src = inputs.tree-sitter-nix;
+            version = "0.0.0+rev=${inputs.tree-sitter-nix.shortRev}";
+          }))
+          lua
+          just
+          python
+        ]
+    ))
     leanTreeSitterRuntime
   ];
   lazyPlugins = with pkgs.vimPlugins; [
@@ -48,6 +49,8 @@
     mini-icons
     mini-pick
     mini-extra
+    nvim-lint
+    nvim-treesitter-textobjects
   ];
 in
   rec {
