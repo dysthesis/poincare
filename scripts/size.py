@@ -793,7 +793,9 @@ def _sparkline(values: Iterable[int | float], width: int) -> str:
     if len(series) > width:
         series = [
             max(
-                series[bucket * len(series) // width : (bucket + 1) * len(series) // width]
+                series[
+                    bucket * len(series) // width : (bucket + 1) * len(series) // width
+                ]
             )
             for bucket in range(width)
         ]
@@ -1049,7 +1051,9 @@ def render(
             else:
                 # Right-align plain-mode bars: shared right edge, clear of the tree.
                 bar.append(" " * (console.width - len(detail) - cells))
-                bar.append(_bar(value / root_value, cells, align="right"), style="green")
+                bar.append(
+                    _bar(value / root_value, cells, align="right"), style="green"
+                )
             console.print(bar, overflow="fold", markup=False)
         if stats and history is not None:
             summary = stats[selected]

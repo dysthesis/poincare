@@ -10,6 +10,7 @@
 ---@alias FormatterSpec string|FormatterCommand[]
 
 local FILENAME_PLACEHOLDER = "$FILENAME"
+local DIAGNOSTIC_MAX_LENGTH = 160
 
 ---@type table<string, FormatterArgv>
 local STDIN_ARGS_BY_FORMATTER = {
@@ -42,7 +43,7 @@ end
 local function first_diagnostic(text)
   local line = text and text:match("%S[^\r\n]*")
 
-  return line and line:sub(1, 160)
+  return line and line:sub(1, DIAGNOSTIC_MAX_LENGTH)
 end
 
 local function process_failure(reason, detail)
@@ -59,33 +60,28 @@ local function validate_output(text)
   return text
 end
 
-local function run_formatter(argv, text, filename, cwd, deadline)
+local function expand_formatter_command(argv, filename)
   local cmd = {}
 
   for i, arg in ipairs(argv) do
     cmd[i] = arg == FILENAME_PLACEHOLDER and filename or arg
   end
 
+  return cmd
+end
+
+local function wait_for_process(process, deadline)
   local remaining = math.ceil((deadline - vim.uv.hrtime()) / 1e6)
-
-  if remaining <= 0 then
-    return nil, "timed out"
-  end
-
-  local ok, process = pcall(vim.system, cmd, {
-    cwd = cwd,
-    stdin = text,
-  })
-
-  if not ok then
-    return nil, process_failure("could not start", process)
-  end
-
-  remaining = math.ceil((deadline - vim.uv.hrtime()) / 1e6)
-  local expired = remaining <= 0
+  local deadline_expired = remaining <= 0
   local result = process:wait(math.max(remaining, 1))
+  local timed_out = deadline_expired
+    or (result.code == 124 and result.signal == 9)
 
-  if expired or (result.code == 124 and result.signal == 9) then
+  return result, timed_out
+end
+
+local function interpret_process_result(result, timed_out)
+  if timed_out then
     return nil, process_failure("timed out", result.stderr)
   end
 
@@ -102,6 +98,26 @@ local function run_formatter(argv, text, filename, cwd, deadline)
   end
 
   return validate_output(result.stdout or "")
+end
+
+local function run_formatter(snapshot, argv, text, deadline)
+  local remaining = math.ceil((deadline - vim.uv.hrtime()) / 1e6)
+
+  if remaining <= 0 then
+    return nil, "timed out"
+  end
+
+  local cmd = expand_formatter_command(argv, snapshot.filename)
+  local ok, process = pcall(vim.system, cmd, {
+    cwd = snapshot.cwd,
+    stdin = text,
+  })
+
+  if not ok then
+    return nil, process_failure("could not start", process)
+  end
+
+  return interpret_process_result(wait_for_process(process, deadline))
 end
 
 local function buffer_is_eligible(bufnr)
@@ -187,8 +203,7 @@ local function run_pipeline(snapshot)
   local deadline = vim.uv.hrtime() + TIMEOUT_MS * 1e6
 
   for _, argv in ipairs(snapshot.pipeline) do
-    local output, reason =
-      run_formatter(argv, text, snapshot.filename, snapshot.cwd, deadline)
+    local output, reason = run_formatter(snapshot, argv, text, deadline)
 
     if not output then
       return nil, argv[1], reason
