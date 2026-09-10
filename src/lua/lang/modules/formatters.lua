@@ -5,14 +5,14 @@
 ---A formatter executable name, or a complete argv command.
 ---@alias FormatterCommand string|FormatterArgv
 
----One formatter executable name, or an ordered formatter pipeline.
+---One formatter executable name, or an ordered list of fallbacks.
 ---@alias FormatterSpec string|FormatterCommand[]
 
 local FILENAME_PLACEHOLDER = "$FILENAME"
 local DIAGNOSTIC_MAX_LENGTH = 160
 
 local TIMEOUT_MS = 1000
-local pipelines_by_ft = {}
+local formatters_by_ft = {}
 local formats_in_progress = {}
 
 local group = vim.api.nvim_create_augroup("lang_formatters", { clear = true })
@@ -186,9 +186,9 @@ local function capture_buffer_snapshot(bufnr)
   end
 
   local bo = vim.bo[bufnr]
-  local pipeline = pipelines_by_ft[bo.filetype]
+  local formatter = formatters_by_ft[bo.filetype]
 
-  if not pipeline then
+  if not formatter then
     return
   end
 
@@ -201,7 +201,7 @@ local function capture_buffer_snapshot(bufnr)
     changedtick = vim.api.nvim_buf_get_changedtick(bufnr),
     name = name,
     filetype = bo.filetype,
-    pipeline = pipeline,
+    formatter = formatter,
     cwd = cwd,
     filename = name ~= "" and name
       or ("%s/unnamed.%s"):format(cwd, bo.filetype),
@@ -227,25 +227,20 @@ local function would_erase_non_whitespace(input, output)
   return output:match("^%s*$") ~= nil and input:match("^%s*$") == nil
 end
 
-local function run_pipeline(snapshot, state)
-  local text = snapshot.formatter_input
+local function format_snapshot(snapshot, state)
+  state.active_formatter = snapshot.formatter[1]
+  local output, reason =
+    run_formatter(snapshot, snapshot.formatter, snapshot.formatter_input)
 
-  for _, argv in ipairs(snapshot.pipeline) do
-    state.active_formatter = argv[1]
-    local output, reason = run_formatter(snapshot, argv, text)
-
-    if not output then
-      return nil, argv[1], reason
-    end
-
-    if would_erase_non_whitespace(text, output) then
-      return nil, argv[1], "returned only whitespace for non-whitespace input"
-    end
-
-    text = output
+  if not output then
+    return nil, reason
   end
 
-  return text
+  if would_erase_non_whitespace(snapshot.formatter_input, output) then
+    return nil, "returned only whitespace for non-whitespace input"
+  end
+
+  return output
 end
 
 local function apply_formatted_lines(bufnr, old_lines, new_lines)
@@ -298,13 +293,13 @@ local function format_buffer(bufnr, state)
     return
   end
 
-  local pipeline = vim.async.run(run_pipeline, snapshot, state)
-  local formatted_text, failed_command, failure_reason =
-    vim.async.timeout(TIMEOUT_MS, pipeline)
+  local formatter = vim.async.run(format_snapshot, snapshot, state)
+  local formatted_text, failure_reason =
+    vim.async.timeout(TIMEOUT_MS, formatter)
   vim.async.await(vim.schedule)
 
   if not formatted_text then
-    notify_formatter_failure(failed_command, failure_reason)
+    notify_formatter_failure(snapshot.formatter[1], failure_reason)
     return
   end
 
@@ -377,7 +372,8 @@ local function compile_entry(entry)
 end
 
 ---@param spec FormatterSpec
----@return FormatterArgv[]
+---@return FormatterArgv? selected
+---@return string[] tried
 local function compile(spec)
   if type(spec) == "string" then
     spec = { spec }
@@ -388,25 +384,24 @@ local function compile(spec)
     )
   end
 
-  local pipeline = {}
+  local selected
+  local tried = {}
 
   for _, entry in ipairs(spec) do
     local argv = compile_entry(entry)
+    tried[#tried + 1] = argv[1]
 
-    if vim.fn.executable(argv[1]) == 1 then
-      pipeline[#pipeline + 1] = argv
-    else
-      vim.notify(
-        ("formatter %q is not installed; skipping"):format(argv[1]),
-        vim.log.levels.WARN
-      )
+    if not selected and vim.fn.executable(argv[1]) == 1 then
+      selected = argv
     end
   end
 
-  return pipeline
+  return selected, tried
 end
 
----Register an ordered formatter pipeline for a language.
+local fallback = require("lib.fallback")
+
+---Register ordered formatter fallbacks for a language.
 ---@param lang { filetypes: string[] }
 ---@param spec FormatterSpec
 return function(lang, spec)
@@ -416,10 +411,18 @@ return function(lang, spec)
       and vim.islist(lang.filetypes),
     "lang.filetypes must be a list"
   )
-  local pipeline = compile(spec)
 
   for _, filetype in ipairs(lang.filetypes) do
     assert(type(filetype) == "string", "filetype must be a string")
-    pipelines_by_ft[filetype] = #pipeline > 0 and pipeline or nil
+  end
+
+  local formatter, tried = compile(spec)
+
+  if not formatter and #tried > 0 then
+    fallback.warn("formatter", lang, tried)
+  end
+
+  for _, filetype in ipairs(lang.filetypes) do
+    formatters_by_ft[filetype] = formatter
   end
 end

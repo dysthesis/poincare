@@ -58,17 +58,17 @@ local function assert_file(path, content, what)
   assert(got == content, ("%s: got %s"):format(what, vim.inspect(got)))
 end
 
-T["ordered pipelines run every step and write the result"] = function()
+T["formatter lists select the first available fallback"] = function()
   local bufnr = case("order", { "hello world" }, {
     { "tr", "a-z", "A-Z" },
     { "sed", "s/HELLO/BONJOUR/" },
   })
 
   write(bufnr, dir .. "/order.txt")
-  assert_lines(bufnr, { "BONJOUR WORLD" }, "steps apply in order")
+  assert_lines(bufnr, { "HELLO WORLD" }, "only the first fallback runs")
   assert_file(
     dir .. "/order.txt",
-    "BONJOUR WORLD\n",
+    "HELLO WORLD\n",
     "the written file matches the buffer"
   )
 end
@@ -89,14 +89,14 @@ T["a failing formatter does not block or modify a save"] = function()
   )
 end
 
-T["pipeline failure is atomic"] = function()
+T["runtime failure does not select another fallback"] = function()
   local bufnr = case("atomic", { "keep lowercase" }, {
-    { "tr", "a-z", "A-Z" },
     "false",
+    { "tr", "a-z", "A-Z" },
   })
 
   write(bufnr, dir .. "/atomic.txt")
-  assert_lines(bufnr, { "keep lowercase" }, "a pipeline failure is atomic")
+  assert_lines(bufnr, { "keep lowercase" }, "the second fallback did not run")
   assert_file(
     dir .. "/atomic.txt",
     "keep lowercase\n",
@@ -124,6 +124,26 @@ T["an uninstalled formatter is skipped"] = function()
   assert_lines(bufnr, { "ABC" }, "only installed formatters run")
 end
 
+T["unavailable argv fallbacks warn with command names"] = function()
+  local notification
+  local notify = vim.notify
+
+  vim.notify = function(message)
+    notification = message
+  end
+  local ok, err = pcall(case, "missing-argv", nil, {
+    { "poincare-no-such-formatter", "--flag" },
+  })
+  vim.notify = notify
+
+  assert(ok, err)
+  assert(
+    notification
+      == "no formatter available for missing-argv (tried: poincare-no-such-formatter)",
+    "warning did not contain the formatter command name"
+  )
+end
+
 T["empty formatter output does not wipe the buffer"] = function()
   local bufnr = case("wipe", { "data" }, { "true" })
 
@@ -146,9 +166,8 @@ T["NUL formatter output is rejected"] = function()
   assert_file(dir .. "/nul.txt", "text\n", "NUL output does not block the save")
 end
 
-T["a hung formatter is killed within the shared budget"] = function()
+T["a hung formatter is killed within the timeout"] = function()
   local bufnr = case("slow", { "still here" }, {
-    { "sh", "-c", "sleep 0.65; tr a-z A-Z" },
     { "sleep", "3" },
   })
   local notification
@@ -163,7 +182,7 @@ T["a hung formatter is killed within the shared budget"] = function()
 
   vim.notify = notify
   assert(ok, err)
-  assert(elapsed < 1.5, ("shared timeout took %.3fs"):format(elapsed))
+  assert(elapsed < 1.5, ("formatter timeout took %.3fs"):format(elapsed))
   assert(
     notification == 'formatter "sleep" failed: timed out',
     "timeout did not report the active formatter"
@@ -238,6 +257,11 @@ T["map and sparse formatter configurations are rejected"] = function()
       name = "sparse argv",
       lang = { filetypes = { "invalid-argv-sparse" } },
       spec = { { [1] = "cat", [3] = "argument" } },
+    },
+    {
+      name = "invalid later fallback",
+      lang = { filetypes = { "invalid-later-fallback" } },
+      spec = { "cat", { "cat", 42 } },
     },
     {
       name = "map filetypes",

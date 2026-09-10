@@ -1,5 +1,5 @@
 return {
-  lsp = "rust-analyzer",
+  lsp = "rust_analyzer",
   formatters = { "rustfmt" },
   linters = "clippy",
 }
