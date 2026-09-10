@@ -1,22 +1,24 @@
 local function available(name)
   local config = vim.lsp.config[name]
 
-  assert(config, ("no LSP configuration named %q"):format(name))
+  if not config then
+    return false
+  end
 
   local cmd = config.cmd
 
-  -- Function-valued commands cannot be inspected statically.
   if type(cmd) == "function" then
     return true
   end
 
-  assert(
-    type(cmd) == "table" and type(cmd[1]) == "string",
-    ("LSP %q has no inspectable command"):format(name)
-  )
+  if type(cmd) ~= "table" or type(cmd[1]) ~= "string" then
+    return false
+  end
 
   return vim.fn.executable(cmd[1]) == 1
 end
+
+local fallback = require("lib.fallback")
 
 -- A spec is one server or a list of fallbacks; the first available wins.
 return function(lang, spec)
@@ -25,22 +27,15 @@ return function(lang, spec)
   end
 
   for _, name in ipairs(spec) do
-    assert(
-      type(name) == "string",
-      "LSP specification must be a configuration name"
-    )
-
-    if available(name) then
-      vim.lsp.enable(name)
-      return
-    end
+    assert(type(name) == "string", "LSP must be a configuration name")
   end
 
-  vim.notify(
-    ("no LSP available for %s (tried: %s)"):format(
-      table.concat(lang.filetypes, ", "),
-      table.concat(spec, ", ")
-    ),
-    vim.log.levels.WARN
-  )
+  local name = fallback.first(spec, available)
+
+  if name then
+    vim.lsp.enable(name)
+    return
+  end
+
+  fallback.warn("LSP", lang, spec)
 end
