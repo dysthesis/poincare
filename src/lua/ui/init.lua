@@ -10,4 +10,6 @@ opt.colorcolumn = "80"
 
 opt.statusline = "%{%v:lua.require'ui.statusline'.render()%}"
 
-require("ui.splits").setup()
+-- Some useful add-ons
+require("ui.splits").setup() -- integrate splits with tmux
+require("ui.vc-gutter").setup() -- show dirty changes in gutter
