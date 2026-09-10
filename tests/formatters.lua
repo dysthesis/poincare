@@ -149,14 +149,25 @@ end
 T["a hung formatter is killed within the shared budget"] = function()
   local bufnr = case("slow", { "still here" }, {
     { "sh", "-c", "sleep 0.65; tr a-z A-Z" },
-    { "sh", "-c", "sleep 3 & wait; cat" },
+    { "sleep", "3" },
   })
-  local started = vim.uv.hrtime()
+  local notification
+  local notify = vim.notify
 
-  write(bufnr, dir .. "/slow.txt")
+  vim.notify = function(message)
+    notification = message
+  end
+  local started = vim.uv.hrtime()
+  local ok, err = pcall(write, bufnr, dir .. "/slow.txt")
   local elapsed = (vim.uv.hrtime() - started) / 1e9
 
+  vim.notify = notify
+  assert(ok, err)
   assert(elapsed < 1.5, ("shared timeout took %.3fs"):format(elapsed))
+  assert(
+    notification == 'formatter "sleep" failed: timed out',
+    "timeout did not report the active formatter"
+  )
   assert_lines(
     bufnr,
     { "still here" },
@@ -455,32 +466,20 @@ T["concurrent edits win and window changes remain safe"] = function()
     { "sh", "-c", "sleep 0.2; tr a-z A-Z" },
   })
   local other = vim.api.nvim_create_buf(true, false)
-  local system = vim.system
   local fired = false
 
-  vim.system = function(...)
-    local process = system(...)
-
-    if not fired then
-      fired = true
-      vim.schedule(function()
-        vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, { "deferred edit" })
-        vim.api.nvim_set_current_buf(other)
-      end)
-      assert(vim.wait(100, function()
-        return vim.api.nvim_get_current_buf() == other
-      end))
-    end
-
-    return process
-  end
   vim.api.nvim_set_current_buf(bufnr)
+  vim.defer_fn(function()
+    fired = true
+    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, { "deferred edit" })
+    vim.api.nvim_set_current_buf(other)
+  end, 20)
   vim.v.errmsg = ""
   local ok, err =
     pcall(vim.api.nvim_exec_autocmds, "BufWritePre", { buffer = bufnr })
 
-  vim.system = system
   assert(ok, err)
+  assert(fired, "deferred edit did not run while the formatter was pending")
   assert(vim.v.errmsg == "", "race raised a callback error: " .. vim.v.errmsg)
   assert_lines(
     bufnr,
@@ -497,27 +496,12 @@ T["recursive write events do not start another run"] = function()
   local bufnr = case("nested", { "once" }, {
     { "sh", "-c", "sleep 0.25; sed 's/$/ formatted/'" },
   })
-  local system = vim.system
   local fired = false
 
-  vim.system = function(...)
-    local process = system(...)
-
-    if not fired then
-      fired = true
-      local completed = false
-
-      vim.schedule(function()
-        vim.api.nvim_exec_autocmds("BufWritePre", { buffer = bufnr })
-        completed = true
-      end)
-      assert(vim.wait(100, function()
-        return completed
-      end))
-    end
-
-    return process
-  end
+  vim.defer_fn(function()
+    fired = true
+    vim.api.nvim_exec_autocmds("BufWritePre", { buffer = bufnr })
+  end, 20)
   local started = vim.uv.hrtime()
 
   vim.v.errmsg = ""
@@ -525,8 +509,8 @@ T["recursive write events do not start another run"] = function()
     pcall(vim.api.nvim_exec_autocmds, "BufWritePre", { buffer = bufnr })
   local elapsed = (vim.uv.hrtime() - started) / 1e9
 
-  vim.system = system
   assert(ok, err)
+  assert(fired, "recursive write event did not run while formatting was pending")
   assert(
     vim.v.errmsg == "",
     "nested formatting raised a callback error: " .. vim.v.errmsg

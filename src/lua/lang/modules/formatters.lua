@@ -58,21 +58,68 @@ local function expand_formatter_command(argv, filename)
   return cmd
 end
 
-local function wait_for_process(process, deadline)
-  local remaining = math.ceil((deadline - vim.uv.hrtime()) / 1e6)
-  local deadline_expired = remaining <= 0
-  local result = process:wait(math.max(remaining, 1))
-  local timed_out = deadline_expired
-    or (result.code == 124 and result.signal == 9)
+local function await_process(cmd, opts)
+  return vim.async.pawait(function(done)
+    local callback_received = false
+    local close_callbacks = {}
+    local closing = false
+    local settled = false
+    local process
+    local handle = {}
 
-  return result, timed_out
+    local function finish_close()
+      if not settled then
+        return
+      end
+
+      local callbacks = close_callbacks
+      close_callbacks = {}
+
+      for _, callback in ipairs(callbacks) do
+        callback()
+      end
+    end
+
+    process = vim.system(cmd, opts, function(result)
+      callback_received = true
+      vim.schedule(function()
+        settled = true
+        done(result)
+        finish_close()
+      end)
+    end)
+
+    function handle:is_closing()
+      return closing
+    end
+
+    function handle:close(callback)
+      if callback then
+        close_callbacks[#close_callbacks + 1] = callback
+      end
+
+      if not closing then
+        closing = true
+
+        if not callback_received then
+          pcall(process.kill, process, 9)
+        end
+      end
+
+      finish_close()
+    end
+
+    return handle
+  end)
 end
 
-local function interpret_process_result(result, timed_out)
-  if timed_out then
-    return nil, process_failure("timed out", result.stderr)
-  end
+local function is_timeout_error(err)
+  return err == "timeout"
+    or (type(err) == "string" and err:match("^timeout\nstack traceback:"))
+      ~= nil
+end
 
+local function interpret_process_result(result)
   if result.signal ~= 0 then
     return nil,
       process_failure(
@@ -88,24 +135,18 @@ local function interpret_process_result(result, timed_out)
   return validate_output(result.stdout or "")
 end
 
-local function run_formatter(snapshot, argv, text, deadline)
-  local remaining = math.ceil((deadline - vim.uv.hrtime()) / 1e6)
-
-  if remaining <= 0 then
-    return nil, "timed out"
-  end
-
+local function run_formatter(snapshot, argv, text)
   local cmd = expand_formatter_command(argv, snapshot.filename)
-  local ok, process = pcall(vim.system, cmd, {
+  local started, result = await_process(cmd, {
     cwd = snapshot.cwd,
     stdin = text,
   })
 
-  if not ok then
-    return nil, process_failure("could not start", process)
+  if not started then
+    return nil, process_failure("could not start", result)
   end
 
-  return interpret_process_result(wait_for_process(process, deadline))
+  return interpret_process_result(result)
 end
 
 local function buffer_is_eligible(bufnr)
@@ -186,12 +227,12 @@ local function would_erase_non_whitespace(input, output)
   return output:match("^%s*$") ~= nil and input:match("^%s*$") == nil
 end
 
-local function run_pipeline(snapshot)
+local function run_pipeline(snapshot, state)
   local text = snapshot.formatter_input
-  local deadline = vim.uv.hrtime() + TIMEOUT_MS * 1e6
 
   for _, argv in ipairs(snapshot.pipeline) do
-    local output, reason = run_formatter(snapshot, argv, text, deadline)
+    state.active_formatter = argv[1]
+    local output, reason = run_formatter(snapshot, argv, text)
 
     if not output then
       return nil, argv[1], reason
@@ -250,14 +291,17 @@ local function apply_formatted_lines(bufnr, old_lines, new_lines)
   end)
 end
 
-local function format_buffer(bufnr)
+local function format_buffer(bufnr, state)
   local snapshot = capture_buffer_snapshot(bufnr)
 
   if not snapshot then
     return
   end
 
-  local formatted_text, failed_command, failure_reason = run_pipeline(snapshot)
+  local pipeline = vim.async.run(run_pipeline, snapshot, state)
+  local formatted_text, failed_command, failure_reason =
+    vim.async.timeout(TIMEOUT_MS, pipeline)
+  vim.async.await(vim.schedule)
 
   if not formatted_text then
     notify_formatter_failure(failed_command, failure_reason)
@@ -283,11 +327,28 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     end
 
     formats_in_progress[event.buf] = true
-    local ok, err = xpcall(format_buffer, debug.traceback, event.buf)
+    local state = {}
+    local started, task = pcall(vim.async.run, format_buffer, event.buf, state)
+    local ok, err
+
+    if started then
+      ok, err = task:pwait()
+
+      if not task:completed() then
+        task:close()
+        task:pwait()
+      end
+    else
+      ok, err = false, task
+    end
     formats_in_progress[event.buf] = nil
 
     if not ok then
-      notify_orchestration_warning("unexpected error: " .. err)
+      if is_timeout_error(err) then
+        notify_formatter_failure(state.active_formatter, "timed out")
+      else
+        notify_orchestration_warning("unexpected error: " .. tostring(err))
+      end
     end
   end,
 })
