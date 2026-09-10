@@ -1,4 +1,5 @@
 require("ui")
+require("icons")
 require("lang").setup()
 require("lsp")
 require("completion")
