@@ -2,6 +2,7 @@ return {
   lsp = "rust_analyzer",
   formatters = { "rustfmt" },
   linters = "clippy",
+  fold = true,
   setup = function()
     require("lz.n").load({
       "ferris-nvim",

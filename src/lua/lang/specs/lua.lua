@@ -1,5 +1,6 @@
 return {
   lsp = "lua-language-server",
+  fold = true,
   formatters = {
     {
       "stylua",
