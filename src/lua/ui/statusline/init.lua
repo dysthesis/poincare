@@ -92,7 +92,7 @@ function M.render()
   local status = tonumber(vim.g.actual_curwin)
 
   if status ~= active then
-    return "Statusline for inactive windows"
+    return "[INACTIVE]"
   end
 
   local modeline = {}
