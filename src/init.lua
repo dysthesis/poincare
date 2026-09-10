@@ -5,9 +5,11 @@ vim.g.maplocalleader = "\r"
 vim.schedule(function()
   vim.opt.clipboard = "unnamedplus"
 end)
+
 require("ui")
 require("icons")
 require("picker")
+require("nav")
 require("lang").setup()
 require("lsp")
 require("completion")

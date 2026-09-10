@@ -11,6 +11,7 @@
     mini-icons
     mini-pick
     mini-extra
+    smart-splits-nvim
   ];
 in
   rec {
