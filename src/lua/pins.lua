@@ -10,30 +10,41 @@ local function prune()
   end
 end
 
+local function current_path()
+  local path = vim.api.nvim_buf_get_name(0)
+  if path == "" then
+    return nil
+  end
+
+  return vim.fs.normalize(path)
+end
+
 function M.toggle()
-  prune()
+  local path = current_path()
 
-  local buf = vim.api.nvim_get_current_buf()
+  if not path then
+    return
+  end
 
-  for i, pinned_buf in ipairs(pinned) do
-    if pinned_buf == buf then
+  for i, pinned_path in ipairs(pinned) do
+    if pinned_path == path then
       table.remove(pinned, i)
+      M.save()
       return
     end
   end
 
   if #pinned < 10 then
-    pinned[#pinned + 1] = buf
+    pinned[#pinned + 1] = path
+    M.save()
   end
 end
 
 function M.select(i)
-  prune()
+  local path = pinned[i]
 
-  local buf = pinned[i]
-
-  if buf then
-    vim.api.nvim_set_current_buf(buf)
+  if path then
+    vim.cmd.edit(vim.fn.fnameescape(path))
   end
 end
 
@@ -45,22 +56,54 @@ function M.show()
 
   local lines = {}
 
-  for i, buf in ipairs(pinned) do
-    local path = vim.api.nvim_buf_get_name(buf)
-
-    if path == "" then
-      path = "[No Name]"
-    else
-      path = vim.fn.fnamemodify(path, ":~:.")
-    end
-
-    lines[#lines + 1] = ("%d: %s"):format(i, path)
+  for i, path in ipairs(pinned) do
+    lines[#lines + 1] = ("%d: %s"):format(i, vim.fn.fnamemodify(path, ":~:."))
   end
 
   vim.notify(table.concat(lines, "\n"))
 end
 
+local state_dir = vim.fs.joinpath(vim.fn.stdpath("state"), "pins")
+
+local function project()
+  return vim.fs.root(0, ".git") or vim.fn.getcwd()
+end
+
+local function state_file()
+  local root = project()
+  if not root then
+    return nil
+  end
+
+  local hash = vim.fn.sha256(vim.fs.normalize(root))
+  return vim.fs.joinpath(state_dir, hash .. ".json")
+end
+
+function M.save()
+  local path = state_file()
+  if not path then
+    return
+  end
+
+  vim.fn.mkdir(state_dir, "p")
+
+  vim.fn.writefile({ vim.json.encode(pinned) }, path)
+end
+
+function M.load()
+  local path = state_file()
+  if not path or vim.fn.filereadable(path) == 0 then
+    pinned = {}
+    return
+  end
+
+  local text = table.concat(vim.fn.readfile(path), "\n")
+  local ok, val = pcall(vim.json.decode, text)
+  pinned = ok and type(val) == "table" and val or {}
+end
+
 function M.setup()
+  M.load()
   vim.keymap.set("n", "<leader>h", M.toggle)
 
   for i = 1, 9 do
