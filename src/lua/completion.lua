@@ -31,12 +31,12 @@ require("lz.n").load({
       window = {
         info = {
           height = 30,
-          width = 100,
+          width = 50,
           border = "single",
         },
         signature = {
           height = 30,
-          width = 100,
+          width = 80,
           border = "single",
         },
       },
