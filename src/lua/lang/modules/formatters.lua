@@ -105,7 +105,7 @@ local function unchanged(bufnr, state)
     and not bo.binary
 end
 
-local function apply(bufnr, old_lines, new_lines)
+local function apply_formatted_lines(bufnr, old_lines, new_lines)
   if vim.deep_equal(old_lines, new_lines) then
     return
   end
@@ -129,22 +129,21 @@ local function apply(bufnr, old_lines, new_lines)
   -- current.
   vim.api.nvim_buf_call(bufnr, function()
     for i = #hunks, 1, -1 do
-      local hunk = hunks[i]
-      local old_start = hunk[1] - (hunk[2] > 0 and 1 or 0)
-      local replacement = hunk[4] == 0 and {}
-        or vim.list_slice(new_lines, hunk[3], hunk[3] + hunk[4] - 1)
+      local old_line, old_count, new_line, new_count = unpack(hunks[i])
+
+      -- Diff lines are one-based. For an insertion, old_line names the
+      -- preceding line, which is already the zero-based insertion row.
+      local start_row = old_line - (old_count > 0 and 1 or 0)
+      local end_row = start_row + old_count
+      local replacement = new_count == 0 and {}
+        or vim.list_slice(new_lines, new_line, new_line + new_count - 1)
 
       if i < #hunks then
+        -- The first mutation starts an undo entry; subsequent hunks join it.
         vim.cmd.undojoin()
       end
 
-      vim.api.nvim_buf_set_lines(
-        bufnr,
-        old_start,
-        old_start + hunk[2],
-        false,
-        replacement
-      )
+      vim.api.nvim_buf_set_lines(bufnr, start_row, end_row, false, replacement)
     end
   end)
 end
@@ -196,7 +195,7 @@ local function format(bufnr)
     new_lines[#new_lines] = nil
   end
 
-  apply(bufnr, lines, new_lines)
+  apply_formatted_lines(bufnr, lines, new_lines)
 end
 
 vim.api.nvim_create_autocmd("BufWritePre", {
