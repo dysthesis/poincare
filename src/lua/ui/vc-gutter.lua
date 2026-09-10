@@ -7,15 +7,15 @@ local state = {}
 local signs = {
   add = {
     text = "│",
-    hl = "MinimalGreen",
+    hl = "GitGutterAdd",
   },
   change = {
     text = "│",
-    hl = "DiagnosticInfo",
+    hl = "GitGutterChange",
   },
   delete = {
     text = "_",
-    hl = "DiagnosticWarn",
+    hl = "GitGutterDelete",
   },
 }
 
@@ -128,6 +128,17 @@ local function attach(buf)
 end
 
 function M.setup()
+  vim.api.nvim_set_hl(0, "GitGutterAdd", {
+    link = "DiffAdd",
+  })
+
+  vim.api.nvim_set_hl(0, "GitGutterChange", {
+    link = "DiffChange",
+  })
+
+  vim.api.nvim_set_hl(0, "GitGutterDelete", {
+    link = "DiffDelete",
+  })
   local group = vim.api.nvim_create_augroup("git-gutter", {
     clear = true,
   })

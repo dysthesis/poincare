@@ -3,8 +3,13 @@
 	npins add github "{{USER}}" "{{REPO}}" {{ARGS}}
 
 [working-directory: 'nix/packages/plugins']
-@update:
+@update-plugins:
 	npins update
+
+@update-flake:
+	nix flake update --commit-lock-file
+
+@update: update-flake update-plugins
 
 @size *ARGS:
 	python3 scripts/size.py {{ARGS}}

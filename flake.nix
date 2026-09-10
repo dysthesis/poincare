@@ -34,7 +34,7 @@
       ...
     }:
       import ./nix/shell.nix {
-        inherit pkgs;
+        inherit pkgs self;
         treefmt = treefmtEval.${system};
       });
     formatter = eachSystem ({system, ...}: treefmtEval.${system}.config.build.wrapper);
