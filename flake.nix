@@ -38,7 +38,7 @@
         treefmt = treefmtEval.${system};
       });
     formatter = eachSystem ({system, ...}: treefmtEval.${system}.config.build.wrapper);
-    packages = eachSystem ({pkgs, ...}: import ./nix/packages {inherit pkgs lib;});
+    packages = eachSystem ({pkgs, ...}: import ./nix/packages {inherit pkgs lib inputs;});
   };
 
   inputs = {
@@ -54,5 +54,8 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # More maintained grammar for Nix that also has pipe operators
+    tree-sitter-nix.url = "github:numtide/tree-sitter-nix";
   };
 }
