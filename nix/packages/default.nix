@@ -51,7 +51,10 @@
     [
       extraPlugins.minimal-nvim
 
-      nvim-treesitter-textobjects
+      (nvim-treesitter-textobjects.overrideAttrs (_: {
+        dependencies = [];
+      }))
+
       leanTreeSitterRuntime
       lz-n
     ]
