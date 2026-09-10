@@ -23,6 +23,7 @@
             pkgs = import inputs.nixpkgs {
               inherit system;
               config.allowUnfree = true;
+              overlays = [inputs.neovim-nightly-overlay.overlays.default];
             };
           }
       );
@@ -42,6 +43,11 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+    neovim-nightly-overlay = {
+      url = "github:nix-community/neovim-nightly-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Repositrory-wide formatting
     treefmt-nix = {
