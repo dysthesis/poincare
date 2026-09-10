@@ -9,6 +9,7 @@ g.maplocalleader = "\r"
 -- remove netrw banner for cleaner looking
 vim.g.netrw_banner = 0
 
+o.clipboard = "unnamedplus"
 o.shiftwidth = 2
 o.cursorline = true -- enable cursor line
 o.termguicolors = true -- enable rgb colors
