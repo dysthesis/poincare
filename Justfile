@@ -38,4 +38,4 @@
 	nix develop -c nvim --headless --noplugin -u tests/init.lua -c "lua MiniTest.run()"
 
 @bench:
-	nix develop -c hyperfine --warmup 5 'nvim --headless +qa'
+	nix shell .# nixpkgs#hyperfine -c hyperfine -w 10 -r 100 'nvim --headless +qa'

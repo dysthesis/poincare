@@ -51,7 +51,10 @@
     [
       extraPlugins.minimal-nvim
 
-      nvim-treesitter-textobjects
+      (nvim-treesitter-textobjects.overrideAttrs (_: {
+        dependencies = [];
+      }))
+
       leanTreeSitterRuntime
       lz-n
     ]
@@ -64,6 +67,7 @@
     mini-pick
     mini-extra
     mini-surround
+    mini-pairs
     nvim-lint
   ];
 in
