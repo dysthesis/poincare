@@ -65,3 +65,51 @@
     nix run .#poincare -- \
       -c 'lua dofile("tests/bombadil/pins/oracle.lua").setup()' \
       "$root/a/a"
+
+@bombadil-lint:
+    #!/usr/bin/env bash
+    set -eu
+
+    root=/tmp/poincare-bombadil/lint
+
+    rm -rf "$root"
+    mkdir -p "$root/project/src" "$root/bin" "$root/state"
+
+    cat > "$root/project/Cargo.toml" <<'EOF'
+    [package]
+    name = "bombadil-lint"
+    version = "0.1.0"
+    edition = "2024"
+
+    [lib]
+    path = "src/lib.rs"
+
+    [[bin]]
+    name = "bombadil-lint"
+    path = "src/main.rs"
+    EOF
+
+    cat > "$root/project/src/main.rs" <<'EOF'
+    fn main() {
+        println!("hello");
+    }
+    EOF
+
+    cat > "$root/project/src/lib.rs" <<'EOF'
+    pub fn answer() -> u32 {
+        42
+    }
+    EOF
+
+    printf 'bombadil\n' > "$root/idle"
+
+    XDG_STATE_HOME="$root/state" \
+    bombadil terminal test \
+      --specification=tests/bombadil/lint/test.ts \
+      --exit-on-violation \
+      --time-limit=30s \
+      --output-path="$root/out" \
+      -- \
+      nix run .#poincare -- \
+        -c 'lua dofile("tests/bombadil/lint/oracle.lua").setup()' \
+        "$root/idle"
