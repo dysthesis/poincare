@@ -2,13 +2,25 @@ local M = {}
 
 local linters_by_ft = {}
 
+local function available(linter)
+  local cmd = linter.cmd
+
+  if type(cmd) == "function" then
+    cmd = cmd()
+  end
+
+  return type(cmd) == "string" and vim.fn.executable(cmd) == 1
+end
+
 local function run(bufnr)
   if not vim.api.nvim_buf_is_valid(bufnr) then
     return
   end
 
   vim.api.nvim_buf_call(bufnr, function()
-    require("lint").try_lint()
+    require("lint").try_lint(nil, {
+      filter = available,
+    })
   end)
 end
 

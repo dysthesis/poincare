@@ -14,19 +14,28 @@ export const linterActions = weighted([
   [
     4,
     literal(
-      ":edit /tmp/poincare-bombadil/linters/project/src/main.rs\r",
+      ":edit! /tmp/poincare-bombadil/linters/project/src/main.rs\r",
     ),
   ],
   [
     4,
     literal(
-      ":edit /tmp/poincare-bombadil/linters/project/src/lib.rs\r",
+      ":edit! /tmp/poincare-bombadil/linters/project/src/lib.rs\r",
     ),
   ],
+
   [2, literal(":call append(line('$'), '// bombadil')\r")],
+
   [4, literal(":write\r")],
+
   [2, literal(":undo\r")],
+
+  // Re-read the current file and deliberately discard modifications.
   [2, literal(":edit!\r")],
+  [
+	  3,
+	  literal(":call append(line('$'), '// bombadil') | write\r"),
+  ],
 ]);
 
 const screen: Cell<string> = extract((state) => {
