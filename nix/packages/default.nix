@@ -43,6 +43,7 @@
       just
       python
       typescript
+      sql
     ];
 
   treesitterQueries = map (parser: parser.associatedQuery) treesitterParsers;
@@ -69,6 +70,7 @@
     mini-surround
     mini-pairs
     nvim-lint
+    vim-dadbod
     extraPlugins.ferris-nvim
   ];
 in

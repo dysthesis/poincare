@@ -45,6 +45,7 @@ in {
 
       inputs.bombadil.packages.${pkgs.system}.default
       cargo
+      fish
     ];
 
     shellHook = ''
