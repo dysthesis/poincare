@@ -8,15 +8,7 @@ local function use(path)
 end
 
 return {
-  formatters = {
-    {
-      "sqruff",
-      "--dialect",
-      "sqlite",
-      "fix",
-      "-",
-    },
-  },
+  formatters = { { "sqruff", "fix", "-" } },
   linters = "sqruff",
   lsp = "sqls",
   setup = function()
@@ -24,6 +16,7 @@ return {
       "vim-dadbod",
       commands = "DB",
     })
+
     vim.api.nvim_create_user_command("SQLiteUse", function(opts)
       use(opts.args)
     end, {
