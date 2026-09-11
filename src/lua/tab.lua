@@ -18,10 +18,6 @@ local function dispatch(rules, fallback)
   return fallback()
 end
 
-local function key(lhs)
-  return lhs
-end
-
 -- Completion
 local function completion_visible()
   return vim.fn.pumvisible() == 1

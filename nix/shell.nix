@@ -1,6 +1,7 @@
 {
   pkgs,
   treefmt,
+  inputs,
   ...
 }: let
   styluaOptions =
@@ -41,6 +42,9 @@ in {
       # Miscellaneous tooling
       just
       hyperfine
+
+      inputs.bombadil.packages.${pkgs.system}.default
+      nano
     ];
 
     shellHook = ''

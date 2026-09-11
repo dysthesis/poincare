@@ -39,3 +39,29 @@
 
 @bench:
 	nix shell .# nixpkgs#hyperfine -c hyperfine -w 10 -r 100 'nvim --headless +qa'
+
+@bombadil:
+  #!/usr/bin/env bash
+  set -eu
+  
+  root=/tmp/poincare-bombadil
+  
+  rm -rf "$root"
+  mkdir -p "$root/a" "$root/b"
+  
+  git -C "$root/a" init -q
+  git -C "$root/b" init -q
+  
+  printf 'fn a() {}\n' > "$root/a/a.rs"
+  printf 'fn b() {}\n' > "$root/b/b.rs"
+  
+  XDG_STATE_HOME="$root/state" \
+  bombadil terminal test \
+    --specification=tests/bombadil/pins/test.ts \
+    --exit-on-violation \
+    --time-limit=30s \
+    --output-path="$root/out" \
+    -- \
+    nix run .#poincare -- \
+      -c 'lua dofile("tests/bombadil/pins/oracle.lua").setup()' \
+      "$root/a/a.rs"
