@@ -390,7 +390,7 @@ T["an insertion moves the cursor and viewport with unchanged text"] = function()
   )
 
   vim.api.nvim_set_current_buf(bufnr)
-  vim.api.nvim_win_set_height(0, 3)
+  vim.api.nvim_win_resize(0, -1, 3)
   vim.api.nvim_win_set_cursor(0, { 4, 2 })
   vim.cmd("normal! zt")
   local view = vim.fn.winsaveview()
