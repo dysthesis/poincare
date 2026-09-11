@@ -64,4 +64,4 @@
     -- \
     nix run .#poincare -- \
       -c 'lua dofile("tests/bombadil/pins/oracle.lua").setup()' \
-      "$root/a/a.rs"
+      "$root/a/a"

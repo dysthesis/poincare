@@ -1,22 +1,68 @@
 local M = {}
 
-local pinned = {}
+local state_dir = vim.fs.joinpath(vim.fn.stdpath("state"), "pins")
 
-local function prune()
-  for i = #pinned, 1, -1 do
-    if not vim.api.nvim_buf_is_valid(pinned[i]) then
-      table.remove(pinned, i)
-    end
-  end
-end
+-- Project root -> pinned paths.
+local projects = {}
 
 local function current_path()
   local path = vim.api.nvim_buf_get_name(0)
+
   if path == "" then
     return nil
   end
 
   return vim.fs.normalize(path)
+end
+
+local function project()
+  local root = vim.fs.root(0, ".git") or vim.fn.getcwd()
+
+  return vim.fs.normalize(root)
+end
+
+local function state_file(root)
+  local hash = vim.fn.sha256(root)
+
+  return vim.fs.joinpath(state_dir, hash .. ".json")
+end
+
+local function load(root)
+  if projects[root] then
+    return projects[root]
+  end
+
+  local path = state_file(root)
+
+  if vim.fn.filereadable(path) == 0 then
+    projects[root] = {}
+    return projects[root]
+  end
+
+  local text = table.concat(vim.fn.readfile(path), "\n")
+  local ok, value = pcall(vim.json.decode, text)
+
+  if not ok or type(value) ~= "table" then
+    value = {}
+  end
+
+  projects[root] = value
+
+  return projects[root]
+end
+
+local function save(root, pinned)
+  vim.fn.mkdir(state_dir, "p")
+
+  vim.fn.writefile({
+    vim.json.encode(pinned),
+  }, state_file(root))
+end
+
+local function current()
+  local root = project()
+
+  return root, load(root)
 end
 
 function M.toggle()
@@ -26,21 +72,24 @@ function M.toggle()
     return
   end
 
+  local root, pinned = current()
+
   for i, pinned_path in ipairs(pinned) do
     if pinned_path == path then
       table.remove(pinned, i)
-      M.save()
+      save(root, pinned)
       return
     end
   end
 
   if #pinned < 10 then
     pinned[#pinned + 1] = path
-    M.save()
+    save(root, pinned)
   end
 end
 
 function M.select(i)
+  local _, pinned = current()
   local path = pinned[i]
 
   if path then
@@ -49,6 +98,8 @@ function M.select(i)
 end
 
 function M.show()
+  local _, pinned = current()
+
   if #pinned == 0 then
     vim.notify("No pinned buffers")
     return
@@ -63,47 +114,7 @@ function M.show()
   vim.notify(table.concat(lines, "\n"))
 end
 
-local state_dir = vim.fs.joinpath(vim.fn.stdpath("state"), "pins")
-
-local function project()
-  return vim.fs.root(0, ".git") or vim.fn.getcwd()
-end
-
-local function state_file()
-  local root = project()
-  if not root then
-    return nil
-  end
-
-  local hash = vim.fn.sha256(vim.fs.normalize(root))
-  return vim.fs.joinpath(state_dir, hash .. ".json")
-end
-
-function M.save()
-  local path = state_file()
-  if not path then
-    return
-  end
-
-  vim.fn.mkdir(state_dir, "p")
-
-  vim.fn.writefile({ vim.json.encode(pinned) }, path)
-end
-
-function M.load()
-  local path = state_file()
-  if not path or vim.fn.filereadable(path) == 0 then
-    pinned = {}
-    return
-  end
-
-  local text = table.concat(vim.fn.readfile(path), "\n")
-  local ok, val = pcall(vim.json.decode, text)
-  pinned = ok and type(val) == "table" and val or {}
-end
-
 function M.setup()
-  M.load()
   vim.keymap.set("n", "<leader>h", M.toggle)
 
   for i = 1, 9 do

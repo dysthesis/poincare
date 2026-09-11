@@ -44,7 +44,7 @@ in {
       hyperfine
 
       inputs.bombadil.packages.${pkgs.system}.default
-      nano
+      cargo
     ];
 
     shellHook = ''

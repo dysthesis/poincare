@@ -53,6 +53,19 @@ local function check_pins()
 end
 
 function M.setup()
+  local log = "/tmp/poincare-bombadil/neovim-messages.log"
+  local original_notify = vim.notify
+
+  vim.notify = function(message, level, opts)
+    vim.fn.writefile({
+      ("[%s] %s"):format(
+        tostring(level or vim.log.levels.INFO),
+        tostring(message)
+      ),
+    }, log, "a")
+
+    return original_notify(message, level, opts)
+  end
   vim.api.nvim_create_user_command("PoincareCheck", function()
     local ok, err = pcall(check_pins)
 
