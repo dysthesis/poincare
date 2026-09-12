@@ -260,7 +260,11 @@ def validate_raw(raw: Any) -> tuple[list[dict[str, Any]], dict[str, Any]]:
             context,
         )
         for key in ("path", "resolved_path"):
-            if not isinstance(value[key], str) or not value[key] or "\x00" in value[key]:
+            if (
+                not isinstance(value[key], str)
+                or not value[key]
+                or "\x00" in value[key]
+            ):
                 raise AnalysisError(f"invalid {context} {key}")
         _integer(value["byte_length"], f"{context} byte length")
         digest = value["sha256"]
@@ -310,7 +314,10 @@ def validate_raw(raw: Any) -> tuple[list[dict[str, Any]], dict[str, Any]]:
             raise AnalysisError("invalid raw logical path")
         logical_key = tuple(logical)
         identity(
-            {key: item[key] for key in ("path", "resolved_path", "byte_length", "sha256")},
+            {
+                key: item[key]
+                for key in ("path", "resolved_path", "byte_length", "sha256")
+            },
             "raw source",
         )
         path = item["path"]
@@ -326,7 +333,10 @@ def validate_raw(raw: Any) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     if (
         not isinstance(probe["argv"], list)
         or not probe["argv"]
-        or not all(isinstance(argument, str) and "\x00" not in argument for argument in probe["argv"])
+        or not all(
+            isinstance(argument, str) and "\x00" not in argument
+            for argument in probe["argv"]
+        )
         or not isinstance(probe["stdout"], str)
         or not isinstance(probe["stderr"], str)
     ):
@@ -335,8 +345,12 @@ def validate_raw(raw: Any) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     if probe["returncode"] is None:
         if not isinstance(probe["launch_error"], str) or not probe["launch_error"]:
             raise AnalysisError("invalid probe launch failure")
-        raise AnalysisError(f"cannot launch Neovim bytecode probe: {probe['launch_error']}")
-    if isinstance(probe["returncode"], bool) or not isinstance(probe["returncode"], int):
+        raise AnalysisError(
+            f"cannot launch Neovim bytecode probe: {probe['launch_error']}"
+        )
+    if isinstance(probe["returncode"], bool) or not isinstance(
+        probe["returncode"], int
+    ):
         raise AnalysisError("invalid probe return code")
     if probe["launch_error"] is not None:
         raise AnalysisError("invalid probe launch error")
@@ -349,7 +363,9 @@ def validate_raw(raw: Any) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         if probe["stdout"][end:].strip():
             raise ValueError("trailing output")
     except (json.JSONDecodeError, ValueError) as error:
-        raise AnalysisError("bytecode probe did not return one JSON document") from error
+        raise AnalysisError(
+            "bytecode probe did not return one JSON document"
+        ) from error
     return manifest, validate_response(response, manifest)
 
 
@@ -444,8 +460,13 @@ def validate_response(response: Any, sources: list[dict[str, Any]]) -> dict[str,
             ):
                 raise AnalysisError("invalid prototype info")
             required_info = {
-                "bytecodes", "gcconsts", "nconsts", "params", "stackslots",
-                "upvalues", "isvararg",
+                "bytecodes",
+                "gcconsts",
+                "nconsts",
+                "params",
+                "stackslots",
+                "upvalues",
+                "isvararg",
             }
             if not required_info <= info.keys():
                 raise AnalysisError("incomplete prototype info")
@@ -749,10 +770,12 @@ def _metrics_close(
     descriptors: Iterable[MetricDescriptor],
 ) -> bool:
     return all(
-        left[descriptor.key] == right[descriptor.key]
-        if descriptor.integer
-        else math.isclose(
-            left[descriptor.key], right[descriptor.key], rel_tol=1e-12, abs_tol=1e-6
+        (
+            left[descriptor.key] == right[descriptor.key]
+            if descriptor.integer
+            else math.isclose(
+                left[descriptor.key], right[descriptor.key], rel_tol=1e-12, abs_tol=1e-6
+            )
         )
         for descriptor in descriptors
     )
@@ -801,6 +824,7 @@ def load_history(
     kind: MeasurementKind | None = None,
 ) -> History:
     kind = kind or SIZE_KIND
+
     def git(*arguments: str) -> bytes:
         try:
             result = subprocess.run(
@@ -856,7 +880,9 @@ def load_history(
         for child in node["children"]:
             if not isinstance(child, dict) or not isinstance(child.get("name"), str):
                 raise AnalysisError("invalid history child")
-            expected = add_metrics(expected, visit(child, path + (child["name"],), nodes))
+            expected = add_metrics(
+                expected, visit(child, path + (child["name"],), nodes)
+            )
         if not _metrics_close(expected, counts["total"], kind.metric_descriptors):
             raise AnalysisError("history aggregation invariant failed")
         return expected
@@ -869,7 +895,10 @@ def load_history(
         payload = git("cat-file", "blob", notes[commit])
         try:
             note = json.loads(payload)
-            if not isinstance(note, dict) or note.get("format") not in kind.note_formats:
+            if (
+                not isinstance(note, dict)
+                or note.get("format") not in kind.note_formats
+            ):
                 raise AnalysisError("unsupported size note format")
             if note.get("commit") != commit:
                 raise AnalysisError("size note commit does not match its attachment")
@@ -1028,7 +1057,11 @@ def render(
     collapse_boundaries: frozenset[tuple[str, ...]] = frozenset(),
     descriptors: tuple[MetricDescriptor, ...] = SIZE_METRIC_DESCRIPTORS,
     default_columns: tuple[str, ...] = (
-        "bytecodes", "decisions", "functions", "tables", "calls"
+        "bytecodes",
+        "decisions",
+        "functions",
+        "tables",
+        "calls",
     ),
     heading: str | None = None,
     show_own: bool = False,
@@ -1042,11 +1075,7 @@ def render(
     if selected not in by_key:
         raise AnalysisError(f"unknown metric {metric}")
     labels = {key: descriptor.label for key, descriptor in by_key.items()}
-    columns: list[str] = (
-        list(by_key)
-        if all_metrics
-        else list(default_columns)
-    )
+    columns: list[str] = list(by_key) if all_metrics else list(default_columns)
     if selected not in columns:
         columns.append(selected)
     console = Console(file=file, width=width, color_system=None if file else "auto")
@@ -1136,9 +1165,7 @@ def render(
         root, selected, depth, collapse_boundaries
     ):
         paths[id(node)] = path
-        parent_value = (
-            parent.total[selected] if parent else root.total[selected]
-        )
+        parent_value = parent.total[selected] if parent else root.total[selected]
         value = node.total[selected]
         root_value = root.total[selected]
         percentage = lambda numerator, denominator: (
@@ -1173,7 +1200,8 @@ def render(
                 details.append("  ")
             style = "bold cyan" if column == selected else None
             details.append(
-                f"{labels[column]}={number(node.total[column], by_key[column].unit)}", style=style
+                f"{labels[column]}={number(node.total[column], by_key[column].unit)}",
+                style=style,
             )
             if column == selected and stats.get(column):
                 details.append(f" ({rank(stats[column])})", style=style)
@@ -1222,13 +1250,17 @@ def render(
         repeated = repeated_statistics.get(path) if repeated_statistics else None
         if repeated and selected in repeated:
             summary = repeated[selected]
-            spread = "single observation; spread unavailable" if summary["n"] == 1 else (
-                f"median {number(summary['median'], by_key[selected].unit)}; "
-                f"q1/q3 {number(summary['q1'], by_key[selected].unit)}/"
-                f"{number(summary['q3'], by_key[selected].unit)}; "
-                f"min/max {number(summary['min'], by_key[selected].unit)}/"
-                f"{number(summary['max'], by_key[selected].unit)}; "
-                f"stddev {number(summary['stddev'], by_key[selected].unit)}"
+            spread = (
+                "single observation; spread unavailable"
+                if summary["n"] == 1
+                else (
+                    f"median {number(summary['median'], by_key[selected].unit)}; "
+                    f"q1/q3 {number(summary['q1'], by_key[selected].unit)}/"
+                    f"{number(summary['q3'], by_key[selected].unit)}; "
+                    f"min/max {number(summary['min'], by_key[selected].unit)}/"
+                    f"{number(summary['max'], by_key[selected].unit)}; "
+                    f"stddev {number(summary['stddev'], by_key[selected].unit)}"
+                )
             )
             print_detail(
                 detail,
@@ -1372,7 +1404,11 @@ def _safe_name(value: Any, context: str) -> str:
         not isinstance(value, str)
         or not value
         or value in (".", "..")
-        or any(character not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-" for character in value)
+        or any(
+            character
+            not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
+            for character in value
+        )
     ):
         raise AnalysisError(f"invalid {context}")
     return value
@@ -1387,7 +1423,9 @@ def _validate_bench_config(config: Any, context: str) -> str:
     name = _safe_name(config["name"], f"{context} name")
     if not isinstance(config["description"], str) or not config["description"].strip():
         raise AnalysisError(f"invalid bench {name} description")
-    if "setup" in config and (not isinstance(config["setup"], str) or not config["setup"].strip()):
+    if "setup" in config and (
+        not isinstance(config["setup"], str) or not config["setup"].strip()
+    ):
         raise AnalysisError(f"invalid bench {name} setup")
     args = config.get("args", [])
     forbidden_exact = {"-i", "-n", "--headless", "--clean", "--embed", "--listen"}
@@ -1416,7 +1454,9 @@ def _validate_bench_config(config: Any, context: str) -> str:
     return name
 
 
-def load_benches(directory: Path, selected: list[str] | None = None) -> list[dict[str, Any]]:
+def load_benches(
+    directory: Path, selected: list[str] | None = None
+) -> list[dict[str, Any]]:
     try:
         paths = sorted(directory.glob("*.json"))
     except OSError as error:
@@ -1435,13 +1475,15 @@ def load_benches(directory: Path, selected: list[str] | None = None) -> list[dic
         if name in names:
             raise AnalysisError(f"duplicate bench name {name}")
         names.add(name)
-        benches.append({
-            "name": name,
-            "path": str(path),
-            "sha256": hashlib.sha256(content.encode()).hexdigest(),
-            "content": content,
-            "config": config,
-        })
+        benches.append(
+            {
+                "name": name,
+                "path": str(path),
+                "sha256": hashlib.sha256(content.encode()).hexdigest(),
+                "content": content,
+                "config": config,
+            }
+        )
     requested = selected or [bench["name"] for bench in benches]
     if not requested:
         raise AnalysisError("no benches selected")
@@ -1456,7 +1498,11 @@ def load_benches(directory: Path, selected: list[str] | None = None) -> list[dic
 
 def _summary(values: list[Number]) -> dict[str, Number | None]:
     ordered = sorted(values)
-    q1, q3 = (quantiles(ordered, n=4, method="inclusive")[::2] if len(ordered) > 1 else (None, None))
+    q1, q3 = (
+        quantiles(ordered, n=4, method="inclusive")[::2]
+        if len(ordered) > 1
+        else (None, None)
+    )
     return {
         "n": len(values),
         "mean": fmean(values),
@@ -1469,7 +1515,9 @@ def _summary(values: list[Number]) -> dict[str, Number | None]:
     }
 
 
-def _trace_run(observation: dict[str, Any]) -> tuple[dict[tuple[str, ...], Number], dict[str, Any]]:
+def _trace_run(
+    observation: dict[str, Any],
+) -> tuple[dict[tuple[str, ...], Number], dict[str, Any]]:
     try:
         trace = json.loads(observation["trace"])
     except (TypeError, json.JSONDecodeError) as error:
@@ -1477,7 +1525,9 @@ def _trace_run(observation: dict[str, Any]) -> tuple[dict[tuple[str, ...], Numbe
     if not isinstance(trace, dict) or trace.get("protocol") != "poincare-perf-trace/v1":
         raise AnalysisError("invalid trace protocol")
     if trace.get("ok") is not True or trace.get("startup_error") is not None:
-        raise AnalysisError(f"workload trace failed: {trace.get('error') or trace.get('startup_error')}")
+        raise AnalysisError(
+            f"workload trace failed: {trace.get('error') or trace.get('startup_error')}"
+        )
     events = trace.get("events")
     if not isinstance(events, list):
         raise AnalysisError("invalid trace events")
@@ -1498,7 +1548,12 @@ def _trace_run(observation: dict[str, Any]) -> tuple[dict[tuple[str, ...], Numbe
         begin = _integer(event.get("begin_ns"), "trace begin")
         end = _integer(event.get("end_ns"), "trace end")
         duration = _integer(event.get("duration_ns"), "trace duration")
-        if end < begin or duration != end - begin or begin < previous_begin or event.get("ok") is not True:
+        if (
+            end < begin
+            or duration != end - begin
+            or begin < previous_begin
+            or event.get("ok") is not True
+        ):
             raise AnalysisError("invalid trace event interval")
         previous_begin = begin
         while active and begin >= active[-1]["end_ns"]:
@@ -1521,7 +1576,11 @@ def _trace_run(observation: dict[str, Any]) -> tuple[dict[tuple[str, ...], Numbe
         if exclusive < 0:
             raise AnalysisError("trace children exceed parent duration")
         own[paths[event_id]] = own.get(paths[event_id], 0) + exclusive
-    top_level = sum(event["duration_ns"] for event in by_id.values() if event.get("parent_id") is None)
+    top_level = sum(
+        event["duration_ns"]
+        for event in by_id.values()
+        if event.get("parent_id") is None
+    )
     remainder = observation["wall_ns"] - top_level
     if remainder < 0:
         raise AnalysisError("trace duration exceeds external process wall time")
@@ -1530,12 +1589,23 @@ def _trace_run(observation: dict[str, Any]) -> tuple[dict[tuple[str, ...], Numbe
 
 
 def process_perf_raw(raw: Any) -> tuple[Node, dict[str, Any]]:
-    raw = _exact_object(raw, {"format", "workloads", "collection", "collector", "observations"}, "perf raw envelope")
+    raw = _exact_object(
+        raw,
+        {"format", "workloads", "collection", "collector", "observations"},
+        "perf raw envelope",
+    )
     if raw["format"] != PERF_RAW_FORMAT:
         raise AnalysisError("unsupported perf raw format")
     collection = _exact_object(
         raw["collection"],
-        {"repeat", "warmups", "timeout_seconds", "schedule", "cache_policy", "wall_clock_scope"},
+        {
+            "repeat",
+            "warmups",
+            "timeout_seconds",
+            "schedule",
+            "cache_policy",
+            "wall_clock_scope",
+        },
         "perf collection",
     )
     repeat = _integer(collection.get("repeat"), "repeat", 1)
@@ -1543,7 +1613,9 @@ def process_perf_raw(raw: Any) -> tuple[Node, dict[str, Any]]:
     timeout = _number(collection.get("timeout_seconds"), "timeout")
     if timeout <= 0:
         raise AnalysisError("timeout must be positive")
-    if not isinstance(collection.get("cache_policy"), str) or not isinstance(collection.get("wall_clock_scope"), str):
+    if not isinstance(collection.get("cache_policy"), str) or not isinstance(
+        collection.get("wall_clock_scope"), str
+    ):
         raise AnalysisError("invalid perf collection policy")
     workloads = raw["workloads"]
     if not isinstance(workloads, list) or not workloads:
@@ -1559,13 +1631,21 @@ def process_perf_raw(raw: Any) -> tuple[Node, dict[str, Any]]:
             raise AnalysisError(f"invalid workload path for {name}")
         digest = workload.get("sha256")
         content = workload.get("content")
-        if not isinstance(content, str) or not isinstance(digest, str) or hashlib.sha256(content.encode()).hexdigest() != digest:
+        if (
+            not isinstance(content, str)
+            or not isinstance(digest, str)
+            or hashlib.sha256(content.encode()).hexdigest() != digest
+        ):
             raise AnalysisError(f"invalid workload hash for {name}")
         try:
             decoded = json.loads(content)
         except json.JSONDecodeError as error:
             raise AnalysisError(f"invalid workload content for {name}") from error
-        if decoded != workload.get("config") or _validate_bench_config(decoded, f"raw bench {name}") != name or name in identities:
+        if (
+            decoded != workload.get("config")
+            or _validate_bench_config(decoded, f"raw bench {name}") != name
+            or name in identities
+        ):
             raise AnalysisError(f"mismatched or duplicate workload {name}")
         identities[name] = digest
         configs[name] = decoded
@@ -1579,7 +1659,12 @@ def process_perf_raw(raw: Any) -> tuple[Node, dict[str, Any]]:
         for iteration in range(warmups + repeat)
     }
     expected_schedule = [
-        {"workload": name, "mode": mode, "iteration": iteration, "warmup": iteration < warmups}
+        {
+            "workload": name,
+            "mode": mode,
+            "iteration": iteration,
+            "warmup": iteration < warmups,
+        }
         for name in identities
         for mode in ("wall", "profile")
         for iteration in range(warmups + repeat)
@@ -1591,10 +1676,26 @@ def process_perf_raw(raw: Any) -> tuple[Node, dict[str, Any]]:
     for observation in observations:
         observation = _exact_object(
             observation,
-            {"workload", "workload_sha256", "mode", "iteration", "warmup",
-             "started_at_unix_ns", "wall_ns", "argv", "cwd", "environment_policy",
-             "returncode", "stdout", "stderr", "timed_out", "launch_error", "trace",
-             "trace_read_error", "startuptime"},
+            {
+                "workload",
+                "workload_sha256",
+                "mode",
+                "iteration",
+                "warmup",
+                "started_at_unix_ns",
+                "wall_ns",
+                "argv",
+                "cwd",
+                "environment_policy",
+                "returncode",
+                "stdout",
+                "stderr",
+                "timed_out",
+                "launch_error",
+                "trace",
+                "trace_read_error",
+                "startuptime",
+            },
             "perf observation",
         )
         name_value = observation.get("workload")
@@ -1607,14 +1708,21 @@ def process_perf_raw(raw: Any) -> tuple[Node, dict[str, Any]]:
         if not isinstance(warmup, bool):
             raise AnalysisError("invalid warmup flag")
         key = (name, mode, iteration, warmup)
-        if key not in expected or key in seen or observation.get("workload_sha256") != identities.get(name):
+        if (
+            key not in expected
+            or key in seen
+            or observation.get("workload_sha256") != identities.get(name)
+        ):
             raise AnalysisError("unexpected, duplicate, or mismatched perf attempt")
         seen[key] = observation
         _integer(observation.get("started_at_unix_ns"), "attempt start timestamp")
         _number(observation.get("wall_ns"), "wall time")
         if (
             not isinstance(observation.get("argv"), list)
-            or any(not isinstance(item, str) or "\0" in item for item in observation["argv"])
+            or any(
+                not isinstance(item, str) or "\0" in item
+                for item in observation["argv"]
+            )
             or not isinstance(observation.get("cwd"), str)
             or not isinstance(observation.get("environment_policy"), dict)
             or not isinstance(observation.get("stdout"), str)
@@ -1624,15 +1732,24 @@ def process_perf_raw(raw: Any) -> tuple[Node, dict[str, Any]]:
         returncode = observation.get("returncode")
         if isinstance(returncode, bool) or not isinstance(returncode, int):
             raise AnalysisError("invalid perf return code")
-        if observation.get("returncode") != 0 or observation.get("timed_out") is not False or observation.get("launch_error") is not None or observation.get("trace_read_error") is not None:
+        if (
+            observation.get("returncode") != 0
+            or observation.get("timed_out") is not False
+            or observation.get("launch_error") is not None
+            or observation.get("trace_read_error") is not None
+        ):
             raise AnalysisError(f"failed perf attempt {name}/{mode}/{iteration}")
         _, trace = _trace_run(observation)
         steps = trace.get("steps")
         expected_steps = [step["name"] for step in configs[name]["steps"]]
         if (
             not isinstance(steps, list)
-            or [step.get("name") for step in steps if isinstance(step, dict)] != expected_steps
-            or any(not isinstance(step, dict) or step.get("ok") is not True for step in steps)
+            or [step.get("name") for step in steps if isinstance(step, dict)]
+            != expected_steps
+            or any(
+                not isinstance(step, dict) or step.get("ok") is not True
+                for step in steps
+            )
         ):
             raise AnalysisError("incomplete or failed workload steps")
         if runtime is None:
@@ -1646,8 +1763,13 @@ def process_perf_raw(raw: Any) -> tuple[Node, dict[str, Any]]:
     statistics: dict[str, Any] = {}
     node_statistics: dict[str, dict[str, Any]] = {}
     for name in identities:
-        wall_runs = [seen[(name, "wall", i, False)]["wall_ns"] for i in range(warmups, warmups + repeat)]
-        profile_observations = [seen[(name, "profile", i, False)] for i in range(warmups, warmups + repeat)]
+        wall_runs = [
+            seen[(name, "wall", i, False)]["wall_ns"]
+            for i in range(warmups, warmups + repeat)
+        ]
+        profile_observations = [
+            seen[(name, "profile", i, False)] for i in range(warmups, warmups + repeat)
+        ]
         profile_runs = [observation["wall_ns"] for observation in profile_observations]
         run_own = [_trace_run(observation)[0] for observation in profile_observations]
         paths = set().union(*(run.keys() for run in run_own))
@@ -1658,7 +1780,11 @@ def process_perf_raw(raw: Any) -> tuple[Node, dict[str, Any]]:
             if path:
                 leaves.append((path, {"wall_ns": 0, "profile_ns": fmean(values)}))
                 totals = [
-                    sum(value for candidate, value in run.items() if candidate[:len(path)] == path)
+                    sum(
+                        value
+                        for candidate, value in run.items()
+                        if candidate[: len(path)] == path
+                    )
                     for run in run_own
                 ]
                 component_stats["/".join(path)] = {
@@ -1695,7 +1821,9 @@ def process_perf_raw(raw: Any) -> tuple[Node, dict[str, Any]]:
             "harness_sha256": raw.get("collector", {}).get("harness", {}).get("sha256"),
             "host": raw.get("collector", {}).get("host"),
             "cache_policy": collection.get("cache_policy"),
-            "environment_policy": observations[0].get("environment_policy") if observations else None,
+            "environment_policy": (
+                observations[0].get("environment_policy") if observations else None
+            ),
             "runtime": runtime,
             "protocol": "poincare-perf-trace/v1",
         },
@@ -1707,24 +1835,67 @@ def process_perf_raw(raw: Any) -> tuple[Node, dict[str, Any]]:
 
 
 def parse_perf_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Benchmark the packaged poincare Neovim")
-    parser.add_argument("--bench", action="append", help="select a workload by name; repeatable")
-    parser.add_argument("--benches", type=Path, default=ROOT / "scripts" / "benches", help="workload JSON directory")
-    parser.add_argument("--list", action="store_true", help="list validated workloads and exit")
-    parser.add_argument("--repeat", type=int, default=10, help="scored attempts per mode and workload (default: 10)")
-    parser.add_argument("--warmups", type=int, default=1, help="warm-up attempts per mode and workload (default: 1)")
-    parser.add_argument("--timeout", type=float, default=30.0, help="per-process timeout in seconds (default: 30)")
-    parser.add_argument("--metric", choices=PERF_METRICS, default="profile_ns", help="tree sorting and attribution metric")
+    parser = argparse.ArgumentParser(
+        description="Benchmark the packaged poincare Neovim"
+    )
+    parser.add_argument(
+        "--bench", action="append", help="select a workload by name; repeatable"
+    )
+    parser.add_argument(
+        "--benches",
+        type=Path,
+        default=ROOT / "scripts" / "benches",
+        help="workload JSON directory",
+    )
+    parser.add_argument(
+        "--list", action="store_true", help="list validated workloads and exit"
+    )
+    parser.add_argument(
+        "--repeat",
+        type=int,
+        default=10,
+        help="scored attempts per mode and workload (default: 10)",
+    )
+    parser.add_argument(
+        "--warmups",
+        type=int,
+        default=1,
+        help="warm-up attempts per mode and workload (default: 1)",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=30.0,
+        help="per-process timeout in seconds (default: 30)",
+    )
+    parser.add_argument(
+        "--metric",
+        choices=PERF_METRICS,
+        default="profile_ns",
+        help="tree sorting and attribution metric",
+    )
     depth = parser.add_mutually_exclusive_group()
     depth.add_argument("--depth", type=int, default=3)
     depth.add_argument("--full", action="store_true")
     parser.add_argument("--all-metrics", action="store_true")
     output = parser.add_mutually_exclusive_group()
-    output.add_argument("--json", action="store_true", help="emit processed JSON with complete raw evidence")
-    output.add_argument("--raw", action="store_true", help="emit the complete collector envelope")
-    output.add_argument("--with-history", action="store_true", help="compare compatible ancestor measurements")
+    output.add_argument(
+        "--json",
+        action="store_true",
+        help="emit processed JSON with complete raw evidence",
+    )
+    output.add_argument(
+        "--raw", action="store_true", help="emit the complete collector envelope"
+    )
+    output.add_argument(
+        "--with-history",
+        action="store_true",
+        help="compare compatible ancestor measurements",
+    )
     parser.add_argument("--input", type=Path, help="replay raw JSON from PATH or '-'")
-    parser.add_argument("--nvim", type=Path, help="override the packaged executable for testing")
+    parser.add_argument(
+        "--nvim", type=Path, help="override the packaged executable for testing"
+    )
     args = parser.parse_args(argv)
     if args.repeat < 1 or args.warmups < 0:
         parser.error("--repeat must be positive and --warmups non-negative")
@@ -1732,7 +1903,9 @@ def parse_perf_args(argv: list[str] | None = None) -> argparse.Namespace:
         parser.error("--timeout must be finite and positive")
     if args.depth is not None and args.depth < 0:
         parser.error("--depth must be non-negative")
-    if args.input is not None and (args.raw or args.nvim is not None or args.list or args.bench):
+    if args.input is not None and (
+        args.raw or args.nvim is not None or args.list or args.bench
+    ):
         parser.error("--input cannot be combined with collection or selection options")
     return args
 
@@ -1750,7 +1923,13 @@ def perf_main(argv: list[str] | None = None, *, root: Path = ROOT) -> int:
                 return 0
             perf = importlib.import_module("scripts.perf" if __package__ else "perf")
             nvim = args.nvim or realise_outputs(root)[0]
-            raw = perf.collect(nvim, workloads, repeat=args.repeat, warmups=args.warmups, timeout=args.timeout)
+            raw = perf.collect(
+                nvim,
+                workloads,
+                repeat=args.repeat,
+                warmups=args.warmups,
+                timeout=args.timeout,
+            )
         if args.raw:
             json.dump(raw, sys.stdout, indent=2, sort_keys=True)
             sys.stdout.write("\n")
@@ -1767,7 +1946,11 @@ def perf_main(argv: list[str] | None = None, *, root: Path = ROOT) -> int:
                 args.metric,
                 None if args.full else args.depth,
                 args.all_metrics,
-                history=load_history(data, root=root, kind=PERF_KIND) if args.with_history else None,
+                history=(
+                    load_history(data, root=root, kind=PERF_KIND)
+                    if args.with_history
+                    else None
+                ),
                 descriptors=PERF_METRIC_DESCRIPTORS,
                 default_columns=PERF_METRICS,
                 show_own=True,
@@ -1775,8 +1958,10 @@ def perf_main(argv: list[str] | None = None, *, root: Path = ROOT) -> int:
                     tuple(path.split("/")): stats
                     for path, stats in data["node_statistics"].items()
                 },
-                heading=(f"{data['workload_count']} workload means (not a contiguous run) | "
-                         "Wall=uninstrumented process lifetime; Profile=instrumented process lifetime"),
+                heading=(
+                    f"{data['workload_count']} workload means (not a contiguous run) | "
+                    "Wall=uninstrumented process lifetime; Profile=instrumented process lifetime"
+                ),
             )
     except AnalysisError as error:
         print(f"perf: {error}", file=sys.stderr)
@@ -1792,9 +1977,7 @@ def size_main(argv: list[str] | None = None, *, root: Path = ROOT) -> int:
         else:
             size = importlib.import_module("scripts.size" if __package__ else "size")
             nvim, packpath = (
-                (args.nvim, args.packpath)
-                if args.nvim
-                else realise_outputs(root)
+                (args.nvim, args.packpath) if args.nvim else realise_outputs(root)
             )
             raw = size.collect(nvim, packpath)
         if args.raw:
@@ -1814,7 +1997,9 @@ def size_main(argv: list[str] | None = None, *, root: Path = ROOT) -> int:
                 args.metric,
                 None if args.full else args.depth,
                 args.all_metrics,
-                history=load_history(response, root=root) if args.with_history else None,
+                history=(
+                    load_history(response, root=root) if args.with_history else None
+                ),
                 collapse_boundaries=frozenset(
                     {("config",), ("plugins",)}
                     | {
@@ -1869,8 +2054,13 @@ PERF_KIND = MeasurementKind(
     ("compatibility",),
 )
 JJ_ALIAS = [
-    "util", "exec", "--", "sh", "-c",
-    'exec python3 "$JJ_WORKSPACE_ROOT/scripts/size_note.py" jj-commit "$@"', "",
+    "util",
+    "exec",
+    "--",
+    "sh",
+    "-c",
+    'exec python3 "$JJ_WORKSPACE_ROOT/scripts/size_note.py" jj-commit "$@"',
+    "",
 ]
 
 
@@ -1928,14 +2118,17 @@ def _extract(
         command.extend(["--", *paths])
     try:
         result = subprocess.run(
-            command, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False
+            command,
+            cwd=root,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
         )
     except OSError as error:
         raise NoteError("cannot run git archive: " + str(error)) from error
     if result.returncode:
         raise NoteError(
-            "git archive failed: "
-            + result.stderr.decode(errors="replace").strip()
+            "git archive failed: " + result.stderr.decode(errors="replace").strip()
         )
     try:
         # The committed tree is executable input and contains an intentional absolute symlink.
@@ -1967,9 +2160,7 @@ def _analyse(
         not isinstance(measurement_data, dict)
         or measurement_data.get("format") != kind.measurement_format
     ):
-        raise NoteError(
-            f"{kind.analyser_entry} did not emit {kind.measurement_format}"
-        )
+        raise NoteError(f"{kind.analyser_entry} did not emit {kind.measurement_format}")
     return measurement_data
 
 
@@ -1984,18 +2175,21 @@ def _attach_note(
     kind: MeasurementKind = SIZE_KIND,
     force: bool = False,
 ) -> None:
-    payload = json.dumps(
-        {
-            "format": kind.note_format,
-            "commit": commit,
-            "jj_change_id": change_id,
-            "analyser_commit": analyser,
-            "measurement": measurement_data,
-            "error": error,
-        },
-        indent=2,
-        sort_keys=True,
-    ) + "\n"
+    payload = (
+        json.dumps(
+            {
+                "format": kind.note_format,
+                "commit": commit,
+                "jj_change_id": change_id,
+                "analyser_commit": analyser,
+                "measurement": measurement_data,
+                "error": error,
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n"
+    )
     arguments = ["notes", f"--ref={kind.notes_ref}", "add"]
     if force:
         arguments.append("--force")
@@ -2018,21 +2212,36 @@ def record(
 ) -> None:
     commit = _resolve_commit(revision, root)
     if not force and _has_note(commit, root, kind):
-        print(f"{kind.name}-note: {commit[:12]} already has a measurement", file=sys.stderr)
+        print(
+            f"{kind.name}-note: {commit[:12]} already has a measurement",
+            file=sys.stderr,
+        )
         return
     print(f"{kind.name}-note: measuring {commit[:12]}", file=sys.stderr)
     analyser = _resolve_commit(analyser_revision or commit, root)
     _attach_note(
-        commit, analyser, change_id, _analyse(commit, analyser, root, kind), None,
-        root=root, kind=kind, force=force,
+        commit,
+        analyser,
+        change_id,
+        _analyse(commit, analyser, root, kind),
+        None,
+        root=root,
+        kind=kind,
+        force=force,
     )
 
 
 def _jj_change_id(commit: str, root: Path) -> str | None:
     result = _run(
         [
-            "jj", "--ignore-working-copy", "log", "--no-graph", "-r", commit,
-            "-T", 'change_id ++ "\\n"',
+            "jj",
+            "--ignore-working-copy",
+            "log",
+            "--no-graph",
+            "-r",
+            commit,
+            "-T",
+            'change_id ++ "\\n"',
         ],
         cwd=root,
         check=False,
@@ -2075,8 +2284,11 @@ def backfill(
         change_id = _jj_change_id(commit, root)
         try:
             record(
-                commit, root=root, change_id=change_id,
-                analyser_revision=analyser, kind=kind,
+                commit,
+                root=root,
+                change_id=change_id,
+                analyser_revision=analyser,
+                kind=kind,
             )
         except NoteError as error:
             if not record_errors:
@@ -2096,7 +2308,12 @@ def backfill(
 def _jj_identity(root: Path) -> tuple[str, str]:
     lines = _run(
         [
-            "jj", "log", "--no-graph", "-r", "@-", "-T",
+            "jj",
+            "log",
+            "--no-graph",
+            "-r",
+            "@-",
+            "-T",
             'commit_id ++ "\\n" ++ change_id ++ "\\n"',
         ],
         cwd=root,
@@ -2127,7 +2344,9 @@ def _config_values(name: str, root: Path) -> list[str]:
 
 
 def install(*, root: Path = ROOT) -> None:
-    git_root = Path(_git(["rev-parse", "--show-toplevel"], root=root).stdout.strip()).resolve()
+    git_root = Path(
+        _git(["rev-parse", "--show-toplevel"], root=root).stdout.strip()
+    ).resolve()
     jj_root = Path(_run(["jj", "workspace", "root"], cwd=root).stdout.strip()).resolve()
     jj_git_root = Path(_run(["jj", "git", "root"], cwd=root).stdout.strip()).resolve()
     if git_root != root.resolve() or jj_root != git_root:
@@ -2152,23 +2371,41 @@ def install(*, root: Path = ROOT) -> None:
     _git(["config", "--local", "core.hooksPath", ".githooks"], root=root)
     if NOTES_REF not in _config_values("notes.displayRef", root):
         _git(["config", "--local", "--add", "notes.displayRef", NOTES_REF], root=root)
-    print("size-note: installed Git post-commit hook and jj ci wrapper", file=sys.stderr)
+    print(
+        "size-note: installed Git post-commit hook and jj ci wrapper", file=sys.stderr
+    )
 
 
 def parse_note_args(argv: list[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="manage exact-commit size measurements")
+    parser = argparse.ArgumentParser(
+        description="manage exact-commit size measurements"
+    )
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("install", help="configure this Git/jj repository")
-    record_parser = commands.add_parser("record", help="measure and note one Git commit")
+    record_parser = commands.add_parser(
+        "record", help="measure and note one Git commit"
+    )
     record_parser.add_argument("revision", nargs="?", default="HEAD")
-    record_parser.add_argument("--force", action="store_true", help="replace an existing measurement")
+    record_parser.add_argument(
+        "--force", action="store_true", help="replace an existing measurement"
+    )
     record_parser.add_argument("--analyser", help="revision providing analyser scripts")
-    backfill_parser = commands.add_parser("backfill", help="measure every commit in an ancestry range")
+    backfill_parser = commands.add_parser(
+        "backfill", help="measure every commit in an ancestry range"
+    )
     backfill_parser.add_argument("base")
     backfill_parser.add_argument("tip", nargs="?", default="HEAD")
-    backfill_parser.add_argument("--analyser", help="revision providing analyser scripts (default: tip)")
-    backfill_parser.add_argument("--include-base", action="store_true", help="also measure the base revision")
-    backfill_parser.add_argument("--record-errors", action="store_true", help="note unavailable analyses and continue")
+    backfill_parser.add_argument(
+        "--analyser", help="revision providing analyser scripts (default: tip)"
+    )
+    backfill_parser.add_argument(
+        "--include-base", action="store_true", help="also measure the base revision"
+    )
+    backfill_parser.add_argument(
+        "--record-errors",
+        action="store_true",
+        help="note unavailable analyses and continue",
+    )
     return parser.parse_args(argv)
 
 
@@ -2182,12 +2419,19 @@ def note_main(argv: list[str] | None = None, *, root: Path = ROOT) -> int:
             install(root=root)
         elif args.command == "backfill":
             backfill(
-                args.base, args.tip, root=root, analyser_revision=args.analyser,
-                include_base=args.include_base, record_errors=args.record_errors,
+                args.base,
+                args.tip,
+                root=root,
+                analyser_revision=args.analyser,
+                include_base=args.include_base,
+                record_errors=args.record_errors,
             )
         else:
             record(
-                args.revision, root=root, analyser_revision=args.analyser, force=args.force
+                args.revision,
+                root=root,
+                analyser_revision=args.analyser,
+                force=args.force,
             )
     except NoteError as error:
         print(f"size-note: {error}", file=sys.stderr)

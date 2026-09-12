@@ -81,12 +81,16 @@ def raw_for(response: object, logical: list[str] | None = None) -> dict[str, Any
         "format": size.RAW_FORMAT,
         "collector": {
             "nvim": {
-                "path": "nvim", "resolved_path": "/nix/store/nvim",
-                "byte_length": 1, "sha256": digest,
+                "path": "nvim",
+                "resolved_path": "/nix/store/nvim",
+                "byte_length": 1,
+                "sha256": digest,
             },
             "adapter": {
-                "path": "bytecode.lua", "resolved_path": "/src/bytecode.lua",
-                "byte_length": 1, "sha256": digest,
+                "path": "bytecode.lua",
+                "resolved_path": "/src/bytecode.lua",
+                "byte_length": 1,
+                "sha256": digest,
             },
             "packpath": {"path": "pack", "resolved_path": "/nix/store/pack"},
         },
@@ -201,7 +205,9 @@ class MetricAndTreeTests(unittest.TestCase):
         )
 
     def test_aggregation_and_collapsing(self) -> None:
-        sources = [{"id": 0, "logical": ["config", "a", "b", "file.lua"], "path": "file.lua"}]
+        sources = [
+            {"id": 0, "logical": ["config", "a", "b", "file.lua"], "path": "file.lua"}
+        ]
         response: dict[str, Any] = {
             "sources": {
                 0: {"prototypes": [{"instructions": instructions(("RET0", None))}]}
@@ -313,9 +319,7 @@ class MetricAndTreeTests(unittest.TestCase):
         )
         self.assertEqual(rendered["format"], "poincare-size/v1")
         self.assertEqual(rendered["source_count"], 2)
-        self.assertEqual(
-            rendered["metrics"], list(size.SIZE_METRICS)
-        )
+        self.assertEqual(rendered["metrics"], list(size.SIZE_METRICS))
         self.assertEqual(rendered["tree"]["total"]["decisions"], 1)
         self.assertEqual(rendered["tree"]["children"][0]["name"], "b")
         self.assertEqual(rendered["tree"]["children"][0]["own"]["bytecodes"], 2)
@@ -522,9 +526,7 @@ class HistoryTests(unittest.TestCase):
         )
         config.children["dir"] = directory
         root.children["config"] = config
-        root.children["new.lua"] = size.Node(
-            "new.lua", total=metrics(bytecodes=70)
-        )
+        root.children["new.lua"] = size.Node("new.lua", total=metrics(bytecodes=70))
         history = size.History(
             samples=[
                 {
@@ -650,9 +652,7 @@ class GraphTests(unittest.TestCase):
             0,
             file=output,
             width=200,
-            history=size.History(
-                samples=[{(): metrics(bytecodes=1)}], ancestors=1
-            ),
+            history=size.History(samples=[{(): metrics(bytecodes=1)}], ancestors=1),
         )
         rendered = output.getvalue()
         for glyph in "█▁▂▃▄▅▆▇▏▎▍▌▋▊▉":
@@ -660,7 +660,9 @@ class GraphTests(unittest.TestCase):
 
 
 class ProtocolTests(unittest.TestCase):
-    def test_raw_envelope_rejects_duplicates_bad_paths_and_non_finite_metrics(self) -> None:
+    def test_raw_envelope_rejects_duplicates_bad_paths_and_non_finite_metrics(
+        self,
+    ) -> None:
         raw: Any = raw_for(response_for(("RET0", None)))
         sources, response = size.validate_raw(deepcopy(raw))
         self.assertEqual(sources[0]["logical"], ["config", "lua", "file.lua"])
@@ -711,7 +713,7 @@ class ProtocolTests(unittest.TestCase):
                 size.validate_raw(broken)
 
         descriptor = (size.MetricDescriptor("duration", "Time", "ns"),)
-        tree = size.aggregate_tree("run", descriptor, [(('event',), {"duration": 1.5})])
+        tree = size.aggregate_tree("run", descriptor, [(("event",), {"duration": 1.5})])
         self.assertEqual(tree.total, {"duration": 1.5})
         self.assertEqual(
             size.validate_metric_values({"duration": 10**1000}, descriptor, "sample"),
@@ -721,7 +723,7 @@ class ProtocolTests(unittest.TestCase):
             size.aggregate_tree(
                 "run",
                 descriptor,
-                [(('a',), {"duration": 1e308}), (('b',), {"duration": 1e308})],
+                [(("a",), {"duration": 1e308}), (("b",), {"duration": 1e308})],
             )
         for root in (".", "..", "bad\0root"):
             with self.subTest(root=root), self.assertRaisesRegex(
@@ -732,7 +734,7 @@ class ProtocolTests(unittest.TestCase):
             size.aggregate_tree(
                 "run",
                 descriptor,
-                [(('event',), {"duration": 1}), (('event',), {"duration": 2})],
+                [(("event",), {"duration": 1}), (("event",), {"duration": 2})],
             )
 
     def test_raw_replay_produces_the_shipped_measurement_schema(self) -> None:
@@ -835,6 +837,7 @@ class ProtocolTests(unittest.TestCase):
         source = {"id": 0, "logical": ["config", "file.lua"], "path": "file.lua"}
         with self.assertRaisesRegex(size.AnalysisError, "targets invalid PC 2"):
             size.validate_response(response_for(("LOOP", 2)), [source])
+
 
 class IntegrationTests(unittest.TestCase):
     def test_realised_nvim_compiles_without_executing_and_finds_nested_prototypes(

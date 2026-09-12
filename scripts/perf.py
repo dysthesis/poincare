@@ -97,8 +97,17 @@ def _environment(home: Path) -> tuple[dict[str, str], dict[str, Any]]:
     environment["XDG_CONFIG_DIRS"] = str(home / "config-dirs")
     environment["XDG_DATA_DIRS"] = str(home / "data-dirs")
     unset = [
-        "TMUX", "TMUX_PANE", "NVIM", "NVIM_LISTEN_ADDRESS", "NVIM_APPNAME",
-        "VIMRUNTIME", "VIMINIT", "EXINIT", "LUA_INIT", "LUA_PATH", "LUA_CPATH",
+        "TMUX",
+        "TMUX_PANE",
+        "NVIM",
+        "NVIM_LISTEN_ADDRESS",
+        "NVIM_APPNAME",
+        "VIMRUNTIME",
+        "VIMINIT",
+        "EXINIT",
+        "LUA_INIT",
+        "LUA_PATH",
+        "LUA_CPATH",
     ]
     for key in unset:
         environment.pop(key, None)
@@ -124,23 +133,31 @@ def run_attempt(
     warmup: bool,
     timeout: float,
 ) -> dict[str, Any]:
-    with tempfile.TemporaryDirectory(prefix=f"poincare-perf-{workload['name']}-{mode}-") as temporary:
+    with tempfile.TemporaryDirectory(
+        prefix=f"poincare-perf-{workload['name']}-{mode}-"
+    ) as temporary:
         session = Path(temporary)
         config_path = session / "workload.json"
         output_path = session / "trace.json"
         startup_path = session / "startuptime.log"
         config_path.write_text(json.dumps(workload["config"], separators=(",", ":")))
         environment, policy = _environment(session)
-        environment.update({
-            "POINCARE_PERF_CONFIG": str(config_path),
-            "POINCARE_PERF_OUTPUT": str(output_path),
-        })
+        environment.update(
+            {
+                "POINCARE_PERF_CONFIG": str(config_path),
+                "POINCARE_PERF_OUTPUT": str(output_path),
+            }
+        )
         argv = [str(nvim), "--headless", "-i", "NONE", "-n"]
         if mode == "profile":
-            argv.extend([
-                "--startuptime", str(startup_path),
-                "--cmd", f"lua dofile({json.dumps(str(HARNESS))}).preinit()",
-            ])
+            argv.extend(
+                [
+                    "--startuptime",
+                    str(startup_path),
+                    "--cmd",
+                    f"lua dofile({json.dumps(str(HARNESS))}).preinit()",
+                ]
+            )
         argv.extend(workload["config"].get("args", []))
         argv.extend(["-c", f"lua dofile({json.dumps(str(HARNESS))}).run()"])
         started_at = time.time_ns()
@@ -194,7 +211,11 @@ def run_attempt(
             startuptime = startup_path.read_text() if mode == "profile" else None
         except OSError as error:
             startuptime = None
-            trace_error = f"{trace_error}; startuptime: {error}" if trace_error else f"startuptime: {error}"
+            trace_error = (
+                f"{trace_error}; startuptime: {error}"
+                if trace_error
+                else f"startuptime: {error}"
+            )
         return {
             "workload": workload["name"],
             "workload_sha256": workload["sha256"],
@@ -234,8 +255,17 @@ def collect(
         for mode in ("wall", "profile"):
             for index in range(warmups + repeat):
                 warmup = index < warmups
-                schedule.append({"workload": workload["name"], "mode": mode, "iteration": index, "warmup": warmup})
-                observations.append(run_attempt(nvim, workload, mode, index, warmup, timeout))
+                schedule.append(
+                    {
+                        "workload": workload["name"],
+                        "mode": mode,
+                        "iteration": index,
+                        "warmup": warmup,
+                    }
+                )
+                observations.append(
+                    run_attempt(nvim, workload, mode, index, warmup, timeout)
+                )
     return {
         "format": RAW_FORMAT,
         "workloads": workloads,

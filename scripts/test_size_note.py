@@ -81,7 +81,9 @@ class InstallTests(unittest.TestCase):
                 git(repository, "config", "user.email", "size@example.invalid")
                 scripts = repository / "scripts"
                 scripts.mkdir()
-                shutil.copy(Path(__file__).with_name("size_note.py"), scripts / "size_note.py")
+                shutil.copy(
+                    Path(__file__).with_name("size_note.py"), scripts / "size_note.py"
+                )
                 shutil.copy(Path(pipeline.__file__), scripts / "pipeline.py")
                 measurement = {
                     "format": pipeline.OUTPUT_FORMAT,
@@ -155,7 +157,7 @@ class InstallTests(unittest.TestCase):
                     git(
                         repository,
                         "notes",
-                            f"--ref={pipeline.NOTES_REF}",
+                        f"--ref={pipeline.NOTES_REF}",
                         "show",
                         commit,
                     ).stdout

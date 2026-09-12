@@ -42,7 +42,11 @@ local function json_info(fn)
   local info = jutil.funcinfo(fn)
   local result = {}
   for key, value in pairs(info) do
-    if type(value) == "string" or type(value) == "number" or type(value) == "boolean" then
+    if
+      type(value) == "string"
+      or type(value) == "number"
+      or type(value) == "boolean"
+    then
       result[key] = value
     end
   end
@@ -93,9 +97,11 @@ local function prototypes(fn, result, parent_id, gcconst_index)
 end
 
 local function hex(value)
-  return (value:gsub(".", function(byte)
-    return string.format("%02x", string.byte(byte))
-  end))
+  return (
+    value:gsub(".", function(byte)
+      return string.format("%02x", string.byte(byte))
+    end)
+  )
 end
 
 local sources = {}
