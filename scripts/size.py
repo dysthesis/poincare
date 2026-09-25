@@ -142,8 +142,16 @@ def probe(nvim: Path, sources: list[Source]) -> dict[str, Any]:
         environment = os.environ.copy()
         environment["NVIM_LOG_FILE"] = "/dev/null"
         command = [
-            str(nvim), "-u", "NONE", "-i", "NONE", "--noplugin", "-n",
-            "-l", str(ADAPTER), handle.name,
+            str(nvim),
+            "-u",
+            "NONE",
+            "-i",
+            "NONE",
+            "--noplugin",
+            "-n",
+            "-l",
+            str(ADAPTER),
+            handle.name,
         ]
         started = time.perf_counter_ns()
         try:
