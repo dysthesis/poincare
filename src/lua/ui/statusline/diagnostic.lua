@@ -1,39 +1,42 @@
 local M = {}
+local severity = vim.diagnostic.severity
+
+local severity_groups = {
+  [severity.ERROR] = "Error",
+  [severity.WARN] = "Warn",
+  [severity.INFO] = "Info",
+  [severity.HINT] = "Hint",
+}
 
 M.hl_groups = {
   Lsp = {
     fg = { group = "Conceal", attr = "fg" },
     bg = { group = "StatusLine", attr = "bg" },
   },
-
-  Error = {
-    fg = { group = "DiagnosticError", attr = "fg" },
-    bg = { group = "StatusLine", attr = "bg" },
-  },
-
-  Warn = {
-    fg = { group = "DiagnosticWarn", attr = "fg" },
-    bg = { group = "StatusLine", attr = "bg" },
-  },
-
-  Info = {
-    fg = { group = "DiagnosticInfo", attr = "fg" },
-    bg = { group = "StatusLine", attr = "bg" },
-  },
-
-  Hint = {
-    fg = { group = "DiagnosticHint", attr = "fg" },
-    bg = { group = "StatusLine", attr = "bg" },
-  },
 }
 
-local severity = vim.diagnostic.severity
+M.hl_groups[severity_groups[severity.ERROR]] = {
+  fg = { group = "DiagnosticError", attr = "fg" },
+  bg = { group = "StatusLine", attr = "bg" },
+}
+M.hl_groups[severity_groups[severity.WARN]] = {
+  fg = { group = "DiagnosticWarn", attr = "fg" },
+  bg = { group = "StatusLine", attr = "bg" },
+}
+M.hl_groups[severity_groups[severity.INFO]] = {
+  fg = { group = "DiagnosticInfo", attr = "fg" },
+  bg = { group = "StatusLine", attr = "bg" },
+}
+M.hl_groups[severity_groups[severity.HINT]] = {
+  fg = { group = "DiagnosticHint", attr = "fg" },
+  bg = { group = "StatusLine", attr = "bg" },
+}
 
 local diagnostic_icons = {
-  [severity.ERROR] = { "", "StatusLineError" },
-  [severity.WARN] = { "", "StatusLineWarn" },
-  [severity.INFO] = { "", "StatusLineInfo" },
-  [severity.HINT] = { "󰌵", "StatusLineHint" },
+  [severity.ERROR] = "",
+  [severity.WARN] = "",
+  [severity.INFO] = "",
+  [severity.HINT] = "󰌵",
 }
 
 local function lsp()
@@ -71,13 +74,11 @@ local function diagnostics()
     local count = counts[level] or 0
 
     if count > 0 then
-      local icon, hl = unpack(diagnostic_icons[level])
-
       result[#result + 1] = table.concat({
-        "%#",
-        hl,
+        "%#StatusLine",
+        severity_groups[level],
         "#",
-        icon,
+        diagnostic_icons[level],
         " ",
         count,
       })
