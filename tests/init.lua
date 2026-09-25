@@ -6,7 +6,11 @@ vim.opt.runtimepath:append(mini_test)
 require("mini.test").setup({
   collect = {
     find_files = function()
-      return { "tests/formatters.lua", "tests/linters.lua" }
+      return {
+        "tests/formatters.lua",
+        "tests/linters.lua",
+        "tests/statusline-diagnostic.lua",
+      }
     end,
   },
 })
