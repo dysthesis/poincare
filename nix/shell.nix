@@ -29,6 +29,7 @@ in {
     TEST_NIX = pkgs.nix;
     TEST_PYTHON = pkgs.python3;
     TEST_SELENE = pkgs.selene;
+    TEST_SQLITE = pkgs.sqlite;
 
     inputsFrom = [
       treefmt.config.build.devShell
@@ -47,6 +48,8 @@ in {
         stylua
         lua-language-server
         selene
+        # Real Dadbod regression: inspect both physical database files.
+        sqlite
 
         # Management for plugins outside of nixpkgs
         npins
