@@ -8,9 +8,15 @@ import sys
 import tempfile
 
 if len(sys.argv) != 2 or sys.argv[1] not in {
-    "statusline", "sqlite", "first_lint", "first_lint_cli",
+    "statusline",
+    "sqlite",
+    "first_lint",
+    "first_lint_cli",
+    "gutter_saveas",
 }:
-    raise SystemExit("usage: launch.py {statusline|sqlite|first_lint|first_lint_cli}")
+    raise SystemExit(
+        "usage: launch.py {statusline|sqlite|first_lint|first_lint_cli|gutter_saveas}"
+    )
 if platform.system() != "Linux":
     raise SystemExit("focused regressions require Linux user/mount/network namespaces")
 
@@ -29,8 +35,12 @@ keys = (
 env = {key: os.environ[key] for key in keys}
 if sys.argv[1] == "sqlite":
     env["TEST_SQLITE"] = os.environ["TEST_SQLITE"]
+if sys.argv[1] == "gutter_saveas":
+    env["TEST_GIT"] = os.environ["TEST_GIT"]
 env["TMPDIR"] = os.environ.get("TMPDIR", "/tmp")
 required = keys + (("TEST_SQLITE",) if sys.argv[1] == "sqlite" else ())
+if sys.argv[1] == "gutter_saveas":
+    required += ("TEST_GIT",)
 for key in required:
     if not os.path.isdir(env[key]):
         raise SystemExit(f"missing regression prerequisite {key}: {env[key]}")

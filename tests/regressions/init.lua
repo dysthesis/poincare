@@ -5,12 +5,13 @@ local cases = {
   sqlite = "tests/regressions/sqlite.lua",
   first_lint = "tests/regressions/first-lint.lua",
   first_lint_cli = "tests/regressions/first-lint.lua",
+  gutter_saveas = "tests/regressions/gutter-saveas.lua",
 }
 
 local name = vim.env.POINCARE_TEST_CASE
 assert(
   cases[name],
-  "set POINCARE_TEST_CASE to statusline, sqlite, first_lint or first_lint_cli"
+  "unknown POINCARE_TEST_CASE (see tests/regressions/init.lua)"
 )
 assert(
   vim.env.MINI_TEST_RTP and vim.env.MINI_TEST_RTP ~= "",

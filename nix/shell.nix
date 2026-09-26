@@ -30,6 +30,7 @@ in {
     TEST_PYTHON = pkgs.python3;
     TEST_SELENE = pkgs.selene;
     TEST_SQLITE = pkgs.sqlite;
+    TEST_GIT = pkgs.gitMinimal;
 
     inputsFrom = [
       treefmt.config.build.devShell
@@ -50,6 +51,7 @@ in {
         selene
         # Real Dadbod regression: inspect both physical database files.
         sqlite
+        gitMinimal
 
         # Management for plugins outside of nixpkgs
         npins
