@@ -37,6 +37,11 @@
 @test:
 	nix develop -c nvim --headless --noplugin -u tests/init.lua -c "lua MiniTest.run()"
 
+# Linux only: use the pinned dev-shell inputs and isolate each suite in its own
+# private namespace. No packaged copy of src or legacy lint suite is collected.
+@test-regression CASE:
+	nix develop -c python3 tests/regressions/launch.py '{{CASE}}'
+
 @bench:
 	nix shell .# nixpkgs#hyperfine -c hyperfine -w 10 -r 100 'nvim --headless +qa'
 

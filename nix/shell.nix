@@ -1,5 +1,6 @@
 {
   pkgs,
+  self,
   treefmt,
   inputs,
   ...
@@ -13,40 +14,67 @@
 in {
   default = pkgs.mkShellNoCC {
     MINI_TEST_RTP = pkgs.vimPlugins.mini-nvim;
+    POINCARE_PACKPATH = self.packages.${pkgs.system}.poincare.packpath;
+    TEST_NVIM = pkgs.neovim-unwrapped;
+    TEST_BASH = pkgs.bash;
+    TEST_CORE = pkgs.coreutils;
+    TEST_UTIL =
+      if pkgs.stdenv.hostPlatform.isLinux
+      then pkgs.util-linux
+      else "";
+    TEST_IP =
+      if pkgs.stdenv.hostPlatform.isLinux
+      then pkgs.iproute2
+      else "";
+    TEST_NIX = pkgs.nix;
+    TEST_PYTHON = pkgs.python3;
+    TEST_SELENE = pkgs.selene;
 
     inputsFrom = [
       treefmt.config.build.devShell
     ];
-    packages = with pkgs; [
-      # Lua development
-      neovim
-      stylua
-      lua-language-server
-      selene
+    packages =
+      (with pkgs; [
+        # Build the plugin runtime and namespace tools for focused regressions.
+        self.packages.${pkgs.system}.poincare.packpath
+        bash
+        coreutils
+        nix
+        python3
 
-      # Management for plugins outside of nixpkgs
-      npins
+        # Lua development
+        neovim
+        stylua
+        lua-language-server
+        selene
 
-      # Nix development
-      nil
-      statix
-      deadnix
-      alejandra
-      nixfmt
+        # Management for plugins outside of nixpkgs
+        npins
 
-      # Python for dev scripts
-      (python3.withPackages (p: with p; [rich]))
-      basedpyright
-      black
+        # Nix development
+        nil
+        statix
+        deadnix
+        alejandra
+        nixfmt
 
-      # Miscellaneous tooling
-      just
-      hyperfine
+        # Python for dev scripts
+        (python3.withPackages (p: with p; [rich]))
+        basedpyright
+        black
 
-      inputs.bombadil.packages.${pkgs.system}.default
-      cargo
-      fish
-    ];
+        # Miscellaneous tooling
+        just
+        hyperfine
+
+        inputs.bombadil.packages.${pkgs.system}.default
+        cargo
+        fish
+      ])
+      ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux (with pkgs; [
+        util-linux
+        iproute2
+      ]);
 
     shellHook = ''
       root="$PWD"
