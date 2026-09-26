@@ -3,7 +3,7 @@
 # TEST_* and POINCARE_PACKPATH are declared in nix/shell.nix; no store path is
 # inferred by scanning package names or mounting the entire host store.
 set -euo pipefail
-case "${1:-}" in statusline|sqlite|first_lint|first_lint_cli|gutter_saveas|gutter_superseded) ;; *) exit 64 ;; esac
+case "${1:-}" in statusline|sqlite|first_lint|first_lint_cli|gutter_saveas|gutter_superseded|vc_failure) ;; *) exit 64 ;; esac
 repo=$(pwd -P)
 test -f "$repo/src/init.lua" && test -f "$repo/tests/regressions/init.lua"
 store=$(dirname "$TEST_NVIM")
@@ -13,7 +13,7 @@ path="$TEST_NVIM/bin:$TEST_BASH/bin:/bin"
 case "$1" in
   sqlite) tools+=("$TEST_SQLITE"); path="$TEST_SQLITE/bin:$path" ;;
   first_lint|first_lint_cli) tools+=("$TEST_SELENE"); path="$TEST_SELENE/bin:$path" ;;
-  gutter_saveas|gutter_superseded) tools+=("$TEST_GIT"); path="$TEST_GIT/bin:$path" ;;
+  gutter_saveas|gutter_superseded|vc_failure) tools+=("$TEST_GIT"); path="$TEST_GIT/bin:$path" ;;
 esac
 for tool in "${tools[@]}"; do
   test -d "$tool" && test "${tool#"$store"/}" != "$tool"
