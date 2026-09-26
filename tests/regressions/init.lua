@@ -6,6 +6,7 @@ local cases = {
   first_lint = "tests/regressions/first-lint.lua",
   first_lint_cli = "tests/regressions/first-lint.lua",
   gutter_saveas = "tests/regressions/gutter-saveas.lua",
+  gutter_superseded = "tests/regressions/gutter-superseded.lua",
 }
 
 local name = vim.env.POINCARE_TEST_CASE
