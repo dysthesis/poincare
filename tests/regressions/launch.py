@@ -7,8 +7,10 @@ import subprocess
 import sys
 import tempfile
 
-if len(sys.argv) != 2 or sys.argv[1] not in {"statusline", "sqlite", "first_lint"}:
-    raise SystemExit("usage: launch.py {statusline|sqlite|first_lint}")
+if len(sys.argv) != 2 or sys.argv[1] not in {
+    "statusline", "sqlite", "first_lint", "first_lint_cli",
+}:
+    raise SystemExit("usage: launch.py {statusline|sqlite|first_lint|first_lint_cli}")
 if platform.system() != "Linux":
     raise SystemExit("focused regressions require Linux user/mount/network namespaces")
 

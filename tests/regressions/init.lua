@@ -4,12 +4,13 @@ local cases = {
   statusline = "tests/regressions/statusline.lua",
   sqlite = "tests/regressions/sqlite.lua",
   first_lint = "tests/regressions/first-lint.lua",
+  first_lint_cli = "tests/regressions/first-lint.lua",
 }
 
 local name = vim.env.POINCARE_TEST_CASE
 assert(
   cases[name],
-  "set POINCARE_TEST_CASE to statusline, sqlite or first_lint"
+  "set POINCARE_TEST_CASE to statusline, sqlite, first_lint or first_lint_cli"
 )
 assert(
   vim.env.MINI_TEST_RTP and vim.env.MINI_TEST_RTP ~= "",
