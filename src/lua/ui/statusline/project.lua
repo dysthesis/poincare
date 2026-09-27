@@ -1,4 +1,5 @@
 local M = {}
+local literal = require("ui.statusline.text")
 
 M.hl_groups = {
   ProjectIcon = {
@@ -27,7 +28,7 @@ function M.component()
     "󰉋",
     "%#StatusLineProject#",
     " ",
-    vim.fs.basename(root),
+    literal(vim.fs.basename(root)),
   })
 end
 

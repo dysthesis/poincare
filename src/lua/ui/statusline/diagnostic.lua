@@ -1,4 +1,5 @@
 local M = {}
+local literal = require("ui.statusline.text")
 local severity = vim.diagnostic.severity
 
 local severity_groups = {
@@ -57,7 +58,7 @@ local function lsp()
   return table.concat({
     "%#StatusLineLsp#",
     " ",
-    table.concat(names, ","),
+    literal(table.concat(names, ",")),
   })
 end
 

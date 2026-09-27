@@ -1,4 +1,5 @@
 local M = {}
+local literal = require("ui.statusline.text")
 
 M.hl_groups = {
   Name = {
@@ -19,7 +20,7 @@ function M.component()
 
   local result = {
     "%#StatusLineName#",
-    name,
+    literal(name),
   }
 
   if vim.bo.modified then

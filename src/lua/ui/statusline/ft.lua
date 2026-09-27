@@ -1,4 +1,5 @@
 local M = {}
+local literal = require("ui.statusline.text")
 
 M.hl_groups = {
   FtIcon = {
@@ -47,7 +48,7 @@ function M.component()
     icon,
     "%#StatusLineFt#",
     " ",
-    ft,
+    literal(ft),
   })
 end
 

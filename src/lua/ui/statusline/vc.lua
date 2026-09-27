@@ -1,4 +1,5 @@
 local M = {}
+local literal = require("ui.statusline.text")
 
 M.hl_groups = {
   VcIcon = {
@@ -221,7 +222,7 @@ function M.component()
     " ",
     "%#StatusLineVc#",
     " ",
-    current.label,
+    literal(current.label),
   }
 
   if current.dirty then
