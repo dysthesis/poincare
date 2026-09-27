@@ -42,7 +42,7 @@ end
 local function render(buf)
   local bufstate = state[buf]
 
-  if not bufstate then
+  if not bufstate or bufstate.base == nil then
     return
   end
 
@@ -75,53 +75,67 @@ local function render(buf)
   end
 end
 
+local function detach(buf)
+  state[buf] = nil
+  if vim.api.nvim_buf_is_valid(buf) then
+    vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+  end
+end
+
 local function attach(buf)
   if not vim.api.nvim_buf_is_valid(buf) then
-    return
-  end
-
-  if vim.bo[buf].buftype ~= "" then
+    state[buf] = nil
     return
   end
 
   local path = vim.api.nvim_buf_get_name(buf)
-
-  if path == "" then
+  if vim.bo[buf].buftype ~= "" or path == "" then
+    detach(buf)
     return
   end
 
   local root = vim.fs.root(path, ".git")
-
-  if not root then
-    return
-  end
-
-  local relative = vim.fs.relpath(root, path)
-
+  local relative = root and vim.fs.relpath(root, path)
   if not relative then
+    detach(buf)
     return
   end
+
+  local previous = state[buf]
+  local same_file = previous and previous.path == path and previous.root == root
+  local request = {
+    path = path,
+    root = root,
+    base = same_file and previous.base or nil,
+  }
+  if not same_file then
+    vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+  end
+  state[buf] = request
 
   vim.system({ "git", "show", ":" .. relative }, {
     cwd = root,
     text = true,
   }, function(result)
     vim.schedule(function()
-      if not vim.api.nvim_buf_is_valid(buf) then
+      if state[buf] ~= request or not vim.api.nvim_buf_is_valid(buf) then
+        return
+      end
+      if
+        vim.api.nvim_buf_get_name(buf) ~= path
+        or vim.fs.root(path, ".git") ~= root
+      then
+        detach(buf)
         return
       end
 
       if result.code ~= 0 then
         -- Not present in the index, e.g. an untracked file.
-        state[buf] = nil
-        vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+        detach(buf)
         return
       end
 
-      state[buf] = {
-        base = result.stdout or "",
-      }
-
+      request.base = result.stdout or ""
       render(buf)
     end)
   end)
@@ -143,7 +157,12 @@ function M.setup()
     clear = true,
   })
 
-  vim.api.nvim_create_autocmd({ "BufReadPost", "BufEnter", "FocusGained" }, {
+  vim.api.nvim_create_autocmd({
+    "BufReadPost",
+    "BufEnter",
+    "BufFilePost",
+    "FocusGained",
+  }, {
     group = group,
     callback = function(event)
       attach(event.buf)
@@ -157,10 +176,10 @@ function M.setup()
     end,
   })
 
-  vim.api.nvim_create_autocmd("BufDelete", {
+  vim.api.nvim_create_autocmd({ "BufDelete", "BufWipeout" }, {
     group = group,
     callback = function(event)
-      state[event.buf] = nil
+      detach(event.buf)
     end,
   })
 end
