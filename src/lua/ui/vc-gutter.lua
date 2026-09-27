@@ -23,7 +23,16 @@ local function buffer_text(buf)
   local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
   local text = table.concat(lines, "\n")
 
-  if vim.bo[buf].endofline then
+  if
+    vim.bo[buf].endofline
+    and (
+      text ~= ""
+      or vim.api.nvim_buf_call(buf, function()
+          -- Unlike visible { "" }, this distinguishes zero bytes from one LF.
+          return vim.fn.wordcount().bytes
+        end) > 0
+    )
+  then
     text = text .. "\n"
   end
 
@@ -169,10 +178,22 @@ function M.setup()
     end,
   })
 
-  vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
+  vim.api.nvim_create_autocmd({
+    "TextChanged",
+    "TextChangedI",
+    "BufWritePost",
+  }, {
     group = group,
     callback = function(event)
       render(event.buf)
+    end,
+  })
+
+  vim.api.nvim_create_autocmd("OptionSet", {
+    group = group,
+    pattern = "endofline",
+    callback = function()
+      render(vim.api.nvim_get_current_buf())
     end,
   })
 
