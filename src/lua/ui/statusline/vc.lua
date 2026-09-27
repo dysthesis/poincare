@@ -139,17 +139,21 @@ local function detect(buf)
   return nil
 end
 
-local function refresh_repo(repo)
+local function refresh_repo(repo, invalidate)
   local key = repo.kind .. ":" .. repo.root
   local cached = state[key]
 
   if cached and cached.pending then
+    if invalidate then
+      cached.refresh_requested = true
+    end
     return
   end
 
   cached = cached or {}
   state[key] = cached
   cached.pending = true
+  cached.refresh_requested = false
 
   local backend = backends[repo.kind]
 
@@ -157,22 +161,27 @@ local function refresh_repo(repo)
     vim.schedule(function()
       local current = state[key]
 
-      if not current then
+      if current ~= cached then
         return
       end
 
       current.pending = false
+      if current.refresh_requested then
+        refresh_repo(repo)
+        return
+      end
 
       if result.code ~= 0 then
-        state[key] = nil
+        current.label = nil
+        current.dirty = nil
         redraw()
         return
       end
 
       local parsed = backend.parse(result.stdout or "")
-
       if not parsed then
-        state[key] = nil
+        current.label = nil
+        current.dirty = nil
         redraw()
         return
       end
@@ -193,7 +202,7 @@ function M.refresh(buf)
   local repo = detect(buf)
 
   if repo then
-    refresh_repo(repo)
+    refresh_repo(repo, true)
   end
 end
 
@@ -241,6 +250,7 @@ vim.api.nvim_create_autocmd({
   "BufEnter",
   "BufWritePost",
   "FocusGained",
+  "BufFilePost",
   "DirChanged",
 }, {
   group = group,
