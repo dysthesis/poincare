@@ -50,17 +50,24 @@ function M.setup()
   vim.api.nvim_create_autocmd({
     "BufReadPost",
     "BufWritePost",
+    "FileType",
   }, {
     group = group,
 
     callback = function(event)
-      run(event.buf)
+      if vim.bo[event.buf].filetype ~= "" then
+        run(event.buf)
+      end
     end,
   })
 
-  -- The event which caused lz.n to load nvim-lint may already
-  -- be in progress, so lint the current buffer once explicitly.
-  run(vim.api.nvim_get_current_buf())
+  -- The lazy-load event may already be in progress. If filetype detection
+  -- has not run yet, the FileType autocmd above handles this first buffer.
+  local current = vim.api.nvim_get_current_buf()
+  if vim.bo[current].filetype ~= "" then
+    run(current)
+  end
+
 end
 
 function M.register(lang, spec)
