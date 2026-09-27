@@ -1,5 +1,9 @@
 local function use(path)
   path = vim.fs.normalize(vim.fn.fnamemodify(path, ":p"))
+  -- Dadbod decodes percent escapes and treats ? and # as URL delimiters.
+  path = path:gsub("[?@$=&<>%%#%s]", function(char)
+    return ("%%%02X"):format(char:byte())
+  end)
   vim.b.db = "sqlite:" .. path
 end
 
