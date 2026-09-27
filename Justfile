@@ -34,8 +34,20 @@
 @test-size:
 	python3 -B -m unittest scripts/test_size.py scripts/test_size_note.py
 
+# Continue to later suites when an earlier suite exits nonzero.
 @test:
-	nix develop -c nvim --headless --noplugin -u tests/init.lua -c "lua MiniTest.run()"
+	#!/usr/bin/env bash
+	set -eu
+	status=0
+	for case in statusline sqlite first_lint first_lint_cli gutter_saveas gutter_superseded vc_failure gutter_empty; do
+		printf '\n==> regression: %s\n' "$case"
+		if ! just test-regression "$case"; then status=1; fi
+	done
+	if ! just unit-test; then status=1; fi
+	exit "$status"
+
+@unit-test:
+	nix develop -c nvim --headless --noplugin -u tests/init.lua -c "lua local ok, err = xpcall(MiniTest.run, debug.traceback); if not ok then vim.api.nvim_err_writeln(err); vim.cmd('cquit 1') end"
 
 # Linux only: use the pinned dev-shell inputs and isolate each suite in its own
 # private namespace. No packaged copy of src or legacy lint suite is collected.
