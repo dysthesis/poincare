@@ -18,9 +18,10 @@ if len(sys.argv) != 2 or sys.argv[1] not in {
     "gutter_superseded",
     "vc_failure",
     "gutter_empty",
+    "pins",
 }:
     raise SystemExit(
-        "usage: launch.py {statusline|sqlite|first_lint|first_lint_cli|gutter_saveas|gutter_superseded|vc_failure|gutter_empty}"
+        "usage: launch.py {statusline|sqlite|first_lint|first_lint_cli|gutter_saveas|gutter_superseded|vc_failure|gutter_empty|pins}"
     )
 if platform.system() != "Linux":
     raise SystemExit("focused regressions require Linux user/mount/network namespaces")

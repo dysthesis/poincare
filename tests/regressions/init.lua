@@ -9,6 +9,7 @@ local cases = {
   gutter_superseded = "tests/regressions/gutter-superseded.lua",
   vc_failure = "tests/regressions/vc-failure.lua",
   gutter_empty = "tests/regressions/gutter-empty.lua",
+  pins = "tests/regressions/pins.lua",
 }
 
 local name = vim.env.POINCARE_TEST_CASE

@@ -12,13 +12,19 @@ local function current_path()
     return nil
   end
 
-  return vim.fs.normalize(path)
+  return vim.fs.normalize(vim.fn.fnamemodify(path, ":p"))
 end
 
 local function project()
   local root = vim.fs.root(0, ".git") or vim.fn.getcwd()
 
-  return vim.fs.normalize(root)
+  return vim.fs.normalize(vim.fn.fnamemodify(root, ":p"))
+end
+
+local function within(root, path)
+  return type(path) == "string"
+    and path:sub(1, 1) == "/"
+    and (root == "/" or path == root or vim.startswith(path, root .. "/"))
 end
 
 local function state_file(root)
@@ -27,6 +33,13 @@ local function state_file(root)
   return vim.fs.joinpath(state_dir, hash .. ".json")
 end
 
+local function save(root, pinned)
+  vim.fn.mkdir(state_dir, "p")
+
+  vim.fn.writefile({
+    vim.json.encode(pinned),
+  }, state_file(root))
+end
 local function load(root)
   if projects[root] then
     return projects[root]
@@ -46,17 +59,26 @@ local function load(root)
     value = {}
   end
 
-  projects[root] = value
-
-  return projects[root]
-end
-
-local function save(root, pinned)
-  vim.fn.mkdir(state_dir, "p")
-
-  vim.fn.writefile({
-    vim.json.encode(pinned),
-  }, state_file(root))
+  local pinned = {}
+  local changed = false
+  for _, entry in ipairs(value) do
+    local normalized = type(entry) == "string"
+        and entry:sub(1, 1) == "/"
+        and vim.fs.normalize(entry)
+      or nil
+    if normalized and within(root, normalized) then
+      pinned[#pinned + 1] = normalized
+      changed = changed or normalized ~= entry
+    else
+      changed = true
+    end
+  end
+  if changed then
+    -- Migrate old external pins without deleting the state file or local pins.
+    save(root, pinned)
+  end
+  projects[root] = pinned
+  return pinned
 end
 
 local function current()
@@ -73,6 +95,9 @@ function M.toggle()
   end
 
   local root, pinned = current()
+  if not within(root, path) then
+    return
+  end
 
   for i, pinned_path in ipairs(pinned) do
     if pinned_path == path then
@@ -89,10 +114,10 @@ function M.toggle()
 end
 
 function M.select(i)
-  local _, pinned = current()
+  local root, pinned = current()
   local path = pinned[i]
 
-  if path then
+  if path and within(root, path) then
     vim.cmd.edit(vim.fn.fnameescape(path))
   end
 end

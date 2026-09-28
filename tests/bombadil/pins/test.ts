@@ -3,14 +3,19 @@ import { extract, weighted } from "@antithesishq/bombadil/terminal";
 
 const literal = (text: string) => ({
   TypeText: {
-    Regexp: text,
+    Regexp: text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
   },
 });
 
 export const poincareActions = weighted([
-  [2, literal(":edit /tmp/poincare-bombadil/a/a\r")],
-  [2, literal(":edit /tmp/poincare-bombadil/b/b\r")],
+  [2, literal(":edit /tmp/poincare-bombadil/a/a.rs\r")],
+  [2, literal(":edit /tmp/poincare-bombadil/b/b.rs\r")],
+  [2, literal(":edit /tmp/poincare-bombadil/a/nested/in.txt\r")],
+  [2, literal(":edit /tmp/poincare-bombadil/outside.txt\r")],
+  [2, literal(":edit /tmp/poincare-bombadil/a-sibling/out.txt\r")],
   [3, literal(" h")],
+  [2, literal(" 1")],
+  [2, literal(" p")],
   [5, literal(":PoincareCheck\r")],
 ]);
 

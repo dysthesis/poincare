@@ -43,11 +43,15 @@ local function check_pins()
   local prefix = root .. "/"
 
   for _, pin in ipairs(pins) do
-    pin = vim.fs.normalize(pin)
-
     assert(
-      pin == root or vim.startswith(pin, prefix),
-      ("POINCARE_INVARIANT: pin %q outside project %q"):format(pin, root)
+      type(pin) == "string"
+        and pin:sub(1, 1) == "/"
+        and pin == vim.fs.normalize(pin)
+        and (root == "/" or pin == root or vim.startswith(pin, prefix)),
+      ("POINCARE_INVARIANT: pin %q outside project %q"):format(
+        tostring(pin),
+        root
+      )
     )
   end
 end

@@ -39,7 +39,7 @@
 	#!/usr/bin/env bash
 	set -eu
 	status=0
-	for case in statusline sqlite first_lint first_lint_cli gutter_saveas gutter_superseded vc_failure gutter_empty; do
+	for case in statusline sqlite first_lint first_lint_cli gutter_saveas gutter_superseded vc_failure gutter_empty pins; do
 		printf '\n==> regression: %s\n' "$case"
 		if ! just test-regression "$case"; then status=1; fi
 	done
@@ -62,15 +62,20 @@
   set -eu
   
   root=/tmp/poincare-bombadil
+  oracle=$(pwd -P)/tests/bombadil/pins/oracle.lua
+  test -f "$oracle"
   
   rm -rf "$root"
-  mkdir -p "$root/a" "$root/b"
+  mkdir -p "$root/a" "$root/a/nested" "$root/a-sibling" "$root/b"
   
   git -C "$root/a" init -q
   git -C "$root/b" init -q
   
   printf 'fn a() {}\n' > "$root/a/a.rs"
   printf 'fn b() {}\n' > "$root/b/b.rs"
+  printf 'nested\n' > "$root/a/nested/in.txt"
+  printf 'outside\n' > "$root/outside.txt"
+  printf 'sibling\n' > "$root/a-sibling/out.txt"
   
   XDG_STATE_HOME="$root/state" \
   bombadil terminal test \
@@ -80,8 +85,9 @@
     --output-path="$root/out" \
     -- \
     nix run .#poincare -- \
-      -c 'lua dofile("tests/bombadil/pins/oracle.lua").setup()' \
-      "$root/a/a"
+      -c 'cd /tmp/poincare-bombadil/a' \
+      -c "lua dofile([[$oracle]]).setup()" \
+      "$root/a/a.rs"
 
 @bombadil-lint:
     #!/usr/bin/env bash
