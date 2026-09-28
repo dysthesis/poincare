@@ -13,7 +13,7 @@ path="$TEST_NVIM/bin:$TEST_BASH/bin:/bin"
 case "$1" in
   sqlite) tools+=("$TEST_SQLITE"); path="$TEST_SQLITE/bin:$path" ;;
   first_lint|first_lint_cli) tools+=("$TEST_SELENE"); path="$TEST_SELENE/bin:$path" ;;
-  gutter_saveas|gutter_superseded|vc_failure|gutter_empty) tools+=("$TEST_GIT"); path="$TEST_GIT/bin:$path" ;;
+  statusline|gutter_saveas|gutter_superseded|vc_failure|gutter_empty) tools+=("$TEST_GIT"); path="$TEST_GIT/bin:$path" ;;
 esac
 for tool in "${tools[@]}"; do
   test -d "$tool" && test "${tool#"$store"/}" != "$tool"

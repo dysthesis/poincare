@@ -41,11 +41,11 @@ keys = (
 env = {key: os.environ[key] for key in keys}
 if sys.argv[1] == "sqlite":
     env["TEST_SQLITE"] = os.environ["TEST_SQLITE"]
-if sys.argv[1] in {"gutter_saveas", "gutter_superseded", "vc_failure", "gutter_empty"}:
+if sys.argv[1] in {"statusline", "gutter_saveas", "gutter_superseded", "vc_failure", "gutter_empty"}:
     env["TEST_GIT"] = os.environ["TEST_GIT"]
 env["TMPDIR"] = os.environ.get("TMPDIR", "/tmp")
 required = keys + (("TEST_SQLITE",) if sys.argv[1] == "sqlite" else ())
-if sys.argv[1] in {"gutter_saveas", "gutter_superseded", "vc_failure", "gutter_empty"}:
+if sys.argv[1] in {"statusline", "gutter_saveas", "gutter_superseded", "vc_failure", "gutter_empty"}:
     required += ("TEST_GIT",)
 for key in required:
     if not os.path.isdir(env[key]):
