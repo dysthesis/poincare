@@ -30,7 +30,8 @@ local function buffer_text(buf)
       or vim.api.nvim_buf_call(buf, function()
           -- Unlike visible { "" }, this distinguishes zero bytes from one LF.
           return vim.fn.wordcount().bytes
-        end) > 0
+        end)
+        > 0
     )
   then
     text = text .. "\n"
@@ -48,10 +49,23 @@ local function sign(buf, line, kind)
   })
 end
 
+local function detach(buf)
+  state[buf] = nil
+  if vim.api.nvim_buf_is_valid(buf) then
+    vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+  end
+end
 local function render(buf)
   local bufstate = state[buf]
 
-  if not bufstate or bufstate.base == nil then
+  if not bufstate then
+    return
+  end
+  if vim.bo[buf].buftype ~= "" then
+    detach(buf)
+    return
+  end
+  if bufstate.base == nil then
     return
   end
 
@@ -81,13 +95,6 @@ local function render(buf)
         sign(buf, line, "change")
       end
     end
-  end
-end
-
-local function detach(buf)
-  state[buf] = nil
-  if vim.api.nvim_buf_is_valid(buf) then
-    vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
   end
 end
 
@@ -122,7 +129,7 @@ local function attach(buf)
   end
   state[buf] = request
 
-  vim.system({ "git", "show", ":" .. relative }, {
+  local started = pcall(vim.system, { "git", "show", ":" .. relative }, {
     cwd = root,
     text = true,
   }, function(result)
@@ -131,7 +138,8 @@ local function attach(buf)
         return
       end
       if
-        vim.api.nvim_buf_get_name(buf) ~= path
+        vim.bo[buf].buftype ~= ""
+        or vim.api.nvim_buf_get_name(buf) ~= path
         or vim.fs.root(path, ".git") ~= root
       then
         detach(buf)
@@ -148,6 +156,13 @@ local function attach(buf)
       render(buf)
     end)
   end)
+  if
+    not started
+    and state[buf] == request
+    and vim.api.nvim_buf_is_valid(buf)
+  then
+    detach(buf)
+  end
 end
 
 function M.setup()
@@ -194,6 +209,14 @@ function M.setup()
     pattern = "endofline",
     callback = function()
       render(vim.api.nvim_get_current_buf())
+    end,
+  })
+
+  vim.api.nvim_create_autocmd("OptionSet", {
+    group = group,
+    pattern = "buftype",
+    callback = function()
+      attach(vim.api.nvim_get_current_buf())
     end,
   })
 
