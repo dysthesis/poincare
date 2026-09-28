@@ -157,41 +157,52 @@ local function refresh_repo(repo, invalidate)
 
   local backend = backends[repo.kind]
 
-  vim.system(backend.command(repo.root), { text = true }, function(result)
-    vim.schedule(function()
-      local current = state[key]
+  local started = pcall(
+    vim.system,
+    backend.command(repo.root),
+    { text = true },
+    function(result)
+      vim.schedule(function()
+        local current = state[key]
 
-      if current ~= cached then
-        return
-      end
+        if current ~= cached then
+          return
+        end
 
-      current.pending = false
-      if current.refresh_requested then
-        refresh_repo(repo)
-        return
-      end
+        current.pending = false
+        if current.refresh_requested then
+          refresh_repo(repo)
+          return
+        end
 
-      if result.code ~= 0 then
-        current.label = nil
-        current.dirty = nil
+        if result.code ~= 0 then
+          current.label = nil
+          current.dirty = nil
+          redraw()
+          return
+        end
+
+        local parsed = backend.parse(result.stdout or "")
+        if not parsed then
+          current.label = nil
+          current.dirty = nil
+          redraw()
+          return
+        end
+
+        current.label = parsed.label
+        current.dirty = parsed.dirty
+
         redraw()
-        return
-      end
-
-      local parsed = backend.parse(result.stdout or "")
-      if not parsed then
-        current.label = nil
-        current.dirty = nil
-        redraw()
-        return
-      end
-
-      current.label = parsed.label
-      current.dirty = parsed.dirty
-
-      redraw()
-    end)
-  end)
+      end)
+    end
+  )
+  if not started then
+    cached.pending = false
+    cached.label = nil
+    cached.dirty = nil
+    redraw()
+  end
 end
 
 function M.refresh(buf)

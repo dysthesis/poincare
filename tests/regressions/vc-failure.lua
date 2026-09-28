@@ -61,11 +61,36 @@ T["a failed VC query does not retrigger solely by statusline redraw"] = function
     vim.wait(400, function()
       return calls >= 3
     end, 20)
-    vim.o.statusline = "" -- Also stop when a corrected implementation does not retry.
+    -- A settled failure is silent until an ordinary refresh, not a redraw.
     assert(failures >= 1, "statusline query did not fail")
     assert(
       calls <= 1,
       ("failure-triggered redraw spawned %d Git queries"):format(calls)
+    )
+    vim.fn.delete(repo .. "/.git", "rf")
+    git.run(repo, "init", "-q", "-b", "recovered-probe")
+    git.run(repo, "add", "A")
+    assert(
+      git
+        .run(repo, "status", "--porcelain=v2", "--branch")
+        :find("# branch.head recovered-probe", 1, true),
+      "repaired Git backend is not usable"
+    )
+    local buf = vim.api.nvim_get_current_buf()
+    require("ui.statusline.vc").refresh(buf)
+    local rendered
+    assert(
+      vim.wait(3000, function()
+        rendered = vim.api.nvim_eval_statusline(vim.o.statusline, {
+          winid = vim.api.nvim_get_current_win(),
+        }).str
+        return rendered:find("recovered-probe", 1, true) ~= nil
+      end, 20),
+      "normal refresh did not recover the real Git branch"
+    )
+    assert(
+      calls == 2 and failures == 1,
+      ("repair launched %d queries with %d failures"):format(calls, failures)
     )
   end, debug.traceback)
 
@@ -79,7 +104,9 @@ end
 
 T["renaming a buffer outside Git removes its VC status immediately"] = function()
   local dir = assert(
-    vim.uv.fs_mkdtemp((vim.env.TMPDIR or "/tmp") .. "/poincare-vc-rename-XXXXXX")
+    vim.uv.fs_mkdtemp(
+      (vim.env.TMPDIR or "/tmp") .. "/poincare-vc-rename-XXXXXX"
+    )
   )
   local repo, outside = dir .. "/repo", dir .. "/outside"
 
@@ -90,7 +117,8 @@ T["renaming a buffer outside Git removes its VC status immediately"] = function(
     git.write(repo .. "/A", "tracked\n")
     git.run(repo, "add", "A")
     assert(
-      git.run(repo, "status", "--porcelain=v2", "--branch")
+      git
+        .run(repo, "status", "--porcelain=v2", "--branch")
         :find("# branch.head rename-probe", 1, true),
       "real Git branch oracle is wrong"
     )
@@ -128,7 +156,9 @@ end
 
 T["a write during an in-flight VC query eventually displays the new status"] = function()
   local dir = assert(
-    vim.uv.fs_mkdtemp((vim.env.TMPDIR or "/tmp") .. "/poincare-vc-overlap-XXXXXX")
+    vim.uv.fs_mkdtemp(
+      (vim.env.TMPDIR or "/tmp") .. "/poincare-vc-overlap-XXXXXX"
+    )
   )
   local repo = dir .. "/repo"
   local original_system = vim.system

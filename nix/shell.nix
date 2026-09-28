@@ -4,33 +4,30 @@
   treefmt,
   inputs,
   ...
-}: let
-  styluaOptions =
-    treefmt.config.settings.formatter.stylua.options;
+}:
+let
+  styluaOptions = treefmt.config.settings.formatter.stylua.options;
 
-  styluaConfig = assert builtins.length styluaOptions == 2;
-  assert builtins.elemAt styluaOptions 0 == "--config-path";
+  styluaConfig =
+    assert builtins.length styluaOptions == 2;
+    assert builtins.elemAt styluaOptions 0 == "--config-path";
     builtins.elemAt styluaOptions 1;
-in {
+in
+{
   default = pkgs.mkShellNoCC {
     MINI_TEST_RTP = pkgs.vimPlugins.mini-nvim;
     POINCARE_PACKPATH = self.packages.${pkgs.system}.poincare.packpath;
     TEST_NVIM = pkgs.neovim-unwrapped;
     TEST_BASH = pkgs.bash;
     TEST_CORE = pkgs.coreutils;
-    TEST_UTIL =
-      if pkgs.stdenv.hostPlatform.isLinux
-      then pkgs.util-linux
-      else "";
-    TEST_IP =
-      if pkgs.stdenv.hostPlatform.isLinux
-      then pkgs.iproute2
-      else "";
+    TEST_UTIL = if pkgs.stdenv.hostPlatform.isLinux then pkgs.util-linux else "";
+    TEST_IP = if pkgs.stdenv.hostPlatform.isLinux then pkgs.iproute2 else "";
     TEST_NIX = pkgs.nix;
     TEST_PYTHON = pkgs.python3;
     TEST_SELENE = pkgs.selene;
     TEST_SQLITE = pkgs.sqlite;
     TEST_GIT = pkgs.gitMinimal;
+    TEST_JJ = pkgs.jujutsu;
 
     inputsFrom = [
       treefmt.config.build.devShell
@@ -52,6 +49,8 @@ in {
         # Real Dadbod regression: inspect both physical database files.
         sqlite
         gitMinimal
+        # Real jj restoration inside the VC regression sandbox.
+        jujutsu
 
         # Management for plugins outside of nixpkgs
         npins
@@ -64,7 +63,7 @@ in {
         nixfmt
 
         # Python for dev scripts
-        (python3.withPackages (p: with p; [rich]))
+        (python3.withPackages (p: with p; [ rich ]))
         basedpyright
         black
 
@@ -76,10 +75,13 @@ in {
         cargo
         fish
       ])
-      ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux (with pkgs; [
-        util-linux
-        iproute2
-      ]);
+      ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux (
+        with pkgs;
+        [
+          util-linux
+          iproute2
+        ]
+      );
 
     shellHook = ''
       root="$PWD"

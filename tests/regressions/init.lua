@@ -8,6 +8,7 @@ local cases = {
   gutter_saveas = "tests/regressions/gutter-saveas.lua",
   gutter_superseded = "tests/regressions/gutter-superseded.lua",
   vc_failure = "tests/regressions/vc-failure.lua",
+  vc_jj = "tests/regressions/vc-jj.lua",
   gutter_empty = "tests/regressions/gutter-empty.lua",
   pins = "tests/regressions/pins.lua",
 }

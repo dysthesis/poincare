@@ -3,7 +3,7 @@
 # TEST_* and POINCARE_PACKPATH are declared in nix/shell.nix; no store path is
 # inferred by scanning package names or mounting the entire host store.
 set -euo pipefail
-case "${1:-}" in statusline|sqlite|first_lint|first_lint_cli|gutter_saveas|gutter_superseded|vc_failure|gutter_empty|pins) ;; *) exit 64 ;; esac
+case "${1:-}" in statusline|sqlite|first_lint|first_lint_cli|gutter_saveas|gutter_superseded|vc_failure|vc_jj|gutter_empty|pins) ;; *) exit 64 ;; esac
 repo=$(pwd -P)
 test -f "$repo/src/init.lua" && test -f "$repo/tests/regressions/init.lua"
 store=$(dirname "$TEST_NVIM")
@@ -14,6 +14,7 @@ case "$1" in
   sqlite) tools+=("$TEST_SQLITE"); path="$TEST_SQLITE/bin:$path" ;;
   first_lint|first_lint_cli) tools+=("$TEST_SELENE"); path="$TEST_SELENE/bin:$path" ;;
   statusline|gutter_saveas|gutter_superseded|vc_failure|gutter_empty) tools+=("$TEST_GIT"); path="$TEST_GIT/bin:$path" ;;
+  vc_jj) tools+=("$TEST_JJ"); ;;
 esac
 for tool in "${tools[@]}"; do
   test -d "$tool" && test "${tool#"$store"/}" != "$tool"
@@ -58,7 +59,7 @@ test "$("$TEST_IP/bin/ip" -6 route show)" = ''
 "$TEST_IP/bin/ip" -o link show lo | "$TEST_BASH/bin/bash" -c 'read -r line; [[ "$line" == *"state DOWN"* ]]'
 env -i HOME=/home/test XDG_CONFIG_HOME=/home/test/config XDG_CACHE_HOME=/home/test/cache XDG_DATA_HOME=/home/test/data XDG_STATE_HOME=/home/test/state TMPDIR=/tmp \
   POINCARE_PACKPATH="$POINCARE_PACKPATH" MINI_TEST_RTP="$MINI_TEST_RTP" POINCARE_TEST_CASE="$1" POINCARE_INITIAL_FILE="$initial_file" \
-  GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null PATH="$path" \
+  TEST_JJ_BIN="${TEST_JJ:+$TEST_JJ/bin}" GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null PATH="$path" \
   "$TEST_CORE/bin/chroot" "$root" "$TEST_UTIL/bin/setpriv" --bounding-set=-all --no-new-privs \
   "$TEST_BASH/bin/bash" -c '
     set -euo pipefail
