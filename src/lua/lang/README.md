@@ -11,6 +11,31 @@ for policy. That is,
   languages; for example, `specs/lua.lua` provides a table which defines,
   among others, what _formatter_ to use for Lua.
 
+## LSP display
+
+Server inlay-hint refreshes retain the displayed hints until a current response
+replaces them; a current empty or nil response removes them. Request-local
+identity rejects canceled or superseded replies, even when an in-process server
+responds inline during cancellation or replacement issuance. Current synchronous
+responses and customized client handlers remain supported. Hidden buffers
+refresh when shown again. Disabling hints or detaching the client still clears
+them.
+Diagnostics keep their previous decorations while automatic updates are
+deferred in Insert mode (`update_in_insert = false`); the latest cached update,
+including an empty list, is displayed on `InsertLeave`, not `CursorHoldI`.
+Deferred empty updates keep their namespace enumerable without contributing to
+`vim.diagnostic.get()` or `count()`. Explicit hide/reset/disable operations,
+including buffer-wide and global operations, still clear immediately and cancel
+the deferred display. Enabling `update_in_insert` also applies a pending empty
+update immediately.
+
+These are native runtime fixes in `nix/neovim-display.patch`, applied after the
+nightly overlay by `nix/neovim-display-overlay.nix` to the packaged, dev-shell
+and test Neovim. The patch targets pin `d039f19`; when updating that pin, review
+the three patched Lua modules and run `just test-regression lsp_display` to check
+request identity/reentrancy, retained decorations, accepted-empty results,
+unscoped cleanup and option changes.
+
 ## Linting
 
 Language specs register nvim-lint names through `modules/linters.lua` (one name

@@ -39,7 +39,7 @@
 	#!/usr/bin/env bash
 	set -eu
 	status=0
-	for case in statusline sqlite first_lint first_lint_cli gutter_saveas gutter_superseded vc_failure vc_jj gutter_empty pins; do
+	for case in statusline sqlite first_lint first_lint_cli gutter_saveas gutter_superseded vc_failure vc_jj gutter_empty pins lsp_display; do
 		printf '\n==> regression: %s\n' "$case"
 		if ! just test-regression "$case"; then status=1; fi
 	done

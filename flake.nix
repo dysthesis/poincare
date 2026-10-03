@@ -22,7 +22,10 @@
             pkgs = import inputs.nixpkgs {
               inherit system;
               config.allowUnfree = true;
-              overlays = [inputs.neovim-nightly-overlay.overlays.default];
+              overlays = [
+                inputs.neovim-nightly-overlay.overlays.default
+                (import ./nix/neovim-display-overlay.nix)
+              ];
             };
           }
       );

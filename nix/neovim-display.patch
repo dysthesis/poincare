@@ -1,0 +1,206 @@
+diff --git a/runtime/lua/vim/lsp/inlay_hint.lua b/runtime/lua/vim/lsp/inlay_hint.lua
+--- a/runtime/lua/vim/lsp/inlay_hint.lua
++++ b/runtime/lua/vim/lsp/inlay_hint.lua
+@@ -116,18 +116,32 @@ function InlayHint:refresh(client_id)
+     -- cancel stale in-flight request
+     self:cancel_active_request(client_id)
+ 
++    active_request = { version = version }
++    state.active_request = active_request
++    local handler = assert(client:_resolve_handler('textDocument/inlayHint'))
++
+     ---@type lsp.InlayHintParams
+     local params = {
+       textDocument = util.make_text_document_params(self.bufnr),
+       range = vim
+         .range(self.bufnr, 0, 0, api.nvim_buf_line_count(self.bufnr), 0)
+         :to_lsp(client.offset_encoding),
+     }
+ 
+-    local success, request_id = client:request('textDocument/inlayHint', params, nil, self.bufnr)
++    local success, request_id = client:request('textDocument/inlayHint', params, function(err, result, ctx)
++      if state.active_request ~= active_request then
++        return
++      end
++      -- The current response may arrive before Client:request returns.
++      active_request.request_id = ctx.request_id
++      handler(err, result, ctx)
++    end, self.bufnr)
+ 
+-    if success then
+-      active_request.request_id = request_id
+-      active_request.version = version
++    if state.active_request == active_request then
++      if success then
++        active_request.request_id = request_id
++      else
++        state.active_request = {}
++      end
+     end
+   end
+@@ -153,16 +167,16 @@ function M.on_inlayhint(err, result, ctx)
+-  if err then
+-    log.error('inlay_hint', err)
+-    state.active_request = {}
+-    return
+-  end
+-
+   if util.buf_versions[bufnr] ~= ctx.version or not api.nvim_buf_is_loaded(bufnr) then
+     return
+   end
+ 
+-  -- ignore stale responses
+-  if state.active_request.request_id and ctx.request_id ~= state.active_request.request_id then
++  -- Ignore canceled or superseded responses, including after a newer result was accepted.
++  if not state.active_request.request_id or ctx.request_id ~= state.active_request.request_id then
+     return
+   end
+ 
++  if err then
++    log.error('inlay_hint', err)
++    state.active_request = {}
++    return
++  end
++
+   -- If there's no error but the result is nil, clear existing hints.
+@@ -172,6 +186,11 @@ function M.on_inlayhint(err, result, ctx)
+   local num_unprocessed = #result
+   if num_unprocessed == 0 then
+     state.active_request = {}
+-    state.current_result = {}
++    state.current_result = {
++      hints = new_lnum_hints,
++      version = ctx.version,
++      namespace_cleared = true,
++    }
++    api.nvim_buf_clear_namespace(bufnr, state.namespace, 0, -1)
+     if vim.fn.win_gettype(vim.fn.bufwinid(bufnr)) == '' then
+       api.nvim__redraw({ buf = bufnr, valid = true, flush = false })
+@@ -214,8 +233,8 @@ function InlayHint:cancel_active_request(client_id)
+   local client = vim.lsp.get_client_by_id(client_id)
+   local active_request = state.active_request
+ 
++  -- Invalidate before cancellation, which can synchronously deliver the old response.
++  state.active_request = {}
+   if client and active_request.request_id then
+     client:cancel_request(active_request.request_id)
+-    active_request.request_id = nil
+-    active_request.version = nil
+   end
+@@ -231,7 +250,9 @@ function M.on_refresh(err, _, ctx)
+ 
+   for bufnr, provider in pairs(InlayHint.active) do
+-    if provider.client_state[ctx.client_id] then
+-      provider:reset(ctx.client_id)
++    local state = provider.client_state[ctx.client_id]
++    if state then
++      provider:cancel_active_request(ctx.client_id)
++      state.current_result.version = nil
+ 
+       if not vim.tbl_isempty(vim.fn.win_findbuf(bufnr)) then
+         provider:refresh(ctx.client_id)
+diff --git a/runtime/lua/vim/diagnostic/_display.lua b/runtime/lua/vim/diagnostic/_display.lua
+--- a/runtime/lua/vim/diagnostic/_display.lua
++++ b/runtime/lua/vim/diagnostic/_display.lua
+@@ -30,7 +30,7 @@ local bufs_waiting_to_update = setmetatable({}, bufnr_and_namespace_cacher_mt)
+ local registered_autocmds = {}
+ 
+ --- Table of autocmd events to fire the update for displaying new diagnostic information
+-local insert_leave_auto_cmds = { 'InsertLeave', 'CursorHoldI' }
++local insert_leave_auto_cmds = { 'InsertLeave' }
+ 
+ --- @param namespace integer
+ --- @param bufnr integer
+@@ -59,6 +59,7 @@ local function execute_scheduled_display(namespace, bufnr)
+ --- @param args vim.diagnostic.OptsResolved
+ local function schedule_display(namespace, bufnr, args)
+   bufs_waiting_to_update[bufnr][namespace] = args
++  diagnostic_modules._store.retain_empty(namespace, bufnr)
+ 
+   local key = make_augroup_key(namespace, bufnr)
+   if not registered_autocmds[key] then
+@@ -76,6 +77,11 @@ end
+ --- @param namespace integer
+ --- @param bufnr integer
+ local function clear_scheduled_display(namespace, bufnr)
++  local pending = rawget(bufs_waiting_to_update, bufnr)
++  if pending then
++    pending[namespace] = nil
++  end
++  diagnostic_modules._store.release_empty(namespace, bufnr)
+   local key = make_augroup_key(namespace, bufnr)
+ 
+   if registered_autocmds[key] then
+@@ -97,6 +103,7 @@ function M.hide(namespace, bufnr)
+     local namespaces = namespace and { namespace }
+       or diagnostic_modules._store.get_buf_namespaces(iter_bufnr)
+     for _, iter_namespace in ipairs(namespaces) do
++      clear_scheduled_display(iter_namespace, iter_bufnr)
+       for _, handler in pairs(vim.diagnostic.handlers) do
+         if handler.hide then
+           handler.hide(iter_namespace, iter_bufnr)
+@@ -146,26 +153,26 @@ function M.show(namespace, bufnr, diagnostics, opts)
+-  M.hide(namespace, bufnr)
+-
+-  diagnostics = diagnostics
+-    or diagnostic_modules._store.get_diagnostics(bufnr, {
+-      namespace = namespace,
+-    }, true)
+-
+-  if vim.tbl_isempty(diagnostics) then
+-    return
+-  end
+-
+   local opts_res = diagnostic_modules._config.get_resolved_options(opts, namespace, bufnr)
+ 
+   if opts_res.update_in_insert then
+     clear_scheduled_display(namespace, bufnr)
+   else
+     local mode = api.nvim_get_mode()
+     if mode.mode:sub(1, 1) == 'i' then
+       schedule_display(namespace, bufnr, opts_res)
+       return
+     end
+   end
+ 
++  M.hide(namespace, bufnr)
++
++  diagnostics = diagnostics
++    or diagnostic_modules._store.get_diagnostics(bufnr, {
++      namespace = namespace,
++    }, true)
++
++  if vim.tbl_isempty(diagnostics) then
++    return
++  end
++
+   if opts_res.severity_sort then
+     if type(opts_res.severity_sort) == 'table' and opts_res.severity_sort.reverse then
+       table.sort(diagnostics, function(a, b)
+diff --git a/runtime/lua/vim/diagnostic/_store.lua b/runtime/lua/vim/diagnostic/_store.lua
+--- a/runtime/lua/vim/diagnostic/_store.lua
++++ b/runtime/lua/vim/diagnostic/_store.lua
+@@ -239,6 +239,23 @@ function M.get_buf_namespaces(bufnr)
+   return vim.tbl_keys(diagnostic_cache[vim._resolve_bufnr(bufnr)])
+ end
+ 
++-- Keep deferred empty displays enumerable without exposing stale diagnostics.
++--- @param namespace integer
++--- @param bufnr integer
++function M.retain_empty(namespace, bufnr)
++  local cache = diagnostic_cache[vim._resolve_bufnr(bufnr)]
++  cache[namespace] = cache[namespace] or {}
++end
++
++--- @param namespace integer
++--- @param bufnr integer
++function M.release_empty(namespace, bufnr)
++  local cache = rawget(diagnostic_cache, vim._resolve_bufnr(bufnr))
++  if cache and cache[namespace] and vim.tbl_isempty(cache[namespace]) then
++    cache[namespace] = nil
++  end
++end
++
+ --- @param namespace integer
+ --- @param bufnr integer
+ function M.clear(namespace, bufnr)

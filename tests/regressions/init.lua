@@ -11,6 +11,7 @@ local cases = {
   vc_jj = "tests/regressions/vc-jj.lua",
   gutter_empty = "tests/regressions/gutter-empty.lua",
   pins = "tests/regressions/pins.lua",
+  lsp_display = "tests/regressions/lsp-display.lua",
 }
 
 local name = vim.env.POINCARE_TEST_CASE
