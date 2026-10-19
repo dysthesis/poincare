@@ -1,5 +1,6 @@
 --- Current-line blame for the pinned Neovim 0.13 nightly.
 --- Uses unsaved buffer contents and active-window, right-aligned virtual text.
+--- Git-backed JJ workspaces show change IDs; plain Git shows commit IDs.
 --- GitBlame styles the entire annotation; :GitBlame forces a refresh.
 local M = {}
 
@@ -37,7 +38,7 @@ local function is_current(current)
     and vim.api.nvim_buf_get_changedtick(current.buf) == current.tick
 end
 
-local function format_blame(output)
+local function format_blame(output, id)
   local hash = output:match("^(%x+) ")
   if not hash then
     return
@@ -62,7 +63,7 @@ local function format_blame(output)
         "  %s · %s · %s — %s",
         author,
         os.date("%Y-%m-%d", timestamp),
-        hash:sub(1, 8),
+        id or hash:sub(1, 8),
         summary
       ),
       "GitBlame",
@@ -133,19 +134,64 @@ function M.blame_line()
           return
         end
 
-        local chunks = format_blame(result.stdout or "")
-        if not chunks then
+        local output = result.stdout or ""
+        local function show(id)
+          if not is_current(current) then
+            return
+          end
+          local chunks = format_blame(output, id)
+          if not chunks then
+            return
+          end
+
+          -- A buffer can be visible in several splits; only decorate this one.
+          vim.api.nvim__ns_set(ns, { wins = { win } })
+          vim.api.nvim_buf_set_extmark(buf, ns, current.row - 1, 0, {
+            virt_text = chunks,
+            virt_text_pos = "eol_right_align",
+            hl_mode = "combine",
+            priority = 1,
+          })
+        end
+
+        local hash = output:match("^(%x+) ")
+        local root = vim.fs.root(buf, { { ".jj", ".git" } })
+        if
+          not hash
+          or hash:match("^0+$")
+          or not root
+          or vim.fn.isdirectory(root .. "/.jj") == 0
+        then
+          show()
           return
         end
 
-        -- A buffer can be visible in several splits; only decorate this one.
-        vim.api.nvim__ns_set(ns, { wins = { win } })
-        vim.api.nvim_buf_set_extmark(buf, ns, current.row - 1, 0, {
-          virt_text = chunks,
-          virt_text_pos = "eol_right_align",
-          hl_mode = "combine",
-          priority = 1,
-        })
+        local jj_started, jj_process = pcall(vim.system, {
+          "jj",
+          "--ignore-working-copy",
+          "--no-pager",
+          "--color=never",
+          "log",
+          "--no-graph",
+          "-r",
+          hash,
+          "-T",
+          "change_id.shortest(8)",
+        }, { cwd = root, text = true }, function(jj_result)
+          vim.schedule(function()
+            current.process = nil
+            if jj_result.code ~= 0 then
+              return
+            end
+            local id = vim.trim(jj_result.stdout or "")
+            if id ~= "" then
+              show(id)
+            end
+          end)
+        end)
+        if jj_started then
+          current.process = jj_process
+        end
       end)
     end)
     if started then

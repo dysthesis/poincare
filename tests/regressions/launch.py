@@ -53,7 +53,7 @@ if sys.argv[1] in {
     "blame",
 }:
     env["TEST_GIT"] = os.environ["TEST_GIT"]
-if sys.argv[1] == "vc_jj":
+if sys.argv[1] in {"vc_jj", "blame"}:
     env["TEST_JJ"] = os.environ["TEST_JJ"]
 env["TMPDIR"] = os.environ.get("TMPDIR", "/tmp")
 required = keys + (("TEST_SQLITE",) if sys.argv[1] == "sqlite" else ())
@@ -66,7 +66,7 @@ if sys.argv[1] in {
     "blame",
 }:
     required += ("TEST_GIT",)
-if sys.argv[1] == "vc_jj":
+if sys.argv[1] in {"vc_jj", "blame"}:
     required += ("TEST_JJ",)
 for key in required:
     if not os.path.isdir(env[key]):

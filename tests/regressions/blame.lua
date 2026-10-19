@@ -96,6 +96,37 @@ local function with_repo(callback)
   assert(ok, err)
 end
 
+local function with_jj_repo(callback)
+  with_repo(function(fixture)
+    local function jj(...)
+      local process = fixture.system({
+        "jj",
+        "--no-pager",
+        "--color=never",
+        ...,
+      }, { cwd = fixture.root, text = true })
+      local result = assert(process:wait(5000))
+      assert(result.code == 0, result.stderr)
+      return vim.trim(result.stdout or "")
+    end
+    jj("git", "init", "--colocate")
+    for _, key in ipairs({ "first", "second" }) do
+      fixture[key] = jj(
+        "--ignore-working-copy",
+        "log",
+        "--no-graph",
+        "-r",
+        fixture[key],
+        "-T",
+        "change_id.shortest(8)"
+      )
+    end
+    require("ui.blame").blame_line()
+    wait_for_commit(fixture.buf, fixture.first, 0)
+    callback(fixture)
+  end)
+end
+
 local function hold_blame(fixture)
   local held = {}
   vim.system = function(args, opts, callback)
@@ -194,6 +225,57 @@ T["an empty buffer is not confused with one uncommitted blank line"] = function(
     vim.cmd.edit({ bang = true })
     assert(vim.fn.wordcount().bytes == 1, "fixture is not a single blank line")
     wait_for_uncommitted(fixture)
+  end)
+end
+
+T["JJ source change IDs survive unsaved inserted lines"] = function()
+  with_jj_repo(function(fixture)
+    vim.api.nvim_buf_set_lines(fixture.buf, 0, 0, false, { "unsaved" })
+    vim.api.nvim_win_set_cursor(0, { 3, 0 })
+    require("ui.blame").blame_line()
+    wait_for_commit(fixture.buf, fixture.second, 2)
+    vim.api.nvim_win_set_cursor(0, { 1, 0 })
+    require("ui.blame").blame_line()
+    wait_for_uncommitted(fixture)
+    assert(git.read(fixture.path) == "alpha\nbravo\n", "blame wrote the buffer")
+  end)
+end
+
+T["changed buffers reject completed JJ change ID replies"] = function()
+  with_jj_repo(function(fixture)
+    local held
+    vim.system = function(args, opts, callback)
+      if args[1] == "jj" and callback then
+        return fixture.system(args, opts, function(result)
+          held = { callback = callback, result = result }
+        end)
+      end
+      return fixture.system(args, opts, callback)
+    end
+    require("ui.blame").blame_line()
+    assert(
+      vim.wait(3000, function()
+        return held ~= nil
+      end, 10),
+      "real JJ lookup did not finish"
+    )
+    assert(held.result.code == 0, held.result.stderr)
+    vim.api.nvim_buf_set_lines(fixture.buf, 0, 1, false, { "replacement" })
+    held.callback(held.result)
+    flush()
+    assert(display(fixture.buf) == "", "old JJ reply restored commit blame")
+  end)
+end
+
+T["a nested Git repository does not inherit its JJ parent's change IDs"] = function()
+  with_jj_repo(function(fixture)
+    git.run(fixture.root, "clone", "-q", ".", "nested")
+    local nested = fixture.root .. "/nested"
+    local hash = vim.trim(git.run(nested, "rev-parse", "HEAD")):sub(1, 8)
+    vim.cmd.edit(vim.fn.fnameescape(nested .. "/file with spaces.txt"))
+    vim.api.nvim_win_set_cursor(0, { 2, 0 })
+    require("ui.blame").blame_line()
+    wait_for_commit(vim.api.nvim_get_current_buf(), hash, 1)
   end)
 end
 
