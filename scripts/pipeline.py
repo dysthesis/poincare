@@ -728,9 +728,11 @@ def aggregate_tree(
         metrics = validate_metric_values(raw_metrics, descriptors, "leaf metrics")
         node = root
         for part in path:
-            node = node.children.setdefault(
-                part, Node(part, zero_metrics(keys), zero_metrics(keys))
-            )
+            child = node.children.get(part)
+            if child is None:
+                child = Node(part, zero_metrics(keys), zero_metrics(keys))
+                node.children[part] = child
+            node = child
         node.own = add_metrics(node.own, metrics)
 
     def total(node: Node) -> MetricValues:

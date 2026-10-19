@@ -222,6 +222,25 @@ class MetricAndTreeTests(unittest.TestCase):
         self.assertEqual(len(size._display_rows(root, "bytecodes", 0)), 1)
         self.assertEqual(len(size._display_rows(root, "bytecodes", 1)), 2)
 
+    def test_aggregation_preserves_own_metrics_at_shared_prefixes(self) -> None:
+        leaves = [
+            (("shared",), metrics(bytecodes=7)),
+            (("shared", "a"), metrics(bytecodes=2)),
+            (("shared", "b"), metrics(bytecodes=3)),
+        ]
+        for ordered in (leaves, leaves[1:] + leaves[:1]):
+            with self.subTest(prefix_first=ordered is leaves):
+                root = size.aggregate_tree(
+                    "poincare", size.SIZE_METRIC_DESCRIPTORS, ordered
+                )
+                shared = root.children["shared"]
+                self.assertEqual(shared.own["bytecodes"], 7)
+                self.assertEqual(shared.total["bytecodes"], 12)
+                self.assertEqual(root.total["bytecodes"], 12)
+                self.assertEqual(list(shared.children), ["a", "b"])
+                self.assertEqual(shared.children["a"].total["bytecodes"], 2)
+                self.assertEqual(shared.children["b"].total["bytecodes"], 3)
+
     def test_narrow_render_preserves_paths_values_and_percentages(self) -> None:
         root = size.Node("poincare", total=metrics(bytecodes=123456, decisions=7))
         child = size.Node(
