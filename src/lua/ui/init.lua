@@ -24,3 +24,4 @@ opt.statusline = "%{%v:lua.require'ui.statusline'.render()%}"
 -- Some useful add-ons
 require("ui.splits").setup() -- integrate splits with tmux
 require("ui.vc-gutter").setup() -- show dirty changes in gutter
+require("ui.blame").setup()
