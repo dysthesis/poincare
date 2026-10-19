@@ -250,4 +250,118 @@ T["a write during an in-flight VC query eventually displays the new status"] = f
   assert(ok, err)
 end
 
+T["cached clean status survives pending refreshes and clears on terminal failure"] = function()
+  local dir = assert(
+    vim.uv.fs_mkdtemp(
+      (vim.env.TMPDIR or "/tmp") .. "/poincare-vc-cached-XXXXXX"
+    )
+  )
+  local repo = dir .. "/repo"
+  local original_system = vim.system
+
+  local ok, err = xpcall(function()
+    vim.fn.mkdir(repo, "p")
+    git.run(repo, "init", "-q", "-b", "cached-probe")
+    git.write(repo .. "/A", "before\n")
+    git.run(repo, "add", "A")
+    git.run(
+      repo,
+      "-c",
+      "user.name=Probe",
+      "-c",
+      "user.email=probe@example.invalid",
+      "commit",
+      "-qm",
+      "initial"
+    )
+    vim.cmd.edit(vim.fn.fnameescape(repo .. "/A"))
+    local vc = require("ui.statusline.vc")
+    local function rendered()
+      return vim.api.nvim_eval_statusline(vim.o.statusline, {
+        winid = vim.api.nvim_get_current_win(),
+      }).str
+    end
+
+    for _, failure in ipairs({ "parse", "exit", "spawn" }) do
+      vim.system = original_system
+      vc.refresh()
+      assert(
+        vim.wait(3000, function()
+          return rendered():find("cached-probe", 1, true) ~= nil
+        end, 20),
+        "clean status did not publish"
+      )
+      assert(
+        not rendered():find(" ±", 1, true),
+        "clean status was marked dirty"
+      )
+
+      local calls, release = 0, nil
+      vim.system = function(args, opts, callback)
+        if
+          args[1] == "git"
+          and args[2] == "-C"
+          and args[3] == repo
+          and args[4] == "status"
+          and callback
+        then
+          calls = calls + 1
+          if failure == "spawn" then
+            error("simulated spawn failure")
+          end
+          return original_system(args, opts, function(result)
+            release = function()
+              if failure == "parse" then
+                assert(result.code == 0, "real Git query failed")
+                result.stdout = "" -- Successful but unusable backend response.
+              else
+                assert(result.code ~= 0, "broken repository query succeeded")
+              end
+              callback(result)
+            end
+          end)
+        end
+        return original_system(args, opts, callback)
+      end
+      if failure == "exit" then
+        assert(vim.uv.fs_rename(repo .. "/.git", repo .. "/saved-git"))
+        vim.fn.mkdir(repo .. "/.git")
+      end
+      vc.refresh()
+      if failure ~= "spawn" then
+        assert(vim.wait(3000, function()
+          return release ~= nil
+        end, 20))
+        assert(
+          rendered():find("cached-probe", 1, true),
+          "pending refresh discarded the previous display"
+        )
+        release()
+      end
+      assert(vim.wait(3000, function()
+        return vc.component() == ""
+      end, 20))
+      assert(
+        not rendered():find("cached-probe", 1, true),
+        failure .. " retained status"
+      )
+      for _ = 1, 5 do
+        vim.cmd.redrawstatus()
+        rendered()
+      end
+      vim.wait(50)
+      assert(calls == 1, failure .. " retriggered a settled query")
+      if failure == "exit" then
+        assert(vim.uv.fs_rmdir(repo .. "/.git"))
+        assert(vim.uv.fs_rename(repo .. "/saved-git", repo .. "/.git"))
+      end
+    end
+  end, debug.traceback)
+
+  vim.system = original_system
+  vim.cmd.enew({ bang = true })
+  vim.fn.delete(dir, "rf")
+  assert(ok, err)
+end
+
 return T

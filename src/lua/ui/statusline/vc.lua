@@ -175,32 +175,15 @@ local function refresh_repo(repo, invalidate)
           return
         end
 
-        if result.code ~= 0 then
-          current.label = nil
-          current.dirty = nil
-          redraw()
-          return
-        end
-
-        local parsed = backend.parse(result.stdout or "")
-        if not parsed then
-          current.label = nil
-          current.dirty = nil
-          redraw()
-          return
-        end
-
-        current.label = parsed.label
-        current.dirty = parsed.dirty
-
+        current.status = result.code == 0 and backend.parse(result.stdout or "")
+          or nil
         redraw()
       end)
     end
   )
   if not started then
     cached.pending = false
-    cached.label = nil
-    cached.dirty = nil
+    cached.status = nil
     redraw()
   end
 end
@@ -233,7 +216,8 @@ function M.component()
     return ""
   end
 
-  if not current.label then
+  local status = current.status
+  if not status then
     return ""
   end
 
@@ -242,10 +226,10 @@ function M.component()
     " ",
     "%#StatusLineVc#",
     " ",
-    literal(current.label),
+    literal(status.label),
   }
 
-  if current.dirty then
+  if status.dirty then
     result[#result + 1] = "%#StatusLineVcDirty#"
     result[#result + 1] = " ±"
   end
