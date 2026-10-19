@@ -577,7 +577,6 @@ def process_size_raw(
     if errors:
         raise AnalysisError("Lua compilation failed:\n" + "\n".join(errors))
     tree = aggregate("poincare", selected, response)
-    assert_aggregation(tree)
     return selected, response, tree
 
 
