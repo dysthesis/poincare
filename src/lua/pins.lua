@@ -114,10 +114,10 @@ function M.toggle()
 end
 
 function M.select(i)
-  local root, pinned = current()
+  local _, pinned = current()
   local path = pinned[i]
 
-  if path and within(root, path) then
+  if path then
     vim.cmd.edit(vim.fn.fnameescape(path))
   end
 end
