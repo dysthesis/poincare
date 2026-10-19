@@ -202,7 +202,7 @@ local function setup_tmux()
     })
   end
 
-  vim.api.nvim_create_autocmd("VimSuspend", {
+  vim.api.nvim_create_autocmd({ "VimSuspend", "VimLeavePre" }, {
     callback = function()
       if not nested then
         tmux({
@@ -225,20 +225,6 @@ local function setup_tmux()
           pane,
           "@pane-is-vim",
           "1",
-        })
-      end
-    end,
-  })
-
-  vim.api.nvim_create_autocmd("VimLeavePre", {
-    callback = function()
-      if not nested then
-        tmux({
-          "set-option",
-          "-pt",
-          pane,
-          "@pane-is-vim",
-          "0",
         })
       end
     end,
