@@ -192,15 +192,18 @@ local function setup_tmux()
 
   nested = tonumber(vim.trim(value)) == 1
 
-  if not nested then
-    tmux({
-      "set-option",
-      "-pt",
-      pane,
-      "@pane-is-vim",
-      "1",
-    })
+  local function mark_active()
+    if not nested then
+      tmux({
+        "set-option",
+        "-pt",
+        pane,
+        "@pane-is-vim",
+        "1",
+      })
+    end
   end
+  mark_active()
 
   vim.api.nvim_create_autocmd({ "VimSuspend", "VimLeavePre" }, {
     callback = function()
@@ -217,17 +220,7 @@ local function setup_tmux()
   })
 
   vim.api.nvim_create_autocmd("VimResume", {
-    callback = function()
-      if not nested then
-        tmux({
-          "set-option",
-          "-pt",
-          pane,
-          "@pane-is-vim",
-          "1",
-        })
-      end
-    end,
+    callback = mark_active,
   })
 end
 
