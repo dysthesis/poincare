@@ -21,7 +21,7 @@ except ModuleNotFoundError:  # Direct execution from an archived scripts directo
 
 ROOT = Path(__file__).resolve().parent.parent
 ADAPTER = Path(__file__).resolve().with_name("bytecode.lua")
-RAW_FORMAT = "poincare-size-raw/v1"
+RAW_FORMAT = pipeline.RAW_FORMAT
 AnalysisError = pipeline.AnalysisError
 
 

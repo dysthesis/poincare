@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 
 ROOT = Path(__file__).resolve().parent.parent
 HARNESS = Path(__file__).resolve().with_name("profile.lua")
-RAW_FORMAT = "poincare-perf-raw/v1"
+RAW_FORMAT = pipeline.PERF_RAW_FORMAT
 
 
 def file_identity(path: Path) -> dict[str, Any]:
