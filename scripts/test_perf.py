@@ -209,6 +209,16 @@ class ProcessingTests(unittest.TestCase):
             json.loads(json.dumps(data))["raw"]["observations"][0]["stdout"], "stdout-0"
         )
 
+    def test_component_and_node_statistics_can_be_edited_independently(self) -> None:
+        _, data = pipeline.process_perf_raw(raw_for())
+        component = data["statistics"]["tiny"]["components_profile_ns"]["startup"][
+            "total"
+        ]
+        node = data["node_statistics"]["tiny/startup"]["profile_ns"]
+        original = dict(component)
+        node["mean"] += 1
+        self.assertEqual(component, original)
+
     def test_single_run_does_not_invent_spread(self) -> None:
         _, data = pipeline.process_perf_raw(raw_for(1, 0))
         stats = data["statistics"]["tiny"]["wall_ns"]

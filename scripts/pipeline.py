@@ -1788,12 +1788,14 @@ def process_perf_raw(raw: Any) -> tuple[Node, dict[str, Any]]:
                     )
                     for run in run_own
                 ]
+                own_summary = _summary(values)
+                total_summary = _summary(totals)
                 component_stats["/".join(path)] = {
-                    "own": _summary(values),
-                    "total": _summary(totals),
+                    "own": own_summary,
+                    "total": total_summary,
                 }
                 node_statistics["/".join((name,) + path)] = {
-                    "profile_ns": _summary(totals)
+                    "profile_ns": dict(total_summary)
                 }
         workload = aggregate_tree(name, PERF_METRIC_DESCRIPTORS, leaves)
         workload.own["wall_ns"] = fmean(wall_runs)
