@@ -149,4 +149,28 @@ T["ColorScheme reapplies source highlights over direct overrides"] = function()
   assert_highlights()
 end
 
+T["customizing one specification leaves sibling highlight policies independent"] = function()
+  source_highlights()
+  local component = dofile(root .. "/src/lua/ui/statusline/diagnostic.lua")
+  component.hl_groups.Error.fg.group = "Conceal"
+  component.hl_groups.Error.bg.group = "DiagnosticHint"
+  component.hl_groups.Error.bg.attr = "fg"
+  require("ui.statusline").set_section_hl({ component })
+  local error_hl =
+    vim.api.nvim_get_hl(0, { name = "StatusLineError", link = false })
+  equal(error_hl.fg, 0x234567)
+  equal(error_hl.bg, 0x6789ab)
+  for suffix, fg in pairs({
+    Warn = 0x456789,
+    Info = 0x56789a,
+    Hint = 0x6789ab,
+    Lsp = 0x234567,
+  }) do
+    local actual =
+      vim.api.nvim_get_hl(0, { name = "StatusLine" .. suffix, link = false })
+    equal(actual.fg, fg)
+    equal(actual.bg, 0x123456)
+  end
+end
+
 return T

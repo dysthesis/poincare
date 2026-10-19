@@ -16,22 +16,12 @@ M.hl_groups = {
   },
 }
 
-M.hl_groups[severity_groups[severity.ERROR]] = {
-  fg = { group = "DiagnosticError", attr = "fg" },
-  bg = { group = "StatusLine", attr = "bg" },
-}
-M.hl_groups[severity_groups[severity.WARN]] = {
-  fg = { group = "DiagnosticWarn", attr = "fg" },
-  bg = { group = "StatusLine", attr = "bg" },
-}
-M.hl_groups[severity_groups[severity.INFO]] = {
-  fg = { group = "DiagnosticInfo", attr = "fg" },
-  bg = { group = "StatusLine", attr = "bg" },
-}
-M.hl_groups[severity_groups[severity.HINT]] = {
-  fg = { group = "DiagnosticHint", attr = "fg" },
-  bg = { group = "StatusLine", attr = "bg" },
-}
+for _, group in pairs(severity_groups) do
+  M.hl_groups[group] = {
+    fg = { group = "Diagnostic" .. group, attr = "fg" },
+    bg = { group = "StatusLine", attr = "bg" },
+  }
+end
 
 local diagnostic_icons = {
   [severity.ERROR] = "",
