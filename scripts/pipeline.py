@@ -1623,7 +1623,7 @@ def process_perf_raw(raw: Any) -> tuple[Node, dict[str, Any]]:
     if not isinstance(workloads, list) or not workloads:
         raise AnalysisError("invalid perf workloads")
     identities: dict[str, str] = {}
-    configs: dict[str, dict[str, Any]] = {}
+    expected_steps: dict[str, list[str]] = {}
     for workload in workloads:
         workload = _exact_object(
             workload, {"name", "path", "sha256", "content", "config"}, "perf workload"
@@ -1650,7 +1650,7 @@ def process_perf_raw(raw: Any) -> tuple[Node, dict[str, Any]]:
         ):
             raise AnalysisError(f"mismatched or duplicate workload {name}")
         identities[name] = digest
-        configs[name] = decoded
+        expected_steps[name] = [step["name"] for step in decoded["steps"]]
     observations = raw["observations"]
     if not isinstance(observations, list):
         raise AnalysisError("invalid perf observations")
@@ -1743,11 +1743,10 @@ def process_perf_raw(raw: Any) -> tuple[Node, dict[str, Any]]:
             raise AnalysisError(f"failed perf attempt {name}/{mode}/{iteration}")
         _, trace = _trace_run(observation)
         steps = trace.get("steps")
-        expected_steps = [step["name"] for step in configs[name]["steps"]]
         if (
             not isinstance(steps, list)
             or [step.get("name") for step in steps if isinstance(step, dict)]
-            != expected_steps
+            != expected_steps[name]
             or any(
                 not isinstance(step, dict) or step.get("ok") is not True
                 for step in steps

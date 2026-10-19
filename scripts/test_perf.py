@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import io
 import json
 import shutil
@@ -59,8 +60,6 @@ def raw_for(repeat: int = 2, warmups: int = 1) -> dict:
             "steps": [{"name": "run", "lua": "return function() end"}],
         }
     )
-    import hashlib
-
     digest = hashlib.sha256(content.encode()).hexdigest()
     workload = {
         "name": "tiny",
@@ -226,6 +225,49 @@ class ProcessingTests(unittest.TestCase):
         tree, data = pipeline.process_perf_raw(raw)
         self.assertAlmostEqual(tree.children["tiny"].total["wall_ns"], 103 / 3)
         self.assertEqual(data["statistics"]["tiny"]["wall_ns"]["median"], 2)
+
+    def test_every_attempt_requires_the_declared_steps_in_order(self) -> None:
+        raw = raw_for(1, 1)
+        workload = raw["workloads"][0]
+        workload["config"]["steps"].append(
+            {"name": "finish", "lua": "return function() end"}
+        )
+        workload["content"] = json.dumps(workload["config"])
+        workload["sha256"] = hashlib.sha256(workload["content"].encode()).hexdigest()
+        steps = [
+            {"name": "run", "ok": True, "error": None},
+            {"name": "finish", "ok": True, "error": None},
+        ]
+        for observation in raw["observations"]:
+            observation["workload_sha256"] = workload["sha256"]
+            payload = json.loads(observation["trace"])
+            payload["steps"] = steps
+            if observation["mode"] == "profile":
+                payload["events"].append(event(7, 4, "finish", "step", 760, 780))
+            observation["trace"] = json.dumps(payload)
+        tree, _ = pipeline.process_perf_raw(raw)
+        self.assertEqual(
+            tree.children["tiny"].total, {"wall_ns": 10, "profile_ns": 1000}
+        )
+        invalid_steps = [
+            None,
+            steps[:1],
+            steps[::-1],
+            steps + steps[:1],
+            [steps[0], {"name": "finish", "ok": False}],
+            [steps[0], "finish"],
+        ]
+        for index in range(len(raw["observations"])):
+            for invalid in invalid_steps:
+                with self.subTest(attempt=index, steps=invalid):
+                    broken = deepcopy(raw)
+                    payload = json.loads(broken["observations"][index]["trace"])
+                    payload["steps"] = invalid
+                    broken["observations"][index]["trace"] = json.dumps(payload)
+                    with self.assertRaisesRegex(
+                        pipeline.AnalysisError, "incomplete or failed workload steps"
+                    ):
+                        pipeline.process_perf_raw(broken)
 
     def test_invalid_failure_overlap_negative_nonfinite_and_incomplete_are_rejected(
         self,
