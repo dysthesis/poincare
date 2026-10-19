@@ -243,15 +243,15 @@ local function format_snapshot(snapshot, state)
   return output
 end
 
-local function apply_formatted_lines(bufnr, old_lines, new_lines)
-  if vim.deep_equal(old_lines, new_lines) then
+local function apply_formatted_lines(snapshot, new_lines)
+  if vim.deep_equal(snapshot.lines, new_lines) then
     return
   end
 
-  -- A buffer line array includes its final line, so terminate both diff inputs.
+  -- The snapshot already contains the terminated old side of the diff.
   local hunks = vim.text.diff(
-    table.concat(old_lines, "\n") .. "\n",
-    table.concat(new_lines, "\n") .. "\n",
+    snapshot.formatter_input,
+    buffer_lines_to_formatter_input(new_lines),
     {
       result_type = "indices",
       algorithm = "histogram",
@@ -261,6 +261,7 @@ local function apply_formatted_lines(bufnr, old_lines, new_lines)
   if hunks == nil then
     return
   end
+  local bufnr = snapshot.bufnr
 
   -- Work bottom-up so mutations do not shift the coordinates of earlier hunks.
   -- Run :undojoin in the target buffer's undo context, even when it is not
@@ -311,7 +312,7 @@ local function format_buffer(bufnr, state)
   end
 
   local formatted_lines = formatter_output_to_buffer_lines(formatted_text)
-  apply_formatted_lines(snapshot.bufnr, snapshot.lines, formatted_lines)
+  apply_formatted_lines(snapshot, formatted_lines)
 end
 
 vim.api.nvim_create_autocmd("BufWritePre", {
