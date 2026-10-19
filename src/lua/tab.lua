@@ -1,94 +1,40 @@
 -- Do-what-I-mean behaviour for <TAB>
 local M = {}
 
-local function rule(when, action)
-  return {
-    when = when,
-    action = action,
-  }
-end
-
-local function dispatch(rules, fallback)
-  for _, candidate in ipairs(rules) do
-    if candidate.when() then
-      return candidate.action()
-    end
-  end
-
-  return fallback()
-end
-
--- Completion
-local function completion_visible()
-  return vim.fn.pumvisible() == 1
-end
-
-local completion_next = rule(completion_visible, function()
-  return "<C-n>"
-end)
-
-local completion_prev = rule(completion_visible, function()
-  return "<C-p>"
-end)
-
--- Snippets
-
 local function snippet_active(direction)
   return vim.snippet
     and vim.snippet.active
     and vim.snippet.active({ direction = direction })
 end
 
-local snippet_next = rule(function()
-  return snippet_active(1)
-end, function()
-  vim.schedule(function()
-    vim.snippet.jump(1)
-  end)
-
-  return ""
-end)
-
-local snippet_prev = rule(function()
-  return snippet_active(-1)
-end, function()
-  vim.schedule(function()
-    vim.snippet.jump(-1)
-  end)
-
-  return ""
-end)
-
--- Folds
-
-local function in_fold()
-  return vim.wo.foldenable and vim.fn.foldlevel(".") > 0
-end
-
-local toggle_fold = rule(in_fold, function()
-  return "za"
-end)
-
 -- Insert / Select mode; priority is:
 --   1. Completion menu
 --   2. Active snippet
 --   3. Literal Tab
 local function insert_tab()
-  return dispatch({
-    completion_next,
-    snippet_next,
-  }, function()
-    return "<Tab>"
-  end)
+  if vim.fn.pumvisible() == 1 then
+    return "<C-n>"
+  end
+  if snippet_active(1) then
+    vim.schedule(function()
+      vim.snippet.jump(1)
+    end)
+    return ""
+  end
+  return "<Tab>"
 end
 
 local function insert_backtab()
-  return dispatch({
-    completion_prev,
-    snippet_prev,
-  }, function()
-    return "<S-Tab>"
-  end)
+  if vim.fn.pumvisible() == 1 then
+    return "<C-p>"
+  end
+  if snippet_active(-1) then
+    vim.schedule(function()
+      vim.snippet.jump(-1)
+    end)
+    return ""
+  end
+  return "<S-Tab>"
 end
 
 -- Normal mode; priority is:
@@ -96,11 +42,10 @@ end
 --   2. Native <Tab> behaviour: jump-list forwards (<C-i>)
 
 local function normal_tab()
-  return dispatch({
-    toggle_fold,
-  }, function()
-    return "<C-i>"
-  end)
+  if vim.wo.foldenable and vim.fn.foldlevel(".") > 0 then
+    return "za"
+  end
+  return "<C-i>"
 end
 
 local function normal_backtab()
