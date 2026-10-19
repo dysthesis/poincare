@@ -21,7 +21,7 @@ local groups = {
 
 local T = MiniTest.new_set({
   hooks = {
-    pre_each = function()
+    pre_case = function()
       saved_highlights = {}
       for _, group in ipairs(groups) do
         saved_highlights[group] =
@@ -34,7 +34,7 @@ local T = MiniTest.new_set({
         return {}
       end
     end,
-    post_each = function()
+    post_case = function()
       vim.diagnostic.count = original_count
       vim.lsp.get_clients = original_clients
       for group, attrs in pairs(saved_highlights) do
