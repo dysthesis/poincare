@@ -1838,7 +1838,7 @@ def process_perf_raw(raw: Any) -> tuple[Node, dict[str, Any]]:
 
 def parse_perf_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Benchmark the packaged poincare Neovim"
+        description="Diagnostic headless profiling of the packaged poincare Neovim (not UI interaction latency)"
     )
     parser.add_argument(
         "--bench", action="append", help="select a workload by name; repeatable"

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Acquire complete Neovim performance observations; policy lives in pipeline."""
+"""Acquire diagnostic headless Neovim profiles; policy lives in pipeline."""
 
 from __future__ import annotations
 

@@ -54,8 +54,15 @@
 @test-regression CASE:
 	nix develop -c python3 tests/regressions/launch.py '{{CASE}}'
 
-@bench:
-	nix shell .# nixpkgs#hyperfine -c hyperfine -w 10 -r 100 'nvim --headless +qa'
+@bench *ARGS:
+	nix develop -c python3 scripts/benchmark.py {{ARGS}}
+
+# Diagnostic headless startup/component attribution, not UI interaction latency.
+@profile *ARGS:
+	python3 scripts/perf.py {{ARGS}}
+
+@benchmark-test:
+	python3 -B -m unittest discover -s scripts -p 'test_benchmark*.py'
 
 @bombadil:
   #!/usr/bin/env bash

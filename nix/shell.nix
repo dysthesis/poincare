@@ -63,7 +63,7 @@ in
         nixfmt
 
         # Python for dev scripts
-        (python3.withPackages (p: with p; [ rich ]))
+        (python3.withPackages (p: with p; [ rich msgpack ]))
         basedpyright
         black
 
