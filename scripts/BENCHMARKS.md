@@ -95,6 +95,14 @@ postconditions must produce a failure, never a mock result or a successful
 "not applicable" sample. Choose the same external-tool environment for both
 targets unless tool changes are intentionally part of the comparison.
 
+The development shell supplies `pynvim-python` through its Python environment.
+Neovim can select that working provider directly when the Python ftplugin
+checks `has('python3')`, rather than synchronously probing multiple interpreters
+without `pynvim`. This preserves Python-provider functionality; it does not
+disable provider discovery globally or add Python to the standalone editor's
+package closure. Provider-environment comparisons must retain separate old/new
+tool environments rather than give both targets the newly configured PATH.
+
 Language setup checks configured formatter/server fallbacks for multiple
 languages at startup, not only the selected fixture's filetype. Missing an
 optional language tool can therefore emit a real warning even during

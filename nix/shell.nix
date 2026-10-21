@@ -62,8 +62,8 @@ in
         alejandra
         nixfmt
 
-        # Python for dev scripts
-        (python3.withPackages (p: with p; [ rich msgpack ]))
+        # Python tooling and Neovim's Python provider
+        (python3.withPackages (p: with p; [ rich msgpack pynvim ]))
         basedpyright
         black
 
