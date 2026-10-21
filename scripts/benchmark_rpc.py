@@ -66,10 +66,14 @@ class Screen:
     def __init__(self) -> None:
         self.grids: dict[int, list[list[str]]] = {}
         self.attributes: dict[int, list[list[int]]] = {}
+        self.highlight_definitions: dict[int, dict[str, Any]] = {}
         self.cursor: list[int] | None = None
         self.flushes = 0
 
     def apply(self, event: str, arguments: list[Any]) -> bool:
+        if event == "hl_attr_define":
+            self.highlight_definitions[arguments[0]] = arguments[1]
+            return False
         if event == "grid_resize":
             grid, width, height = arguments
             previous = self.grids.get(grid, [])
@@ -136,6 +140,24 @@ class Screen:
             return True
         return False
 
+    def has_highlights(self, probes: list[dict[str, Any]]) -> bool:
+        """Require the fixture's exact ASCII tokens and resolved syntax colors."""
+        for probe in probes:
+            grid = self.grids.get(probe["grid"], [])
+            row, column, text = probe["row"], probe["column"], probe["text"]
+            if row < 0 or row >= len(grid) or column < 0:
+                return False
+            if "".join(grid[row][column : column + len(text)]) != text:
+                return False
+            attributes = self.attributes[probe["grid"]][row]
+            if any(
+                self.highlight_definitions.get(attribute, {}).get("foreground")
+                != probe["foreground"]
+                for attribute in attributes[column : column + len(text)]
+            ):
+                return False
+        return True
+
     def snapshot(self) -> dict[str, Any]:
         return {
             "grids": {
@@ -146,6 +168,7 @@ class Screen:
                 str(grid): [row[:] for row in rows]
                 for grid, rows in self.attributes.items()
             },
+            "highlight_definitions": self.highlight_definitions.copy(),
             "cursor": self.cursor[:] if self.cursor else None,
             "flush_count": self.flushes,
             "boundary": "remote-UI ext_linegrid flush, not terminal/compositor/physical display",
@@ -366,6 +389,13 @@ class Nvim:
                         # establishes causality. Earlier flushes cannot qualify.
                         for completion in self.completions.values():
                             if completion["flush_received_ns"] is None:
+                                probes = completion["oracle"].get("required_highlights")
+                                if (
+                                    completion["status"] == "ok"
+                                    and probes
+                                    and not self.screen.has_highlights(probes)
+                                ):
+                                    continue
                                 completion["flush_received_ns"] = received_ns
                                 completion["screen"] = self.screen.snapshot()
         elif len(self.notifications) < 100:

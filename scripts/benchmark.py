@@ -322,6 +322,7 @@ def _surface_check(name: str, screen: dict[str, Any]) -> dict[str, Any]:
         "open-rust": "representative.rs",
         "open-nix": "representative.nix",
         "open-large": "large.py",
+        "open-large-highlighted": "sample_0000",
         "edit-insert": "seed (alpha)[beta]{gamma}",
         "folds": "… 7 lines …",
         "completion-buffer": workloads.COMPLETION_WORD,

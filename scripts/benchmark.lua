@@ -81,6 +81,27 @@ local function ready_file(relative, default_folds)
     evidence.expected_fold_end = expected_end
     ok = ok and evidence.foldclosedend == expected_end
   end
+  if ok and S.cfg.syntax_probes then
+    evidence.required_highlights = {}
+    local normal = api.nvim_get_hl(0, { name = "Normal", link = false })
+    for _, probe in ipairs(S.cfg.syntax_probes) do
+      local position = fn.screenpos(0, probe.line, probe.column)
+      local highlight = api.nvim_get_hl(0, { name = probe.group, link = false })
+      assert(
+        highlight.fg and highlight.fg ~= normal.fg,
+        "highlighted viewport requires a distinct foreground for "
+          .. probe.group
+      )
+      evidence.required_highlights[#evidence.required_highlights + 1] = {
+        grid = 1,
+        row = position.row - 1,
+        column = position.col - 1,
+        text = probe.text,
+        foreground = highlight.fg,
+        group = probe.group,
+      }
+    end
+  end
   return ok, evidence
 end
 
@@ -791,6 +812,7 @@ function M.prepare(name, cfg, rpc_channel)
     ["open-rust"] = "rust/representative.rs",
     ["open-nix"] = "nix/representative.nix",
     ["open-large"] = "python/large.py",
+    ["open-large-highlighted"] = "python/large.py",
     ["lsp-lua-ready"] = "lua/lsp_main.lua",
   }
   if destinations[name] then

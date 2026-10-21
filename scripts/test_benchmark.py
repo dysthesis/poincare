@@ -89,6 +89,155 @@ class CausalFlushTests(unittest.TestCase):
         self.redraw(client, 30, ["grid_resize", [1, 5, 1]])
         self.assertIsNone(client.completions["sample"]["flush_received_ns"])
 
+    def test_highlighted_endpoint_waits_for_syntax_colors_after_file_ready(
+        self,
+    ) -> None:
+        client = self.client()
+        probes = [
+            {"grid": 1, "row": 0, "column": 0, "text": "def", "foreground": 0x112233},
+            {
+                "grid": 1,
+                "row": 0,
+                "column": 4,
+                "text": "sample",
+                "foreground": 0x445566,
+            },
+        ]
+        self.redraw(
+            client,
+            10,
+            ["grid_resize", [1, 10, 1]],
+            ["hl_attr_define", [7, {"foreground": 0xAAAAAA}, {}, []]],
+            ["hl_attr_define", [8, {"foreground": 0x112233}, {}, []]],
+            ["hl_attr_define", [9, {"foreground": 0x445566}, {}, []]],
+            ["grid_line", [1, 0, 0, [[c, 7] for c in "def sample"]]],
+            ["flush", []],
+        )
+        client._dispatch(
+            [
+                2,
+                "poincare_benchmark",
+                ["measure", "ok", {"required_highlights": probes}],
+            ],
+            20,
+        )
+        self.redraw(client, 30, ["flush", []])
+        self.assertIsNone(client.completions["measure"]["flush_received_ns"])
+        self.redraw(
+            client,
+            40,
+            ["grid_line", [1, 0, 0, [[c, 8] for c in "def"]]],
+            ["flush", []],
+        )
+        self.assertIsNone(client.completions["measure"]["flush_received_ns"])
+        self.redraw(
+            client,
+            45,
+            ["grid_line", [1, 0, 4, [[c, 9] for c in "sample"]]],
+        )
+        self.assertIsNone(client.completions["measure"]["flush_received_ns"])
+        self.redraw(client, 50, ["flush", []])
+        completed = client.completions["measure"]
+        self.assertEqual(completed["flush_received_ns"], 50)
+        self.redraw(
+            client,
+            60,
+            ["hl_attr_define", [9, {"foreground": 0xAABBCC}, {}, []]],
+            ["grid_clear", [1]],
+            ["flush", []],
+        )
+        self.assertEqual(completed["screen"]["grids"]["1"], ["def sample"])
+        self.assertEqual(
+            completed["screen"]["highlight_definitions"][9]["foreground"], 0x445566
+        )
+
+    def test_highlight_color_alone_cannot_match_the_wrong_text_or_position(
+        self,
+    ) -> None:
+        screen = rpc.Screen()
+        screen.apply("grid_resize", [1, 4, 2])
+        screen.apply("hl_attr_define", [1, {"foreground": 0x123456}, {}, []])
+        screen.apply("grid_line", [1, 1, 0, [[c, 1] for c in "def "]])
+        probe = {
+            "grid": 1,
+            "row": 0,
+            "column": 0,
+            "text": "def",
+            "foreground": 0x123456,
+        }
+        self.assertFalse(screen.has_highlights([probe]))
+        screen.apply("grid_line", [1, 0, 0, [[c, 1] for c in "xyz "]])
+        self.assertFalse(screen.has_highlights([probe]))
+        screen.apply("grid_line", [1, 0, 0, [[c, 1] for c in "def "]])
+        self.assertTrue(screen.has_highlights([probe]))
+
+    def test_failed_highlight_oracle_does_not_wait_for_missing_syntax(self) -> None:
+        client = self.client()
+        client._dispatch(
+            [
+                2,
+                "poincare_benchmark",
+                [
+                    "measure",
+                    "error",
+                    {
+                        "required_highlights": [
+                            {
+                                "grid": 1,
+                                "row": 0,
+                                "column": 0,
+                                "text": "def",
+                                "foreground": 0x123456,
+                            }
+                        ],
+                    },
+                ],
+            ],
+            10,
+        )
+        self.redraw(client, 20, ["grid_resize", [1, 3, 1]], ["flush", []])
+        self.assertEqual(client.completions["measure"]["status"], "error")
+        self.assertEqual(client.completions["measure"]["flush_received_ns"], 20)
+
+    def test_nonqualifying_flushes_do_not_extend_the_operation_deadline(self) -> None:
+        client = self.client()
+        client.timeout = 30
+        client.operation_deadline = 3
+        client.startup_prompt_handling = False
+        probe = {"grid": 1, "row": 0, "column": 0, "text": "def", "foreground": 1}
+        self.redraw(client, 0, ["grid_resize", [1, 3, 1]])
+        client._dispatch(
+            [
+                2,
+                "poincare_benchmark",
+                ["measure", "ok", {"required_highlights": [probe]}],
+            ],
+            0,
+        )
+        now = 0
+        deadlines = []
+
+        def pending_flush(deadline):
+            nonlocal now
+            now += 1
+            deadlines.append(deadline)
+            if now >= client.operation_deadline:
+                # Exercise the real pump's expiration path, not a mock timeout.
+                return rpc.Nvim.pump(client, deadline)
+            self.redraw(
+                client,
+                now,
+                ["grid_line", [1, 0, 0, [[c, 0] for c in "def"]]],
+                ["flush", []],
+            )
+
+        client.pump = pending_flush
+        with patch.object(rpc.time, "monotonic", side_effect=lambda: now):
+            with self.assertRaises(rpc.AcquisitionTimeout):
+                client.wait_completion("measure")
+        self.assertEqual(deadlines, [3, 3, 3])
+        self.assertIsNone(client.completions["measure"]["flush_received_ns"])
+
     def test_partial_user_input_fails_without_retry(self) -> None:
         client = self.client()
         client.request = Mock(return_value=2)

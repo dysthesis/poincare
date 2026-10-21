@@ -274,10 +274,24 @@ remaining initial indexing; neither is prewarmed by this completion barrier.
 ### Explicit stress and diagnostic calibration
 
 - `open-large` (`stress`): edit a valid generated **12,004-line Python module**
-  with heterogeneous function bodies. Completion is the checked initial
-  highlighted viewport/file, not proof that every syntax node or every
-  off-screen line has been parsed. Actual bytes/lines/hashes are recorded. This
-  does not model arbitrary enormous proprietary projects.
+  with heterogeneous function bodies. Completion is the checked file-ready
+  viewport with an active highlighter, **not rendered syntax readiness**:
+  asynchronous parsing can finish after this endpoint. This retains the
+  original scoring boundary; older descriptions overstated it as highlighted.
+- `open-large-highlighted` (`stress`): a distinct endpoint on the same file,
+  from input through file readiness and a subsequent UI flush containing the
+  exact docstring and `return` tokens in their configured syntax foregrounds.
+  The surface marker is visible fixture content `sample_0000`, not a statusline
+  filename that can truncate at supported viewport widths.
+  The observer resolves token screen positions and highlight colors without
+  forcing a parse. The remote-UI client rejects plain or incorrectly colored
+  flushes and waits for the parser's natural later redraw under the original
+  operation deadline. A missing/indistinguishable syntax foreground fails
+  explicitly. Saved RGB highlight definitions and token requirements make the
+  checked surface inspectable. Do not compare this endpoint with historical
+  `open-large` latencies: its distinct name identifies the stronger contract.
+  Actual bytes/lines/hashes are recorded for both cases; neither models
+  arbitrary enormous proprietary projects or a physical display.
 - `redraw-control` (`calibration`): on a prepared live UI, dispatch an immediately
   successful no-change observer, explicitly execute `redraw!`, and await the
   subsequent remote-UI flush. This measures the inclusive
@@ -308,6 +322,10 @@ executes **`vim.cmd('redraw!')`**, requesting a full redraw. The endpoint is
 therefore **input-to-checked-forced-redraw**, not simply the timestamp of a
 naturally occurring final action flush. Natural action redraws can occur earlier;
 they cannot satisfy the post-oracle boundary.
+
+`open-large-highlighted` additionally requires the specified syntax colors in
+that post-oracle flush; the forced redraw can still be plain while parsing is
+in progress, so a later natural redraw may be the first qualifying flush.
 
 The Lua observer checks immediately, then defers at an explicitly recorded
 **1 ms cadence** while waiting. Transport, RPC serialization, semantic checks,
@@ -559,8 +577,8 @@ successful pairs. Point effects and intervals remain available, but the
 intervals are explicitly flagged as underresolved on each workload. This is a
 transparent Monte Carlo resolution gate, not a guarantee that 20 is sufficient
 for coverage. Increase resamples as a predeclared analysis choice when the
-family is large. At 95% confidence, 20,000 draws and all 26 endpoints give only
-about 19.2 draws per tail, so practical decisions are suppressed; the default
+family is large. At 95% confidence, 20,000 draws and all 27 endpoints give only
+about 18.5 draws per tail, so practical decisions are suppressed; the default
 19-endpoint core family gives about 26.3. Complete failure-free acquisition
 remains valid regardless of this inference gate.
 

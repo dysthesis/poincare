@@ -115,12 +115,22 @@ CATALOG = (
     Workload(
         "open-large",
         "stress",
-        "Edit a valid 12,004-line heterogeneous Python module; first highlighted viewport, not full-file parse.",
+        "Edit a valid 12,004-line Python module; checked file-ready viewport, which may precede syntax colors.",
         ("Python parser/highlighter",),
         _INPUT_END,
         fixtures=("python/large.py",),
         action=":edit python/large.py<CR>",
         readiness="O(1) path/filetype/count/sentinels; active highlighter and rendered filename; no observer parser:parse()",
+    ),
+    Workload(
+        "open-large-highlighted",
+        "stress",
+        "Edit the same large Python module and await rendered docstring and return-keyword syntax colors.",
+        ("Python parser/highlighter", "distinct visible Python syntax foregrounds"),
+        "input dispatch to file-ready oracle and a later remote-UI flush containing checked syntax-colored tokens; includes asynchronous parsing",
+        fixtures=("python/large.py",),
+        action=":edit python/large.py<CR>",
+        readiness="file-ready checks; exact visible docstring/return tokens with the configured syntax foregrounds; no observer parser:parse()",
     ),
     Workload(
         "edit-insert",
@@ -591,6 +601,21 @@ def scenario_config(
         "lua_second_function": 12,
         "rust_first_fold_end": 11,
     }
+    if name == "open-large-highlighted":
+        config["syntax_probes"] = [
+            {
+                "line": 6,
+                "column": 8,
+                "text": "Transform",
+                "group": "@string.documentation.python",
+            },
+            {
+                "line": 9,
+                "column": 9,
+                "text": "return",
+                "group": "@keyword.return.python",
+            },
+        ]
     if name in ("picker-files-first", "picker-files-repeat"):
         config.update(
             {

@@ -26,6 +26,7 @@ _WORKLOAD_LABELS = {
     "open-rust": "Open Rust file",
     "open-nix": "Open Nix file",
     "open-large": "Open large Python file",
+    "open-large-highlighted": "Highlight large Python file",
     "edit-insert": "Insert paired delimiters",
     "edit-paste-undo": "Paste and undo",
     "treesitter-motion": "Move to next function",
