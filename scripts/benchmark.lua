@@ -165,115 +165,68 @@ local function lsp_ready()
     evidence
 end
 
-local function observe_workspace_progress()
-  S.workspace_progress = {}
-  api.nvim_create_autocmd("LspProgress", {
-    group = api.nvim_create_augroup(
-      "poincare_benchmark_workspace",
-      { clear = true }
-    ),
-    desc = "Observe real Lua server workspace readiness before explicit completion",
-    callback = function(event)
-      local data = event.data or {}
-      local client = vim.lsp.get_client_by_id(data.client_id)
-      local params = data.params or {}
-      local value = params.value
-      if
-        not client
-        or client.name ~= "lua-language-server"
-        or type(value) ~= "table"
-      then
-        return
-      end
-      local token_type = type(params.token)
-      if token_type ~= "string" and token_type ~= "number" then
-        return
-      end
-      local key = token_type .. ":" .. tostring(params.token)
-      local progress = S.workspace_progress[client.id]
-      if value.kind == "begin" and value.title == "Loading workspace" then
-        if not progress then
-          progress = {
-            client_id = client.id,
-            seen_begin = 0,
-            completed = 0,
-            tokens = {},
-          }
-          S.workspace_progress[client.id] = progress
-        end
-        progress.seen_begin = progress.seen_begin + 1
-        progress.tokens[key] = {
-          token = params.token,
-          token_type = token_type,
-          title = value.title,
-          began_at_uv_hrtime_ns = vim.uv.hrtime(),
-          active = true,
-          message = value.message,
-          percentage = value.percentage,
-        }
-        return
-      end
-      local task = progress and progress.tokens[key]
-      if not task or not task.active then
-        return
-      end
-      if value.message then
-        task.message = value.message
-      end
-      if value.percentage then
-        task.percentage = value.percentage
-      end
-      if value.kind == "end" then
-        task.active = false
-        task.ended_at_uv_hrtime_ns = vim.uv.hrtime()
-        progress.completed = progress.completed + 1
-      end
-    end,
-  })
-end
-
 local function workspace_ready(clients)
+  S.definition_barriers = S.definition_barriers or {}
   local evidence = {
-    required_title = "Loading workspace",
+    method = "textDocument/definition",
+    expected_path = S.cfg.root .. "/lua/benchlib.lua",
+    expected_row = S.cfg.lsp_definition_row - 1,
+    expected_col = S.cfg.lsp_definition_col,
     clients = {},
-    observed_before_file_open = true,
   }
   local found, ready = false, true
-  for _, client in ipairs(clients.clients) do
-    if client.name == "lua-language-server" and client.initialized then
+  for _, details in ipairs(clients.clients) do
+    if details.name == "lua-language-server" and details.initialized then
       found = true
-      local progress = S.workspace_progress[client.id]
-      local state = {
-        client_id = client.id,
-        seen_begin = 0,
-        completed = 0,
-        active_count = 0,
-        tokens = {},
-      }
-      if progress then
-        state.seen_begin, state.completed =
-          progress.seen_begin, progress.completed
-        for _, task in pairs(progress.tokens) do
-          state.tokens[#state.tokens + 1] = task
-          if task.active then
-            state.active_count = state.active_count + 1
+      local state = S.definition_barriers[details.id]
+      if not state then
+        state = { client_id = details.id, ready = false }
+        S.definition_barriers[details.id] = state
+        local client = assert(vim.lsp.get_client_by_id(details.id))
+        -- LuaLS waits for workspace readiness before answering definitions.
+        -- A checked real result also works when loading is too quick to emit
+        -- the optional progress UI. This request never changes the buffer.
+        local accepted, request_id = client:request("textDocument/definition", {
+          textDocument = {
+            uri = vim.uri_from_fname(S.cfg.root .. "/lua/lsp_main.lua"),
+          },
+          position = { line = 2, character = S.cfg.lsp_use_col },
+        }, function(err, result)
+          state.completed_at_uv_hrtime_ns = vim.uv.hrtime()
+          state.error = err and vim.inspect(err) or nil
+          state.locations = result
+          if not err and type(result) == "table" then
+            local locations = result.uri and { result } or result
+            for _, location in ipairs(locations) do
+              local uri = location.targetUri or location.uri
+              local range = location.targetSelectionRange or location.range
+              if
+                uri
+                and range
+                and vim.uri_to_fname(uri) == evidence.expected_path
+                and range.start.line == evidence.expected_row
+                and range.start.character == evidence.expected_col
+              then
+                state.ready = true
+              end
+            end
           end
+          if not state.ready and not state.error then
+            state.error =
+              "definition did not resolve the expected project symbol"
+          end
+        end, api.nvim_get_current_buf())
+        state.request_id = request_id
+        if not accepted then
+          state.error = "Lua server rejected the workspace readiness request"
         end
-        table.sort(state.tokens, function(a, b)
-          return a.began_at_uv_hrtime_ns < b.began_at_uv_hrtime_ns
-        end)
       end
-      if state.completed == 0 or state.active_count ~= 0 then
-        ready = false
-      end
+      assert(not state.error, state.error)
+      ready = ready and state.ready
       evidence.clients[#evidence.clients + 1] = state
     end
   end
   evidence.ready = found and ready
-  if not evidence.ready then
-    evidence.waiting_for =
-      "initialized configured Lua client, observed Loading workspace begin/end, and no active Loading workspace tokens; absent/different progress protocol cannot establish readiness"
-  end
   return evidence.ready, evidence
 end
 
@@ -436,9 +389,9 @@ function M.check(oracle)
       local ready, clients = lsp_ready()
       evidence.lsp = clients
       ok = ok and ready
-      if S.name == "completion-lsp" then
-        local indexed, progress = workspace_ready(clients)
-        evidence.workspace_progress = progress
+      if S.name == "completion-lsp-indexed" then
+        local indexed, barrier = workspace_ready(clients)
+        evidence.workspace_barrier = barrier
         ok = ok and indexed
       end
     end
@@ -650,7 +603,7 @@ function M.check(oracle)
   if name == "completion-buffer" then
     return completion(false)
   end
-  if name == "completion-lsp" then
+  if name == "completion-lsp-indexed" then
     return completion(true)
   end
   if name == "picker-files-first" or name == "picker-files-repeat" then
@@ -811,7 +764,7 @@ function M.prepare(name, cfg, rpc_channel)
     ["lint-lua"] = "selene",
     ["lsp-lua-ready"] = "lua-language-server",
     ["lsp-definition"] = "lua-language-server",
-    ["completion-lsp"] = "lua-language-server",
+    ["completion-lsp-indexed"] = "lua-language-server",
     ["git-gutter"] = "git",
     ["git-blame"] = "git",
   })[name]
@@ -957,10 +910,7 @@ function M.prepare(name, cfg, rpc_channel)
     open("lua/lint.lua")
     api.nvim_win_set_cursor(0, { 2, 0 })
     plan.action.input = "O" .. cfg.lint_token .. "()<Esc>:write<CR>"
-  elseif name == "lsp-definition" or name == "completion-lsp" then
-    if name == "completion-lsp" then
-      observe_workspace_progress()
-    end
+  elseif name == "lsp-definition" or name == "completion-lsp-indexed" then
     open("lua/lsp_main.lua")
     S.needs_lsp = true
     if name == "lsp-definition" then
@@ -998,14 +948,14 @@ function M.finalize()
         and package.loaded["mini.pick"] == nil
       or nil,
   }
-  if S.name == "completion-lsp" then
+  if S.name == "completion-lsp-indexed" then
     local attached, clients = lsp_ready()
-    local indexed, progress = workspace_ready(clients)
+    local indexed, barrier = workspace_ready(clients)
     assert(
       attached and indexed,
-      "configured Lua workspace progress readiness changed before completion input"
+      "configured Lua definition readiness changed before completion input"
     )
-    facts.workspace_progress = progress
+    facts.workspace_barrier = barrier
   end
   return facts
 end

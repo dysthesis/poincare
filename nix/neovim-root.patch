@@ -1,0 +1,30 @@
+diff --git a/runtime/lua/vim/lsp.lua b/runtime/lua/vim/lsp.lua
+--- a/runtime/lua/vim/lsp.lua
++++ b/runtime/lua/vim/lsp.lua
+@@ -562,11 +562,22 @@ local function lsp_enable_callback(bufnr)
+       if type(config.root_dir) == 'function' then
+-        ---@param root_dir string
++        local resolving = true
++        local resolved = false
++        -- Inline results need no event-loop delay. Start after the resolver
++        -- returns; asynchronous callbacks may still arrive in a fast event.
++        ---@param root_dir? string
+         config.root_dir(bufnr, function(root_dir)
+           config.root_dir = root_dir
+-          vim.schedule(function()
+-            start_config(bufnr, config)
+-          end)
++          resolved = true
++          if not resolving then
++            vim.schedule(function()
++              start_config(bufnr, config)
++            end)
++          end
+         end)
++        resolving = false
++        if resolved then
++          start_config(bufnr, config)
++        end
+       else
+         start_config(bufnr, config)
+       end

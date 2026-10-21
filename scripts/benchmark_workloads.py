@@ -332,19 +332,19 @@ CATALOG = (
         readiness="configured buffer-local gd; exact cross-file destination lua/benchlib.lua [2, 11]; attached initialized client",
     ),
     Workload(
-        "completion-lsp",
+        "completion-lsp-indexed",
         "tools",
-        "After observed workspace indexing, explicit Ctrl-X Ctrl-O invokes configured omnifunc for an imported member absent from the current buffer.",
+        "After a checked cross-file definition establishes LuaLS workspace readiness, explicit Ctrl-X Ctrl-O completes an imported member absent from the buffer.",
         (
-            "lua-language-server with observed Loading workspace begin/end progress",
+            "lua-language-server with an exact cross-file definition readiness response",
             "mini.completion configured omnifunc and LSP-provenance completion item",
         ),
         _INPUT_END
         + "; explicit omnifunc invocation in indexed workspace, not first completion during indexing or automatic debounce; popup remains visible",
-        "fresh process; initialized Lua server and observed completed Loading workspace progress prepared untimed; no active loading tokens",
+        "fresh process; initialized Lua server and exact cross-file definition response prepared untimed; no progress-message dependency",
         fixtures=(".luarc.json", "lua/lsp_main.lua", "lua/benchlib.lua"),
         action="Olocal completed = library.benchmark_comp<C-x><C-o>",
-        readiness="preparation: real Loading workspace begin/end per client+token and no active tokens; measured: visible complete_info mode=omni popup, benchmark_completion_target with real LSP client provenance, rendered candidate",
+        readiness="preparation: real per-client definition response resolves benchlib.lua [2,11]; measured: visible complete_info mode=omni popup, benchmark_completion_target with real LSP provenance, rendered candidate",
     ),
     Workload(
         "redraw-control",
@@ -612,7 +612,7 @@ def scenario_config(
         )
     if name == "completion-buffer":
         config["completion_word"] = COMPLETION_WORD
-    if name == "completion-lsp":
+    if name == "completion-lsp-indexed":
         config["lsp_completion_word"] = LSP_COMPLETION_WORD
     if name == "git-gutter":
         config["original_text"] = files["text/gutter.txt"]
@@ -637,7 +637,7 @@ def scenario_config(
         config["lint_token"] = LINT_TOKEN
     if name == "format-save-lua":
         config["format_expected"] = "local value = { answer = 42 }\nreturn value\n"
-    if name == "lsp-definition":
+    if name in ("lsp-definition", "completion-lsp-indexed"):
         config.update(
             {
                 "lsp_definition_row": 2,

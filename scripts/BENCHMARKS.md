@@ -233,7 +233,7 @@ success.
 | `lint-lua` | `selene` | Real edit/save introduces a unique undefined global; require the new Selene `undefined_variable` diagnostic at the known row, its real source/namespace/code, exact disk/buffer text, and cleared modified flag. Initial stale work is settled untimed. This is end-to-end edit/save-to-lint, **not pure linter CPU time**; a configured formatter can also run when available. |
 | `lsp-lua-ready` | `lua-language-server` | `:edit` a real Lua project with `.luarc.json`; require the configured initialized attached client, meaningful definition/completion capabilities, buffer-local `gd`, and configured omnifunc. Attach-ready excludes full workspace indexing. |
 | `lsp-definition` | `lua-language-server` | Initialize the real server untimed, invoke configured buffer-local `gd` on an imported symbol, and require its exact **cross-file** destination/cursor and initialized client. Preparation requires attachment, not a completed-workspace-index barrier; remaining indexing or demand work may enter this operation's interval. |
-| `completion-lsp` | `lua-language-server` with observed `Loading workspace` begin/end progress | Initialize and await the configured Lua server's observed workspace-loading completion **untimed**, with no active loading tokens. Then send `Olocal completed = library.benchmark_comp<C-x><C-o>` once through real input and the configured omnifunc. Require the known label with real LSP provenance in the visible popup. The item is absent from the current buffer. This measures an explicit completion in an indexed/prepared workspace, **not first completion during indexing**, buffer fallback, or automatic debounce. |
+| `completion-lsp-indexed` | `lua-language-server` with a checked cross-file definition response | Initialize the configured Lua server and resolve the fixture's imported definition **untimed**. Then send `Olocal completed = library.benchmark_comp<C-x><C-o>` once through real input and the configured omnifunc. Require the known label with real LSP provenance in the visible popup. The item is absent from the current buffer. This measures explicit completion after a checked definition barrier, not first completion during indexing, buffer fallback, or automatic debounce. |
 
 An initialized/attached client advertising completion capabilities is not proof
 that its workspace is indexed or that an imported-symbol completion will already
@@ -241,24 +241,27 @@ produce items. Attach latency, indexing readiness, and checked completion-menu
 latency are distinct boundaries; an empty response must not be reclassified as
 successful completion merely because attachment passed.
 
-For `completion-lsp`, the harness installs a real
-[`LspProgress`](https://neovim.io/doc/user/lsp/#LspProgress) observer **before**
-opening the source file. It tracks LuaLS `Loading workspace` begin/end pairs
-separately by client ID and token type/value. Untimed readiness requires an
-initialized configured client, at least one observed completed loading task,
-and no still-active loading tasks; it is checked again immediately before the
-timed input. There is no fixed sleep, guessed quiet period, timed completion
-retry, synthetic progress event, or fallback to attachment alone.
+For `completion-lsp-indexed`, preparation sends one real
+`textDocument/definition` request per initialized configured Lua client and
+requires the exact `lua/benchlib.lua` destination at zero-based `[1,11]`.
+LuaLS 3.19.1 gates definitions on `workspace.awaitReady`, so this establishes
+workspace readiness without depending on its optional delayed progress UI.
+Fast projects can finish loading without ever emitting `Loading workspace`.
 
-Preparation oracle evidence and `prepared_facts.workspace_progress` retain the
-required title, pre-open observation policy, readiness, and per-client begin,
-completed and active counts plus typed token/timestamp details. This is an
-explicit **LuaLS-version-specific progress contract**, not a universal proof
-that every possible background service is idle. If a server version emits no
-such progress or changes the protocol/title, preparation fails honestly under
-its deadline rather than silently measuring a different state.
-`lsp-lua-ready` deliberately retains the distinct attach-only boundary; the
-completion case's initial indexing work is excluded from its scored interval.
+Preparation evidence and `prepared_facts.workspace_barrier` retain the method,
+expected destination, per-client request ID, result and completion timestamp.
+Errors, rejected requests and wrong/empty destinations fail; an unanswered
+request expires under the existing preparation deadline. No fixed sleep,
+timed retry, synthetic event, or fallback to attachment alone is used.
+Finalization checks the same client barriers again before measured input.
+
+The definition request also warms resolution of the imported module. This is
+a deliberately distinct contract from historical `completion-lsp`, which used
+progress messages; do not compare those endpoint latencies as equivalent.
+The new name identifies the cutover, while old journals remain replayable.
+This LuaLS-specific barrier does not claim that all background work is idle.
+`lsp-lua-ready` remains attach-only and `lsp-definition` still includes any
+remaining initial indexing; neither is prewarmed by this completion barrier.
 
 ### Explicit stress and diagnostic calibration
 

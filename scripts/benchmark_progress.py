@@ -44,7 +44,7 @@ _WORKLOAD_LABELS = {
     "lint-lua": "Lint Lua on save",
     "lsp-lua-ready": "Lua language server readiness",
     "lsp-definition": "Go to Lua definition",
-    "completion-lsp": "Language server completion",
+    "completion-lsp-indexed": "Indexed language server completion",
     "redraw-control": "Diagnostic redraw",
 }
 
@@ -68,8 +68,8 @@ def workload_label(name: str) -> str:
 
 
 def preparation_activity(name: str) -> str:
-    if name == "completion-lsp":
-        return "Waiting for language server and workspace indexing"
+    if name == "completion-lsp-indexed":
+        return "Waiting for checked cross-file language server readiness"
     if name == "lsp-definition":
         return "Waiting for language server"
     return "Preparing editor interaction"

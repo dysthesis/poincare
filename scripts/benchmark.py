@@ -325,7 +325,7 @@ def _surface_check(name: str, screen: dict[str, Any]) -> dict[str, Any]:
         "edit-insert": "seed (alpha)[beta]{gamma}",
         "folds": "… 7 lines …",
         "completion-buffer": workloads.COMPLETION_WORD,
-        "completion-lsp": workloads.LSP_COMPLETION_WORD,
+        "completion-lsp-indexed": workloads.LSP_COMPLETION_WORD,
         "picker-files-first": workloads.PICKER_QUERY,
         "picker-files-repeat": workloads.PICKER_QUERY,
         "picker-grep": workloads.GREP_QUERY,
