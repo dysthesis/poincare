@@ -2,47 +2,113 @@ local group = vim.api.nvim_create_augroup("lang_folds", {
   clear = true,
 })
 
-local function capture_at(bufnr, row, col)
-  local best
-  local priority = -1
-
-  for _, capture in ipairs(vim.treesitter.get_captures_at_pos(bufnr, row, col)) do
-    local p = capture.metadata.priority
-
-    if type(p) ~= "number" then
-      p = 100
-    end
-
-    if p >= priority then
-      best = "@" .. capture.capture
-      priority = p
-    end
-  end
-
-  return best
-end
-
 local function highlighted_line(bufnr, row, text)
   if text == "" then
     return {}
   end
 
-  local chunks = {}
-  local start = 0
-  local hl = capture_at(bufnr, row, 0)
+  local highlighter = vim.treesitter.highlighter.active[bufnr]
 
-  for col = 1, #text do
-    local next_hl = col < #text and capture_at(bufnr, row, col) or nil
+  if not highlighter then
+    return { { text } }
+  end
+
+  local events = {}
+  local order = 0
+
+  highlighter.tree:for_each_tree(function(tstree, tree)
+    if not tstree then
+      return
+    end
+
+    local root = tstree:root()
+    local root_start, _, root_end = root:range()
+
+    if root_start > row or root_end < row then
+      return
+    end
+
+    local query = highlighter:get_query(tree:lang()):query()
+
+    if not query then
+      return
+    end
+
+    for id, node, metadata in
+      query:iter_captures(root, highlighter.bufnr, row, row + 1)
+    do
+      local name = query.captures[id]
+      local start_row, start_col, end_row, end_col = node:range()
+
+      if name and start_row <= row and end_row >= row then
+        -- Match get_captures_at_pos: raw node ranges, in byte coordinates.
+        local first = start_row == row and math.min(start_col, #text) or 0
+        local last = end_row == row and math.min(end_col, #text) or #text
+
+        if first < last then
+          local priority = metadata.priority
+
+          if type(priority) ~= "number" then
+            priority = 100
+          end
+
+          order = order + 1
+          local capture = { priority = priority, hl = "@" .. name }
+
+          -- Ending events remove the capture before the next interval.
+          events[#events + 1] = { first, order, capture }
+          events[#events + 1] = { last, order }
+        end
+      end
+    end
+  end)
+
+  table.sort(events, function(a, b)
+    return a[1] < b[1]
+  end)
+
+  local chunks = {}
+  local active = {}
+  local start = 0
+  local hl
+  local index = 1
+
+  while index <= #events do
+    local col = events[index][1]
+
+    repeat
+      local event = events[index]
+      active[event[2]] = event[3]
+      index = index + 1
+    until index > #events or events[index][1] ~= col
+
+    local next_hl
+    local priority = -1
+    local latest = 0
+
+    for capture_order, capture in pairs(active) do
+      local p = capture.priority
+
+      if p > priority or (p == priority and capture_order > latest) then
+        next_hl = capture.hl
+        priority = p
+        latest = capture_order
+      end
+    end
 
     if next_hl ~= hl then
-      chunks[#chunks + 1] = {
-        text:sub(start + 1, col),
-        hl,
-      }
+      if start < col then
+        chunks[#chunks + 1] = { text:sub(start + 1, col), hl }
+      end
 
       start = col
       hl = next_hl
     end
+  end
+
+  -- Flush plain text too: nil is a highlight, not an end-of-line sentinel.
+  if start < #text then
+    chunks[#chunks + 1] = { text:sub(start + 1), hl }
   end
 
   return chunks

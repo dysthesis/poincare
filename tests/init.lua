@@ -15,6 +15,7 @@ require("mini.test").setup({
     find_files = function()
       return {
         "tests/formatters.lua",
+        "tests/folds.lua",
         "tests/lua-libraries.lua",
         -- tests/linters.lua targets a deferred built-in linter, not nvim-lint.
         "tests/statusline-diagnostic.lua",

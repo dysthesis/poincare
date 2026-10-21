@@ -89,6 +89,19 @@ scope still uses client settings; an explicit empty client library disables
 automatic runtime loading there as well. These defaults are selected per
 client before initialization, not changed during buffer attachment.
 
+## Folding
+
+Method-fold headers retain their full text, including unhighlighted prefixes
+and suffixes, with trailing whitespace trimmed. The line-count ellipsis and
+closing brace for headers ending in `{` follow the highlighted header.
+
+Header highlights query each applicable active root or injected Tree-sitter tree
+once per row and resolve overlapping raw byte ranges as intervals. Numeric
+match-metadata priorities win (default `100`); later captures win ties, using the
+original `@capture` highlight names. Rendering neither parses the buffer nor caches
+chunks between calls, so edits, undo and buffer/window switches use the current
+active trees. Missing highlighters or highlight queries leave the text plain.
+
 ## Linting
 
 Language specs register nvim-lint names through `modules/linters.lua` (one name
