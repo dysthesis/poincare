@@ -37,5 +37,5 @@ return function(lang, spec)
     return
   end
 
-  fallback.warn("LSP", lang, spec)
+  -- fallback.warn("LSP", lang, spec)
 end

@@ -419,9 +419,9 @@ return function(lang, spec)
 
   local formatter, tried = compile(spec)
 
-  if not formatter and #tried > 0 then
-    fallback.warn("formatter", lang, tried)
-  end
+  -- if not formatter and #tried > 0 then
+  --   fallback.warn("formatter", lang, tried)
+  -- end
 
   for _, filetype in ipairs(lang.filetypes) do
     formatters_by_ft[filetype] = formatter
