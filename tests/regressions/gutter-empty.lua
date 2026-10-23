@@ -280,4 +280,51 @@ T["newline metadata and pre-write edits update signs from the cached index"] = f
   assert(ok, err)
 end
 
+T["undo to indexed bytes clears signs and redo restores them"] = function()
+  local dir = assert(
+    vim.uv.fs_mkdtemp((vim.env.TMPDIR or "/tmp") .. "/poincare-undo-XXXXXX")
+  )
+  local ok, err = xpcall(function()
+    git.run(dir, "init", "-q")
+    local original = "first\nsecond\nthird\n"
+    git.write(dir .. "/A", original)
+    git.run(dir, "add", "A")
+    vim.cmd.edit(vim.fn.fnameescape(dir .. "/A"))
+    local buf = vim.api.nvim_get_current_buf()
+    vim.cmd("normal! 2GA changed")
+    -- :normal! runs inside this test's Lua callback; emit its deferred event.
+    vim.api.nvim_exec_autocmds("TextChanged", { buffer = buf })
+    assert(
+      vim.wait(3000, function()
+        return vim.deep_equal(git.signs(buf), { "GitGutterChange" })
+      end, 10),
+      "dirty buffer did not acquire its index diff"
+    )
+
+    vim.cmd.undo()
+    vim.api.nvim_exec_autocmds("TextChanged", { buffer = buf })
+    assert(
+      vim.deep_equal(
+        vim.api.nvim_buf_get_lines(buf, 0, -1, false),
+        { "first", "second", "third" }
+      ),
+      "undo did not restore the indexed bytes"
+    )
+    assert(#git.signs(buf) == 0, "undo to clean retained a stale sign")
+
+    vim.cmd.redo()
+    vim.api.nvim_exec_autocmds("TextChanged", { buffer = buf })
+    assert(
+      vim.deep_equal(git.signs(buf), { "GitGutterChange" }),
+      "redo did not restore the changed-line sign"
+    )
+    assert(git.read(dir .. "/A") == original, "editing changed disk bytes")
+    assert(git.run(dir, "show", ":A") == original, "editing changed the index")
+  end, debug.traceback)
+
+  vim.cmd.enew({ bang = true })
+  vim.fn.delete(dir, "rf")
+  assert(ok, err)
+end
+
 return T

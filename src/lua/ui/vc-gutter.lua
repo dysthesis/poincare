@@ -71,8 +71,12 @@ local function render(buf)
 
   vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
 
-  local hunks =
-    vim.text.diff(bufstate.base, buffer_text(buf), { result_type = "indices" })
+  local text = buffer_text(buf)
+  if text == bufstate.base then
+    return
+  end
+
+  local hunks = vim.text.diff(bufstate.base, text, { result_type = "indices" })
 
   local nlines = vim.api.nvim_buf_line_count(buf)
 

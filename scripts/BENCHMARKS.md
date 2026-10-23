@@ -476,6 +476,16 @@ successful processes. This reduces exposure to slowly varying nuisance time and
 environment conditions; it cannot make the host stationary or eliminate all
 carryover effects.
 
+Project and HOME/XDG paths are fixed **per target/workload**, not shared between
+targets. A path- or state-dependent external service can therefore be confounded
+with the target label despite adjacent AB/BA ordering. The 2026-10-24 investigation
+in `OPTIMISATION.md` observed an indexed-completion slow mode that followed the
+original project/state path pair when the two editor binaries were crossed over.
+A surprising signal needs causal attribution and a separately planned
+path-controlled experiment; neither a significance label nor a favorable rerun
+alone establishes a code effect. Shared-path diagnostics must record that altered
+isolation policy and account for cache/carryover effects.
+
 Choose endpoints, practical threshold, confidence, process count and analysis
 settings before the comparison. An **independent pilot** can inform a fixed
 repeat count and plausible block length. Do not keep sampling until the desired

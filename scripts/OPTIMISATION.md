@@ -354,3 +354,360 @@ from each target). Its `baseline` and `lint-candidate` links are registered Nix 
 roots for the exact measured packages, so comparisons do not depend on `result`
 or a later package rebuild. The `/tmp` experiment and smoke directories were
 removed only after successful archiving and archive-integrity checks.
+
+## 2026-10-24 follow-up: broader coverage and identical-buffer diffing
+
+### Acquisition and repository-wide reassessment
+
+Starting source: `cfee578c`, with an empty working copy. The existing lint
+coalescing optimisation and all prior findings above were retained as the
+starting point, not credited again. The workload recipe remains `just bench`;
+there is no `benchmark` recipe.
+
+The fresh survey covered the runtime entrypoint, all production Lua modules,
+language specifications/server configurations/queries, Nix packaging and native
+patches, active/legacy tests, benchmark acquisition/transport/statistics/display,
+headless profiling, and size/history tooling. Two independent read-only surveys
+covered UI/VC/persistence and language/parser/plugin paths. Their findings were
+synthesized with the measured paths:
+
+- Startup assembles thin plugin configuration and language mechanisms; Nix
+  supplies immutable plugin/parser/query paths. No new loader or eager query
+  prewarming was introduced.
+- Gutter rendering synchronously materializes the entire buffer, diffs against
+  the current index snapshot, and replaces signs. Its request identity and
+  path/root guards remain essential. Existing small-file benchmarks do not
+  represent large tracked-file editing.
+- Blame serializes unsaved contents after its intentional 150 ms debounce;
+  Git/JJ subprocess work is asynchronous. VC status already caches/coalesces
+  repository requests. Pins persist at most ten new selections per project;
+  split/tmux and tab behavior have separate interaction contracts.
+- Statusline project-root lookup is uncached; diagnostic counts and client
+  names are recomputed on render. Static complexity alone does not justify a
+  filesystem or diagnostic cache.
+- Formatting blocks the write and preserves hunk positions, metadata and undo.
+  Linting already coalesces same-turn events. Foldtext queries header rows in
+  active trees without a full-buffer parse of its own.
+- The largest standard endpoints remain LuaLS workspace readiness and native
+  parsing/query construction. Rust-analyzer is still unavailable in this
+  environment, so its synchronous Cargo/sysroot resolver cannot explain the
+  measured Rust-open endpoint.
+- Benchmark preparation, package builds, report rendering, profiling and size
+  notes are not editing latency. The remote-UI observer requests a checked
+  forced redraw; physical display latency is not measured.
+- The excluded legacy linter tests and mismatched Bombadil lint paths are not
+  evidence of active linter correctness. The isolated real-tool regressions
+  remain the applicable verification path.
+
+Evidence directory:
+`~/.local/state/poincare/benchmarks/20261024-optimization/`.
+The `baseline` and `equal-candidate` links retain the measured packages as Nix GC
+roots. Host/runtime: Ryzen 7 5800X, 16 logical CPUs, Linux 7.2.11-cachyos,
+Python 3.14.7, Neovim `v0.13.0-nightly+d039f19`, Release, LuaJIT 2.1.1785763465.
+Initial load average was 0.73/1.40/1.45. No CPU affinity, governor, thermal or
+page-cache control was imposed; desktop activity remains an uncontrolled factor.
+The same development-shell tool environment was used for both targets.
+
+Baseline package: `/nix/store/f56ry441dsjsxhng7ag2qcgk2mmsqrq0-poincare`,
+wrapper SHA-256
+`d840d2aa2fc043d0f78573ab62bbc8f6f2f92396019de3f11086784b093680e9`.
+Candidate package: `/nix/store/xk1m0394z5q9pl6qsfxmygsljdy0nxbd-poincare`,
+wrapper SHA-256
+`e3dee3178cc751cbd91d492c22a6e254069727907d4293950e1e43f49e61fd9c`.
+
+Unlike the earlier study's `/tmp` tmpfs, these fixtures and isolated state live
+on local Btrfs on the encrypted home filesystem. Save/lint timings therefore
+must not be treated as a causal regression against yesterday's measurements.
+No filesystem setting or production write policy was changed.
+
+### Fresh full baseline and HCI ranking
+
+```sh
+E="$HOME/.local/state/poincare/benchmarks/20261024-optimization"
+nix build .#poincare --out-link "$E/baseline"
+just bench run --nvim "$E/baseline/bin/nvim" --suite all \
+  --repeat 30 --warmups 3 --resamples 100000 --confidence 0.95 \
+  --practical 0.05 --seed 20261024 --output "$E/baseline-all.jsonl" \
+  --plain --no-progress
+```
+
+All **891/891 observations passed**. Warm state still means reused isolated
+HOME/XDG with a fresh process per observation. The following median intervals
+are adjusted across all 27 endpoints for the approximate 95% family target.
+Thirty observations do not resolve tail latency reliably.
+
+| Endpoint | Median ms | Adjusted median interval ms |
+| --- | ---: | --- |
+| startup-empty | 43.05 | 42.15–44.03 |
+| startup-file | 77.77 | 76.29–79.98 |
+| open-python | 55.71 | 55.31–56.32 |
+| open-rust | 89.33 | 88.71–90.02 |
+| open-nix | 40.44 | 39.43–41.39 |
+| open-large | 58.58 | 57.70–60.41 |
+| open-large-highlighted | 135.5 | 133.7–136.9 |
+| edit-insert | 3.324 | 2.950–3.566 |
+| edit-paste-undo | 20.22 | 19.68–20.83 |
+| treesitter-motion | 10.62 | 10.13–10.96 |
+| folds | 11.30 | 9.782–11.99 |
+| scroll | 11.40 | 11.15–11.70 |
+| buffer-switch | 15.00 | 14.21–16.57 |
+| split-resize | 18.43 | 17.60–18.88 |
+| completion-buffer | 51.27 | 50.23–51.87 |
+| picker-files-first | 21.00 | 19.87–22.36 |
+| picker-files-repeat | 13.78 | 13.28–14.59 |
+| picker-grep | 21.94 | 21.61–23.00 |
+| git-gutter | 0.8423 | 0.7234–1.016 |
+| git-blame | 154.1 | 153.9–154.4 |
+| pins-select | 11.09 | 10.26–12.02 |
+| format-save-lua | 26.73 | 26.19–52.28 |
+| lint-lua | 36.58 | 34.98–60.21 |
+| lsp-lua-ready | 51.87 | 50.89–53.21 |
+| lsp-definition | 881.4 | 785.5–883.0 |
+| completion-lsp-indexed | 15.09 | 14.47–15.56 |
+| redraw-control | 0.2851 | 0.2516–0.3099 |
+
+Priority is not simply descending duration:
+
+1. First definition approaches the 1 s continuity boundary; visible large-file
+   syntax exceeds the roughly 100 ms instantaneous-response guide. They remain
+   highest-impact measured delays, but the previous native/server attribution
+   supplies no safe owned-code shortcut.
+2. Repeated editing stalls can matter below 100 ms. Large tracked-file editing
+   is an owned synchronous path absent from the original three-line gutter
+   endpoint, making this a worthwhile independent coverage experiment.
+3. Rust opening and file startup approach 100 ms; completion includes its
+   intentional 30 ms debounce. No delay was reduced or work moved into preparation
+   to improve a score.
+4. Ordinary save/lint, picking, switching, folds, scrolling and insertion are
+   below 100 ms here. Save is blocking; lint and VC subprocess completion are
+   different concerns. Blame's 154 ms includes intentional debounce and is an
+   annotation, not an equivalent 154 ms input stall.
+5. Calibration is instrumentation evidence, not a user action. No empirical
+   workload-frequency data exists, so there is still no weighted aggregate.
+
+### Iteration 1: avoid diffing identical snapshots
+
+The independent text-file pilots retain the three original gutter lines and
+append distinct tracked lines, using the real Git index and unchanged dirty/edit
+checks. Eight measured processes plus two warmups yielded exploratory medians
+of **5.722 ms for 12,004 lines** and **39.82 ms for 100,000 lines**.
+One instrumented 100,000-line edit recorded one native diff call taking
+20.354 ms and gutter line retrieval taking 10.049 ms. This is diagnostic
+attribution, not an additive decomposition of uninstrumented medians.
+
+An initial pilot incorrectly replaced the oracle's hard-coded second line.
+It timed out despite correct signs and was interrupted after nine saved failed
+observations. `gutter-12k-pilot.jsonl` is incomplete invalid setup, not a
+production failure or a usable timing sample. No failure was retried within a
+scored schedule. The corrected driver passed an independent preflight before
+new fixed pilots/comparisons were started.
+
+Hypothesis, fixed before editing: after clearing old signs and serializing once,
+if buffer bytes equal the index snapshot, return without invoking the native
+diff. Otherwise preserve the existing diff options and all sign/lifecycle
+behavior. This removes redundant work without a changedtick cache, debounce,
+async race, alternate diff algorithm or size threshold.
+
+The undo experiment moves the existing real `u`/`gutter-reset` step from untimed
+preparation into the measured action, after proving a dirty sign. Its existing
+oracle verifies no signs and exact whole-buffer restoration, then forces redraw.
+Whole-buffer oracle reads remain included, so these are **not isolated undo
+handler times**. This is explicitly a separate experiment, not a replacement
+score for the standard dirty-edit endpoint. Journals retain the inherited
+`git-gutter` catalog name/action description; the experiment description, actual
+dispatched action and checked `gutter-reset` oracle distinguish undo from edit.
+
+The fixed plan in `hypotheses.md` selected 60 adjacent balanced AB/BA pairs plus
+three warmups for 12k undo, 100k undo and 100k dirty edit, seeds 2420/2421/2422,
+100,000 resamples and a 5% practical band. Each comparison used confidence
+`1 - 0.05/3`, adjusting the three-experiment primary family. Retention requires
+a supported >5% improvement and at least 3 ms saving on 100k undo, no material
+dirty-edit regression, and passing correctness checks.
+
+All **378/378 observations passed**:
+
+| Experiment | Baseline median ms | Candidate median ms | Paired change, adjusted interval |
+| --- | ---: | ---: | --- |
+| 12,004-line undo to clean | 5.281 | 3.314 | −37.92% [−39.74%, −36.26%] |
+| 100,000-line undo to clean | 73.15 | 52.90 | −28.18% [−28.71%, −27.63%] |
+| 100,000-line dirty edit | 31.53 | 31.71 | −0.116% [−1.418%, +0.978%] |
+
+Mean paired savings are **20.712 ms [20.217, 21.219]** for 100k undo and
+**2.048 ms [1.921, 2.208]** for 12k undo. Dirty edits are within ±5%; their mean
+candidate-minus-baseline effect is −0.050 ms [−0.486, +0.308].
+Paired log-ratio lag-1 associations were 0.141, −0.113 and −0.044 respectively;
+these are diagnostics, not guarantees of stationarity or interval coverage.
+The substantially different unpaired dirty-edit pilot and confirmatory medians
+reinforce the need for adjacent comparisons rather than historical ratios.
+
+The change is confined to `src/lua/ui/vc-gutter.lua::render`. The added
+`tests/regressions/gutter-empty.lua` case checks dirty → undo-to-clean → redo,
+including unchanged disk/index bytes. Existing tests cover zero-byte versus
+one-newline buffers, EOL metadata, pre-write edits, index replacement, stale
+success/failure, rename/root transitions, deletion and non-file buffers.
+After formatting the two changed Lua files, `just test` passed **60 isolated
+regression cases and 54 unit cases**; `just benchmark-test` passed **105 tests**.
+Expected sandbox read-only probes, optional-tool warnings and pre-existing
+fixture-cleanup E211 messages were not hidden.
+
+### Broad validation and a completion regression signal
+
+The fixed full paired run (`equal-all-paired.jsonl`, seed 2423) completed
+**1,782/1,782 successful observations**, 30 pairs plus three warmups per
+endpoint, 100,000 resamples, 95% family target across 27 endpoints and ±5%
+practical band. Semantic success did **not** imply performance acceptance.
+Twelve endpoints were within the practical band, fourteen were inconclusive,
+and indexed completion was classified as a regression:
+
+- `completion-lsp-indexed`: baseline/candidate medians 14.837/15.129 ms,
+  paired **+47.37% [+11.08%, +89.40%]**, mean paired increase
+  **11.794 ms [3.626, 18.854]**. Nine of thirty candidate observations entered
+  a roughly 52–56 ms mode; no baseline observation exceeded 30 ms.
+- First definition remained multimodal and inconclusive: 881.7/916.7 ms,
+  paired +4.97% [−3.77%, +13.1%].
+- Visible large-file syntax remained within ±5%: 133.3/133.3 ms,
+  paired −0.20% [−1.29%, +0.736%].
+- Startup, opening, ordinary formatting and attachment had intervals within
+  ±5%. Several short editing endpoints were inconclusive, not proof of no
+  regression.
+
+The candidate was **not accepted from focused results alone**. The unexpected
+completion mode triggered server/client source investigation and explicit
+cross-over diagnostics. Separate fixed fixture/state paths are associated with
+target labels in the ordinary suite; cross-over experiments must distinguish
+binary effects from path-dependent server behavior. The original full-suite
+result remains evidence and is not replaced by a favorable later result.
+
+### Iteration 2: diagnostic-heavy UI reassessment
+
+After the focused gutter improvement, the repository-wide ranking was revisited.
+The remaining large delays still have the previously identified native/server
+ownership; the equality guard does not solve dirty-buffer serialization/diffing.
+The next owned repeated path investigated was diagnostic-heavy statusline redraw.
+
+Two explicitly instrumented pilots published 1,000 and 10,000 deterministic
+diagnostics through the real `vim.diagnostic.set` API, then ran the existing
+four-motion Python scroll with its unchanged cursor/topline/redraw checks.
+These are controlled rendering loads, **not real LSP diagnostic acquisition or
+claims about typical user diagnostic counts**. Eight measured processes and two
+warmups each passed. Medians were 9.824 ms and 19.88 ms; the median time inside
+the six diagnostic-count calls was 0.403 ms and 3.578 ms respectively.
+The native `_store.count` iterates diagnostics; it does not deep-copy the
+public `vim.diagnostic.get` result.
+
+Decision: **do not add a diagnostic-count cache**. This experiment does not
+support a user-perceptible gain at 1,000 diagnostics, and even the 10,000-item
+load spends only a few milliseconds counting across the whole four-motion
+burst. A cache would add reset/multiple-namespace/buffer-lifetime invalidation
+for limited demonstrated value. No production diagnostic code was changed.
+
+### Completion cross-over resolution
+
+The independent diagnostic design preserved the user action and definition
+readiness barrier, wrapped RPC send/reply timestamps, and alternated both
+editor binaries through the same two project/state locations. The first fixed
+24-pair diagnostic on two new shared locations had no slow-mode observation;
+paired +1.14% [−1.66%, +4.83%], within ±5% for that instrumented experiment.
+That alone does not explain or invalidate the original regression signal.
+
+The decisive next 24-pair diagnostic crossed both binaries through the **exact
+original full-suite project and state paths**. All 52 observations including
+warmups passed. Slow-mode counts (>30 ms, descriptive only; nothing filtered):
+
+| Binary | Original baseline path pair | Original candidate path pair |
+| --- | ---: | ---: |
+| Baseline | 0/12 | 5/12 |
+| Equality guard | 0/12 | 4/12 |
+
+The excess delay followed the path/state pair, **not the editor binary**.
+Slow samples dispatched completion roughly 4.5–7 ms after readiness, then
+waited 44.7–48 ms for its reply instead of roughly 6 ms. Other post-edit
+server replies were delayed together. The trace includes client transport and
+dispatch, not isolated server CPU time. Project and HOME/XDG paths were crossed
+together; this does not identify which component or internal server condition
+caused the path sensitivity.
+
+Source tracing confirmed explicit omnifunc completion bypasses the configured
+30 ms automatic-completion timer. Native `Client:request` flushes pending text
+changes before dispatch, rather than waiting the default 150 ms change debounce.
+A separately armed automatic timer can issue a second request while the first
+is outstanding; the observed slow first request was already dispatched, so this
+does not justify attributing its delay to that timer. LuaLS checks workspace
+readiness, reparses changed text as needed, and uses coroutine scheduling; no
+fixed 40 ms delay was established from the completion handler itself.
+
+A final **uninstrumented** fixed check used 60 adjacent pairs, three warmups,
+100,000 resamples, seed 2432, 95% confidence and ±5% practical band. Within each
+pair both binaries used the same exact project/state location; pairs alternated
+between the two original locations. All **126/126 observations passed**.
+Baseline/candidate medians were 15.19/14.85 ms; paired −7.28%
+[−20.0%, +8.60%], **inconclusive**, not an equivalence or improvement claim.
+Both binaries again showed the slow mode only on the original candidate path
+(10/30 baseline and 6/30 candidate); neither did on the original baseline path.
+State is deliberately shared in these diagnostics, unlike the standard suite.
+Fresh editor/server processes, restored fixture content, actual paths and
+cache-policy limitations are retained in the journals/driver; carryover is not
+assumed absent.
+
+Decision: the full-suite completion label is confounded with the path/state pair
+and does not establish a gutter-induced regression. Retain the equality guard
+for its separately demonstrated undo improvement and small implementation.
+Do **not** claim full-suite equivalence: fourteen original endpoints and the
+path-controlled completion comparison remain inconclusive, and tails remain
+underresolved. The benchmark documentation now explicitly records this
+target-path confound; no acquisition oracle, endpoint or production completion
+behavior was changed to hide it.
+
+### Follow-up stopping decision
+
+One additional production optimisation is retained: exact-byte equality before
+native gutter diffing. No previous optimisation is credited again. The new
+behavior has a checked real-UI benefit, a dirty-edit control, an undo/redo
+regression, and full correctness/broad-performance coverage with the limitations
+above. It does not skip dirty-buffer work or change Git freshness semantics.
+
+The global ranking was revisited after the new baseline, large-file attribution,
+focused candidate comparisons, full-suite regression signal, diagnostic-heavy
+scroll probes and completion cross-over investigation. Further changes do not
+currently have comparable evidence-to-complexity value:
+
+- Native large-file parsing/query compilation and first LuaLS definition remain
+  the largest standard delays. Moving or disabling the work is not an
+  optimisation; an upstream change requires its own semantic investigation.
+- Dirty large-file edits still serialize and diff whole buffers. Incremental
+  diff maintenance, asynchronous workers or delayed signs would introduce
+  substantial invalidation/latency trade-offs not supported by the present
+  clean-snapshot experiment.
+- Diagnostic counting is measured but too small here to justify a new cache.
+  Root lookup on slow/deep filesystems, Rust's actual Cargo/sysroot lifecycle,
+  very large Git/JJ projects and tmux boundaries still lack representative
+  environment evidence. Local synthetic scores cannot resolve those risks.
+- The path-dependent LuaLS delay is reproducible with the unchanged baseline
+  binary. Its exact upstream cause remains unresolved; changing completion
+  timers or workspace scope would hide the symptom rather than address it.
+- Loader caching, deferred gutter index refresh and the invalid formatter
+  shortcut retain their previous rejection status. The Selene crash observation
+  remains unresolved; this investigation did not repeat the unsafe large-save
+  workload or claim it fixed.
+
+### Durable evidence and cleanup
+
+All raw journals (including the invalid first pilot), diagnostic drivers,
+cross-over server state/logs, architectural survey reports, final source/test
+snapshots and command output are preserved in:
+
+`~/.local/state/poincare/benchmarks/20261024-optimization-evidence.tar.gz`
+
+Archive SHA-256:
+`7dc1e4a35fbbec7b5b44fed6de73df8512d813089ed50b25964cb168b7044075`.
+The gzip integrity check passed, the tar index contained 4,592 entries and all
+required journals/drivers/snapshots, and no process remained with a working
+directory inside the experiment workspace. Archived raw journals, temporary
+drivers and disposable projects/state were then removed from the live evidence
+directory. Extract the archive to a scratch directory to replay raw journals;
+the saved experiment drivers also document the modified acquisition policies.
+
+The evidence directory keeps compact effect/full-suite summaries, verification
+output, hypotheses, source-investigation reports and `archive.sha256`, alongside
+the `baseline` and `equal-candidate` Nix GC roots. Existing repository artifacts,
+prior evidence, unrelated jj changes and bookmark conflicts were left untouched.
