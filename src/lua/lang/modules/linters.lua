@@ -24,6 +24,23 @@ local function run(bufnr)
   end)
 end
 
+-- FileType and lazy-load read replay can describe the same buffer activation.
+local pending = {}
+
+local function request(bufnr)
+  if pending[bufnr] then
+    return
+  end
+
+  pending[bufnr] = true
+  vim.schedule(function()
+    pending[bufnr] = nil
+    if vim.api.nvim_buf_is_loaded(bufnr) then
+      run(bufnr)
+    end
+  end)
+end
+
 require("lz.n").load({
   "nvim-lint",
 
@@ -56,7 +73,7 @@ function M.setup()
 
     callback = function(event)
       if vim.bo[event.buf].filetype ~= "" then
-        run(event.buf)
+        request(event.buf)
       end
     end,
   })
@@ -65,9 +82,8 @@ function M.setup()
   -- has not run yet, the FileType autocmd above handles this first buffer.
   local current = vim.api.nvim_get_current_buf()
   if vim.bo[current].filetype ~= "" then
-    run(current)
+    request(current)
   end
-
 end
 
 function M.register(lang, spec)

@@ -106,11 +106,17 @@ active trees. Missing highlighters or highlight queries leave the text plain.
 
 Language specs register nvim-lint names through `modules/linters.lua` (one name
 or a list of names). nvim-lint loads on the first buffer read or write and runs
-available executables on reads and writes. If the initial file has not yet
-received its filetype at load time, linting waits for its `FileType` event; this
-also covers a file supplied as the first Neovim command-line argument. A later
-`FileType` event can lint a buffer after its filetype changes. Clean results
-replace earlier diagnostics from the same linter.
+available executables on reads and writes. Requests for the same buffer within
+one event-loop turn are coalesced, so filetype detection and lazy-load read
+replay do not start and cancel duplicate processes. The scheduled run uses that
+buffer's latest contents and filetype, even if another buffer is now current;
+unloaded buffers are skipped. There is no timed debounce or result cache:
+later reads and writes still run the linter.
+
+If the initial file has not yet received its filetype at load time, linting waits
+for its `FileType` event; this also covers the first Neovim command-line argument.
+A later `FileType` event can lint a buffer after its filetype changes. Clean
+results replace earlier diagnostics from the same linter.
 
 ## SQLite
 

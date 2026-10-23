@@ -88,4 +88,52 @@ T["first " .. (cli and "CLI argument" or "ordinary edit") .. " gets Selene diagn
   assert(ok, err)
 end
 
+T["queued reads lint the target buffers and skip unloaded buffers"] = function()
+  local dir = assert(vim.uv.fs_mkdtemp("/tmp/poincare-queued-lint-XXXXXX"))
+  local previous = vim.fn.getcwd()
+  local buffers = {}
+  local ok, err = xpcall(function()
+    vim.fn.chdir(dir)
+    vim.fn.writefile({ 'std = "lua51"' }, dir .. "/selene.toml")
+    for _, name in ipairs({ "first", "second", "deleted" }) do
+      vim.fn.writefile(
+        { "print(" .. name .. "_missing)" },
+        dir .. "/" .. name .. ".lua"
+      )
+      vim.cmd.edit(dir .. "/" .. name .. ".lua")
+      buffers[name] = vim.api.nvim_get_current_buf()
+    end
+    vim.cmd.bwipeout({ bang = true })
+    assert(not vim.api.nvim_buf_is_loaded(buffers.deleted))
+
+    for _, name in ipairs({ "first", "second" }) do
+      assert(
+        vim.wait(3000, function()
+          for _, diagnostic in ipairs(selene(buffers[name])) do
+            if
+              diagnostic.code == "undefined_variable"
+              and diagnostic.message:find(name .. "_missing", 1, true)
+            then
+              return true
+            end
+          end
+          return false
+        end, 20),
+        "queued lint did not use the " .. name .. " buffer"
+      )
+    end
+  end, debug.traceback)
+
+  vim.cmd.enew({ bang = true })
+
+  for _, bufnr in pairs(buffers) do
+    if vim.api.nvim_buf_is_valid(bufnr) then
+      vim.api.nvim_buf_delete(bufnr, { force = true })
+    end
+  end
+  vim.fn.chdir(previous)
+  vim.fn.delete(dir, "rf")
+  assert(ok, err)
+end
+
 return T
