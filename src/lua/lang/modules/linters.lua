@@ -20,6 +20,7 @@ local function run(bufnr)
   vim.api.nvim_buf_call(bufnr, function()
     require("lint").try_lint(nil, {
       filter = available,
+      ignore_errors = true,
     })
   end)
 end
