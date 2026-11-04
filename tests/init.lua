@@ -20,6 +20,7 @@ require("mini.test").setup({
         -- tests/linters.lua targets a deferred built-in linter, not nvim-lint.
         "tests/statusline-diagnostic.lua",
         "tests/tab.lua",
+        "tests/treesitter.lua",
       }
     end,
   },

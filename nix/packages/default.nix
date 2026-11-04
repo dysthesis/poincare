@@ -34,9 +34,14 @@
       zig
       c
 
-      (nix.overrideAttrs (_: {
-        src = inputs.tree-sitter-nix;
-        version = "0.0.0+rev=${inputs.tree-sitter-nix.shortRev}";
+      (nix.overrideAttrs (_: rec {
+        # The Neovim wrapper links origGrammar; overriding its src has no effect.
+        origGrammar = pkgs.tree-sitter.buildGrammar {
+          language = "nix";
+          src = inputs.tree-sitter-nix;
+          version = "0.5.0+rev=${inputs.tree-sitter-nix.shortRev}";
+        };
+        version = origGrammar.version;
       }))
 
       lua
