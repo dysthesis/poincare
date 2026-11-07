@@ -14,6 +14,7 @@ require("mini.test").setup({
   collect = {
     find_files = function()
       return {
+        "tests/autopair.lua",
         "tests/formatters.lua",
         "tests/folds.lua",
         "tests/lua-libraries.lua",

@@ -4,6 +4,7 @@ require("lz.n").load({
   after = function()
     require("mini.pairs").setup({
       modes = { insert = true, command = true, terminal = true },
+      mappings = { ["'"] = false },
     })
   end,
 })
