@@ -25,9 +25,9 @@
       },
       "branch": "main",
       "submodules": false,
-      "revision": "e583de52cc532f9387951fbb83e433ed2d8f1e2d",
-      "url": "https://github.com/dysthesis/minimal.nvim/archive/e583de52cc532f9387951fbb83e433ed2d8f1e2d.tar.gz",
-      "hash": "sha256-O+bZNMiyMFYkjqCSGUh6XszzN39XXzjSFKIRVxzMBlY="
+      "revision": "4dd89ff293f65fc867c8f46ad3e0fd736a87b3cc",
+      "url": "https://github.com/dysthesis/minimal.nvim/archive/4dd89ff293f65fc867c8f46ad3e0fd736a87b3cc.tar.gz",
+      "hash": "sha256-xVqijmBbSD7RxLutV0pqBj8Wrl3P6GSlVo9LYZG/QOc="
     }
   },
   "version": 8

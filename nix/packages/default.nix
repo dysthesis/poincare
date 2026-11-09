@@ -29,6 +29,7 @@
   in
     with p; [
       markdown
+      comment
       rust
       go
       zig
