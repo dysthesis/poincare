@@ -34,6 +34,8 @@
       go
       zig
       c
+      typst
+      typst.associatedQuery
 
       (nix.overrideAttrs (_: rec {
         # The Neovim wrapper links origGrammar; overriding its src has no effect.
@@ -42,7 +44,7 @@
           src = inputs.tree-sitter-nix;
           version = "0.5.0+rev=${inputs.tree-sitter-nix.shortRev}";
         };
-        version = origGrammar.version;
+        inherit (origGrammar) version;
       }))
 
       lua
