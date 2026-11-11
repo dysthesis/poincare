@@ -35,7 +35,6 @@
       zig
       c
       typst
-      typst.associatedQuery
 
       (nix.overrideAttrs (_: rec {
         # The Neovim wrapper links origGrammar; overriding its src has no effect.
